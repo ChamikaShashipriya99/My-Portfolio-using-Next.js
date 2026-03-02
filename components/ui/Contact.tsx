@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import GlassCard from './GlassCard';
 import emailjs from '@emailjs/browser';
-import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane } from 'react-icons/hi';
+import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone } from 'react-icons/hi';
 
 export default function Contact() {
     const formRef = useRef<HTMLFormElement>(null);
@@ -58,7 +58,17 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Email Me</div>
-                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">your@email.com</div>
+                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">chamikashashipriya3@gmail.com</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-6 group">
+                                <div className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
+                                    <HiPhone className="text-2xl 3xl:text-4xl" />
+                                </div>
+                                <div>
+                                    <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Call Me</div>
+                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">0704120358</div>
                                 </div>
                             </div>
 
@@ -68,7 +78,7 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Location</div>
-                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">Sri Lanka (Worldwide Ready)</div>
+                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">Ambalangoda & Malabe, Sri Lanka</div>
                                 </div>
                             </div>
                         </div>

@@ -48,11 +48,15 @@ export default function Footer() {
                         <ul className="space-y-6">
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Email</span>
-                                <a href="mailto:your@email.com" className="text-gray-400 hover:text-white transition-colors font-medium">your@email.com</a>
+                                <a href="mailto:chamikashashipriya3@gmail.com" className="text-gray-400 hover:text-white transition-colors font-medium">chamikashashipriya3@gmail.com</a>
+                            </li>
+                            <li className="text-sm 3xl:text-xl">
+                                <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Phone</span>
+                                <span className="text-gray-400 font-medium">0704120358</span>
                             </li>
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Location</span>
-                                <span className="text-gray-400 font-medium">Sri Lanka (Worldwide Ready)</span>
+                                <span className="text-gray-400 font-medium">Ambalangoda & Malabe, Sri Lanka</span>
                             </li>
                         </ul>
                     </div>
@@ -60,14 +64,7 @@ export default function Footer() {
 
                 <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="text-gray-600 text-[10px] md:text-xs 3xl:text-lg font-mono tracking-[0.3em] uppercase">
-                        &copy; {new Date().getFullYear()} dev.portfolio &bull; all rights reserved
-                    </div>
-
-                    <div className="text-gray-700 text-[10px] 3xl:text-base items-center flex gap-4 uppercase tracking-[0.4em] font-mono">
-                        <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 3xl:w-2 3xl:h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                            Mainframe: Active
-                        </div>
+                        &copy; {new Date().getFullYear()} Chamika.portfolio &bull; all rights reserved
                     </div>
                 </div>
             </div>
