@@ -36,7 +36,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
                         INITIALIZING <span className="text-blue-500">SYSTEM</span>
                     </h2>
                     <p className="text-gray-500 text-sm font-mono uppercase tracking-widest">
-                        Loading 3D Experience Framework
+                        Loading Chamika Shashipriya Portfolio
                     </p>
                 </motion.div>
 

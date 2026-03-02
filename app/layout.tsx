@@ -12,12 +12,15 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-    title: "Dev Portfolio | Premium 3D Experience",
+    title: "Chamik.Dev Portfolio",
     description: "Futuristic 3D Web Developer Portfolio built with Next.js, Three.js, and Framer Motion.",
+    icons: {
+        icon: "/favicon.png",
+    },
     openGraph: {
-        title: "Dev Portfolio | Premium 3D Experience",
+        title: "Chamik.Dev Portfolio",
         description: "Futuristic 3D Web Developer Portfolio",
-        url: "https://your-portfolio.vercel.app",
+        url: "https://chamika-shashipriya.vercel.app/",
         siteName: "Portfolio",
         images: [
             {
