@@ -12,16 +12,13 @@ import Experience from '@/components/ui/Experience';
 import Contact from '@/components/ui/Contact';
 import Footer from '@/components/ui/Footer';
 import SkillsMarquee from '@/components/ui/SkillsMarquee';
-import { Canvas } from '@react-three/fiber';
-
-// Dynamic imports for 3D components to avoid SSR issues
-const SceneCanvas = dynamic(() => import('@/components/3d/Canvas'), { ssr: false });
+import Background from '@/components/ui/Background';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
 
     return (
-        <main className="relative bg-black min-h-screen">
+        <main className="relative min-h-screen">
             <AnimatePresence>
                 {loading && <Loader onComplete={() => setLoading(false)} />}
             </AnimatePresence>
@@ -32,12 +29,8 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1 }}
                 >
+                    <Background />
                     <Navbar />
-
-                    {/* 3D Background */}
-                    <Suspense fallback={null}>
-                        <SceneCanvas />
-                    </Suspense>
 
                     <div className="relative z-10">
                         <Hero />

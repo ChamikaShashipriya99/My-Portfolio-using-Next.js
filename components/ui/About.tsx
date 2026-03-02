@@ -24,11 +24,6 @@ export default function About() {
                             className="w-full h-full object-cover rounded-2xl grayscale hover:grayscale-0 transition-all duration-500"
                         />
                     </div>
-
-                    <div className="absolute -bottom-6 -right-6 glassmorphism p-6 rounded-2xl border border-white/10 hidden md:block">
-                        <div className="text-3xl xl:text-4xl font-bold text-white tracking-tighter">5+</div>
-                        <div className="text-xs xl:text-sm text-gray-400 uppercase tracking-widest leading-none">Years of <br />Experience</div>
-                    </div>
                 </motion.div>
 
                 <motion.div
