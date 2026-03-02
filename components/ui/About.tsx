@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import GlassCard from './GlassCard';
 import Image from 'next/image';
+import { CodeXml, Heart, Coffee, Lightbulb } from 'lucide-react';
 
 export default function About() {
     return (
@@ -48,18 +49,42 @@ export default function About() {
                         My journey in web development began with a curiosity for how things work on the internet. Since then, I&apos;ve honed my skills in both frontend and backend technologies, always striving to learn and adapt to new trends. I enjoy collaborating with others, solving complex problems, and delivering high-quality solutions that make a difference.
                     </p>
 
-                    <GlassCard className="!p-8 3xl:!p-12" hoverScale={false}>
-                        <div className="grid grid-cols-2 gap-8 3xl:gap-16">
-                            <div>
-                                <h4 className="text-white font-bold mb-2 3xl:text-2xl">Architecture</h4>
-                                <p className="text-sm 3xl:text-lg text-gray-500">Atomic Design & Micro-frontends</p>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold mb-2 3xl:text-2xl">Performance</h4>
-                                <p className="text-sm 3xl:text-lg text-gray-500">Fast 60fps web experiences</p>
-                            </div>
-                        </div>
-                    </GlassCard>
+                    <div className="grid grid-cols-2 gap-4 3xl:gap-8">
+                        {[
+                            {
+                                icon: <CodeXml className="w-6 h-6 text-white" />,
+                                title: "Clean Code",
+                                desc: "Quality & maintainability",
+                                color: "bg-blue-500"
+                            },
+                            {
+                                icon: <Heart className="w-6 h-6 text-white" />,
+                                title: "User Focus",
+                                desc: "User-centered design",
+                                color: "bg-pink-500"
+                            },
+                            {
+                                icon: <Coffee className="w-6 h-6 text-white" />,
+                                title: "Dedication",
+                                desc: "Committed to excellence",
+                                color: "bg-orange-500"
+                            },
+                            {
+                                icon: <Lightbulb className="w-6 h-6 text-white" />,
+                                title: "Innovation",
+                                desc: "Always learning",
+                                color: "bg-green-500"
+                            }
+                        ].map((item, i) => (
+                            <GlassCard key={i} className="flex flex-col items-center text-center p-6 3xl:p-10" hoverScale={true}>
+                                <div className={`${item.color} p-4 rounded-2xl mb-4 shadow-lg shadow-${item.color.split('-')[1]}-500/20`}>
+                                    {item.icon}
+                                </div>
+                                <h4 className="text-white font-bold mb-1 3xl:text-2xl">{item.title}</h4>
+                                <p className="text-[10px] 3xl:text-sm text-gray-500 uppercase tracking-wider">{item.desc}</p>
+                            </GlassCard>
+                        ))}
+                    </div>
                 </motion.div>
             </div>
         </section>

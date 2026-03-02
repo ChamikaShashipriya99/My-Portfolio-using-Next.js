@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
+import { useLenis } from 'lenis/react';
 
 const navItems = [
     { name: 'Home', href: '#home' },
@@ -18,6 +19,7 @@ export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Home');
+    const lenis = useLenis();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,6 +29,35 @@ export default function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Scroll Spy Logic
+    useLenis(({ scroll }) => {
+        const sections = navItems.map(item => ({
+            name: item.name,
+            offset: document.querySelector(item.href)?.getBoundingClientRect().top ?? 0,
+            id: item.href.replace('#', '')
+        }));
+
+        // Find the section that is currently most visible in the viewport
+        const currentSection = sections.reduce((acc, section) => {
+            if (section.offset <= 150) return section.name; // Threshold for active
+            return acc;
+        }, 'Home');
+
+        if (currentSection !== activeTab) {
+            setActiveTab(currentSection);
+        }
+    });
+
+    const handleNavClick = (e: React.MouseEvent, href: string, name: string) => {
+        e.preventDefault();
+        lenis?.scrollTo(href, {
+            offset: -100, // Account for fixed navbar height
+            duration: 1.5,
+        });
+        setActiveTab(name);
+        setMobileMenuOpen(false);
+    };
+
     return (
         <nav
             className={cn(
@@ -35,7 +66,11 @@ export default function Navbar() {
             )}
         >
             <div className="glassmorphism rounded-full px-6 py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-8 md:gap-12 3xl:gap-20 border border-white/10 shadow-2xl">
-                <a href="#home" className="text-white text-xl md:text-2xl 3xl:text-4xl font-cursive hover:text-blue-400 transition-colors cursor-pointer whitespace-nowrap">
+                <a
+                    href="#home"
+                    onClick={(e) => handleNavClick(e, '#home', 'Home')}
+                    className="text-white text-xl md:text-2xl 3xl:text-4xl font-cursive hover:text-blue-400 transition-colors cursor-pointer whitespace-nowrap"
+                >
                     Chamika<span className="text-blue-500">.</span>Shashipriya
                 </a>
 
@@ -45,7 +80,7 @@ export default function Navbar() {
                         <a
                             key={item.name}
                             href={item.href}
-                            onClick={() => setActiveTab(item.name)}
+                            onClick={(e) => handleNavClick(e, item.href, item.name)}
                             className={cn(
                                 'text-sm 3xl:text-xl font-bold uppercase tracking-widest transition-colors relative px-2 py-1',
                                 activeTab === item.name ? 'text-white' : 'text-gray-500 hover:text-white font-medium'
@@ -85,10 +120,7 @@ export default function Navbar() {
                             <a
                                 key={item.name}
                                 href={item.href}
-                                onClick={() => {
-                                    setActiveTab(item.name);
-                                    setMobileMenuOpen(false);
-                                }}
+                                onClick={(e) => handleNavClick(e, item.href, item.name)}
                                 className={cn(
                                     'text-lg font-medium py-2 border-b border-white/5',
                                     activeTab === item.name ? 'text-blue-400' : 'text-gray-300'

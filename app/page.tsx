@@ -13,6 +13,7 @@ import Contact from '@/components/ui/Contact';
 import Footer from '@/components/ui/Footer';
 import SkillsMarquee from '@/components/ui/SkillsMarquee';
 import Background from '@/components/ui/Background';
+import ScrollToTop from '@/components/ui/ScrollToTop';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -30,6 +31,7 @@ export default function Home() {
                     transition={{ duration: 1 }}
                 >
                     <Background />
+                    <ScrollToTop />
                     <Navbar />
 
                     <div className="relative z-10">
