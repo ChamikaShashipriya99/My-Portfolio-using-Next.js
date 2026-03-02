@@ -82,6 +82,21 @@ A high-performance, visually stunning developer portfolio built with modern web 
    ```
    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+
+1. **Push your code to GitHub.**
+2. **Import your repository into Vercel.**
+3. **Configure Environment Variables**:
+   In the Vercel project settings, add the following Environment Variables:
+   - `NEXT_PUBLIC_EMAILJS_SERVICE_ID`
+   - `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID`
+   - `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY`
+4. **Deploy**: Vercel will automatically detect Next.js and build your project.
+
 ---
 
 Built with ❤️ by Chamika Shashipriya
