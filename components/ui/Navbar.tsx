@@ -30,23 +30,51 @@ export default function Navbar() {
     }, []);
 
     // Scroll Spy Logic
-    useLenis(({ scroll }) => {
-        const sections = navItems.map(item => ({
-            name: item.name,
-            offset: document.querySelector(item.href)?.getBoundingClientRect().top ?? 0,
-            id: item.href.replace('#', '')
-        }));
+    const syncActiveTab = () => {
+        const sections = navItems.map(item => {
+            const el = document.querySelector(item.href);
+            return {
+                name: item.name,
+                offset: el ? el.getBoundingClientRect().top : Infinity,
+            };
+        });
 
         // Find the section that is currently most visible in the viewport
+        // We look for the last section whose top is less than or equal to a threshold
+        const threshold = 160;
         const currentSection = sections.reduce((acc, section) => {
-            if (section.offset <= 150) return section.name; // Threshold for active
+            if (section.offset <= threshold) return section.name;
             return acc;
         }, 'Home');
 
         if (currentSection !== activeTab) {
             setActiveTab(currentSection);
         }
+    };
+
+    useLenis(({ scroll }) => {
+        syncActiveTab();
     });
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+
+        // Initial sync on mount
+        syncActiveTab();
+
+        // Periodically sync for a short bit to handle async rendered components like Projects
+        const interval = setInterval(syncActiveTab, 500);
+        const timeout = setTimeout(() => clearInterval(interval), 3000);
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, []);
 
     const handleNavClick = (e: React.MouseEvent, href: string, name: string) => {
         e.preventDefault();
