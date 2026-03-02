@@ -61,6 +61,7 @@ export default function Galaxy() {
                     count={count}
                     array={positions}
                     itemSize={3}
+                    args={[positions, 3]}
                 />
             </bufferGeometry>
             <pointsMaterial
