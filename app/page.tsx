@@ -11,6 +11,7 @@ import Projects from '@/components/ui/Projects';
 import Experience from '@/components/ui/Experience';
 import Contact from '@/components/ui/Contact';
 import Footer from '@/components/ui/Footer';
+import BusinessCard from '@/components/ui/BusinessCard';
 import SkillsMarquee from '@/components/ui/SkillsMarquee';
 import Background from '@/components/ui/Background';
 import ScrollToTop from '@/components/ui/ScrollToTop';
@@ -41,6 +42,7 @@ export default function Home() {
                         <Projects />
                         <Experience />
                         <Contact />
+                        <BusinessCard />
                         <Footer />
                     </div>
                 </motion.div>
