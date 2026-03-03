@@ -3,6 +3,7 @@ import { Inter, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import SmoothScrolling from "@/components/smooth-scrolling";
+import ClarityScript from "@/components/ClarityScript";
 
 const inter = Inter({ subsets: ["latin"] });
 const dancingScript = Dancing_Script({
@@ -42,6 +43,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.className} ${dancingScript.variable} antialiased`}>
+                <ClarityScript />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
