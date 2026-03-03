@@ -96,9 +96,13 @@ export default function Hero() {
                         </span>
                     </a>
 
-                    <button className="group px-8 py-4 glassmorphism text-white rounded-full font-bold transition-all hover:bg-white/10 flex items-center gap-2">
+                    <a
+                        href="/Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
+                        download="Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
+                        className="group px-8 py-4 glassmorphism text-white rounded-full font-bold transition-all hover:bg-white/10 flex items-center gap-2"
+                    >
                         Download CV <HiDownload />
-                    </button>
+                    </a>
                 </motion.div>
 
                 <motion.div
