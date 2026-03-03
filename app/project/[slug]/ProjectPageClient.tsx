@@ -51,8 +51,60 @@ const CopyButton = ({ text }: { text: string }) => {
     );
 };
 
+const generateId = (text: string) => {
+    return text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
+};
+
+const TableOfContents = ({ sections }: { sections: { id: string; text: string; level: number }[] }) => {
+    if (sections.length === 0) return null;
+
+    return (
+        <div className="space-y-4">
+            <h3 className="text-white font-bold uppercase tracking-widest text-[10px] border-b border-white/5 pb-4 flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" /> Technical Index
+            </h3>
+            <nav className="space-y-1 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                {sections.map((section) => (
+                    <a
+                        key={section.id}
+                        href={`#${section.id}`}
+                        className={`block py-1.5 text-xs transition-all hover:text-blue-400 border-l-2 border-transparent hover:border-blue-500/50 hover:pl-3 
+                            ${section.level === 1 ? 'font-bold text-gray-300 uppercase' :
+                                section.level === 2 ? 'pl-4 text-gray-400' :
+                                    'pl-8 text-gray-500 scale-95'}`}
+                    >
+                        {section.text}
+                    </a>
+                ))}
+            </nav>
+        </div>
+    );
+};
+
 export default function ProjectPageClient({ project, relatedProjects }: { project: ProjectDetails, relatedProjects: ProjectDetails[] }) {
     const router = useRouter();
+
+    const sections = React.useMemo(() => {
+        if (!project.readme) return [];
+        const lines = project.readme.split('\n');
+        const extracted: { id: string; text: string; level: number }[] = [];
+
+        lines.forEach(line => {
+            const match = line.match(/^(#{1,3})\s+(.+)$/);
+            if (match) {
+                const text = match[2].trim();
+                extracted.push({
+                    level: match[1].length,
+                    text,
+                    id: generateId(text)
+                });
+            }
+        });
+        return extracted;
+    }, [project.readme]);
 
     const MarkdownComponents = {
         code({ node, inline, className, children, ...props }: any) {
@@ -88,17 +140,22 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
                 </code>
             );
         },
-        h1: (props: any) => (
-            <h1 className="text-3xl md:text-5xl font-black text-white mt-16 mb-8 uppercase tracking-tighter border-l-4 border-blue-600 pl-6" {...props} />
-        ),
-        h2: (props: any) => (
-            <h2 className="text-2xl md:text-3xl font-black text-white mt-12 mb-6 uppercase tracking-tight flex items-center gap-4">
-                <span className="h-1 w-8 bg-blue-600 rounded-full" /> {props.children}
-            </h2>
-        ),
-        h3: (props: any) => (
-            <h3 className="text-xl md:text-2xl font-bold text-white mt-10 mb-4 tracking-tight text-blue-500" {...props} />
-        ),
+        h1: (props: any) => {
+            const id = generateId(String(props.children));
+            return <h1 id={id} className="text-3xl md:text-5xl font-black text-white mt-16 mb-8 uppercase tracking-tighter border-l-4 border-blue-600 pl-6 scroll-mt-24" {...props} />;
+        },
+        h2: (props: any) => {
+            const id = generateId(String(props.children));
+            return (
+                <h2 id={id} className="text-2xl md:text-3xl font-black text-white mt-12 mb-6 uppercase tracking-tight flex items-center gap-4 scroll-mt-24">
+                    <span className="h-1 w-8 bg-blue-600 rounded-full" /> {props.children}
+                </h2>
+            );
+        },
+        h3: (props: any) => {
+            const id = generateId(String(props.children));
+            return <h3 id={id} className="text-xl md:text-2xl font-bold text-white mt-10 mb-4 tracking-tight text-blue-500 scroll-mt-24" {...props} />;
+        },
         p: ({ children, ...props }: any) => {
             if (React.Children.toArray(children).some((child: any) =>
                 child.type === 'div' || (child.props && (child.type === 'img' || child.props.node?.tagName === 'img'))
@@ -196,35 +253,43 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="lg:col-span-1 space-y-8">
-                        <GlassCard className="p-8 space-y-6">
-                            <h3 className="text-white font-bold uppercase tracking-widest text-sm border-b border-white/5 pb-4">Project Intel</h3>
+                    <aside className="lg:col-span-1">
+                        <div className="sticky top-24 space-y-8">
+                            <GlassCard className="p-8 space-y-8">
+                                <TableOfContents sections={sections} />
 
-                            <div className="space-y-4">
-                                <a
-                                    href={project.live}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20"
-                                >
-                                    Access Live Demo <HiExternalLink />
-                                </a>
-                                <a
-                                    href={project.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full py-4 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                                >
-                                    View Source Code <FaGithub />
-                                </a>
-                            </div>
+                                <div className="space-y-6">
+                                    <h3 className="text-white font-bold uppercase tracking-widest text-[10px] border-b border-white/5 pb-4 flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-blue-500 rounded-full" /> Project Intel
+                                    </h3>
 
-                            <div className="pt-4">
-                                <p className="text-xs text-gray-500 font-mono leading-relaxed opacity-60">
-                                    Project data synchronized with GitHub Real-time API. Last updated from Mainframe.
-                                </p>
-                            </div>
-                        </GlassCard>
+                                    <div className="space-y-4">
+                                        <a
+                                            href={project.live}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20 text-sm"
+                                        >
+                                            Access Live Demo <HiExternalLink />
+                                        </a>
+                                        <a
+                                            href={project.github}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full py-4 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm"
+                                        >
+                                            View Source Code <FaGithub />
+                                        </a>
+                                    </div>
+
+                                    <div className="pt-4">
+                                        <p className="text-[10px] text-gray-500 font-mono leading-relaxed opacity-60 uppercase tracking-widest">
+                                            Data synchronized via GitHub API. Updated from Mainframe.
+                                        </p>
+                                    </div>
+                                </div>
+                            </GlassCard>
+                        </div>
                     </aside>
                 </div>
 
