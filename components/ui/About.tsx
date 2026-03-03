@@ -35,7 +35,7 @@ export default function About() {
                     className="space-y-8 3xl:space-y-12"
                 >
                     <div className="space-y-4">
-                        <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase leading-tight">
+                        <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl 2k:text-9xl 5k:text-[12rem] font-black text-white tracking-tighter uppercase leading-tight">
                             About <span className="text-blue-500">Me</span>
                         </h2>
                         <div className="h-1.5 w-24 bg-blue-600 rounded-full" />

@@ -74,19 +74,19 @@ const MarqueeRow = ({ skills, direction = 1 }: { skills: any[], direction?: numb
         <div className="flex overflow-hidden py-4 md:py-8 select-none group">
             <motion.div
                 animate={{
-                    x: direction > 0 ? [0, -1500] : [-1500, 0],
+                    x: direction > 0 ? [0, "-50%"] : ["-50%", 0],
                 }}
                 transition={{
                     x: {
                         repeat: Infinity,
                         repeatType: "loop",
-                        duration: 35,
+                        duration: 50,
                         ease: "linear",
                     },
                 }}
                 className="flex flex-none gap-6 md:gap-12 pr-6 md:pr-12"
             >
-                {[...skills, ...skills, ...skills, ...skills, ...skills, ...skills].map((skill, i) => (
+                {[...skills, ...skills, ...skills, ...skills].map((skill, i) => (
                     <div
                         key={i}
                         className="flex items-center gap-3 md:gap-5 glassmorphism px-5 py-3 md:px-8 md:py-4 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300"

@@ -12,10 +12,18 @@ module.exports = {
             center: true,
             padding: "2rem",
             screens: {
+                "sm": "100%",
+                "md": "768px",
+                "lg": "1024px",
+                "xl": "1200px",
                 "2xl": "1366px",
                 "3xl": "1440px",
                 "4xl": "1680px",
                 "5xl": "1920px",
+                // Container capped at 1920px even for larger screens
+                "2k": "1920px",
+                "3k": "1920px",
+                "5k": "1920px",
             },
         },
         screens: {
@@ -27,6 +35,9 @@ module.exports = {
             '3xl': '1440px',
             '4xl': '1680px',
             '5xl': '1920px',
+            '2k': '2560px',
+            '3k': '3200px',
+            '5k': '5120px',
         },
         extend: {
             colors: {

@@ -8,7 +8,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24">
                     {/* Brand & Bio */}
                     <div className="col-span-1 md:col-span-2 space-y-8">
-                        <div className="text-white font-black text-2xl 3xl:text-4xl tracking-tighter uppercase transition-all hover:scale-105 inline-block cursor-pointer">
+                        <div className="text-white font-black text-2xl md:text-3xl 3xl:text-5xl 5k:text-7xl tracking-tighter uppercase transition-all hover:scale-105 inline-block cursor-pointer">
                             CHAMIKA<span className="text-blue-500">.</span>DEV
                         </div>
                         <p className="text-gray-500 max-w-sm 3xl:max-w-xl leading-relaxed text-sm md:text-base 3xl:text-2xl opacity-70">

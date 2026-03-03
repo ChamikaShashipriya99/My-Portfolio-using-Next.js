@@ -67,7 +67,7 @@ export default function Contact() {
                                 </span>
                                 Open to Work
                             </motion.div>
-                            <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase leading-tight">
+                            <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl 2k:text-9xl 5k:text-[12rem] font-black text-white tracking-tighter uppercase leading-tight">
                                 Let&apos;s Build <br />
                                 <span className="text-blue-500">Something New</span>
                             </h2>
