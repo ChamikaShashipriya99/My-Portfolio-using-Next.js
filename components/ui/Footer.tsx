@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
     return (
@@ -19,11 +19,11 @@ export default function Footer() {
                             <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
                                 <FaGithub />
                             </a>
-                            <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
+                            <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
                                 <FaLinkedin />
                             </a>
-                            <a href="https://twitter.com/yourusername" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
-                                <FaTwitter />
+                            <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
+                                <FaWhatsapp />
                             </a>
                         </div>
                     </div>
@@ -52,7 +52,7 @@ export default function Footer() {
                             </li>
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Phone</span>
-                                <span className="text-gray-400 font-medium">0704120358</span>
+                                <a href="tel:0704120358" className="text-gray-400 hover:text-white transition-colors font-medium">0704120358</a>
                             </li>
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Location</span>

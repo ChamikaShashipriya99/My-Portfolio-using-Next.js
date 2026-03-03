@@ -4,7 +4,8 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import GlassCard from './GlassCard';
 import emailjs from '@emailjs/browser';
-import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone } from 'react-icons/hi';
+import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone, HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { FaWhatsapp, FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Contact() {
     const formRef = useRef<HTMLFormElement>(null);
@@ -13,22 +14,34 @@ export default function Contact() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const formData = new FormData(formRef.current!);
+        const email = formData.get('user_email') as string;
+
+        // Enhanced Validation for email format
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            setStatus('error');
+            setTimeout(() => setStatus(null), 5000);
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // Note: User needs to provide their own EmailJS IDs in production
-            // For now, this is set up for the user to fill in
-            // await emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', formRef.current!, 'YOUR_PUBLIC_KEY');
+            await emailjs.sendForm(
+                'service_mz488cd',
+                'template_j1ia91i',
+                formRef.current!,
+                'PNeYKrOGJd3zQ3U-U'
+            );
 
-            // Simulating success for the demo
-            await new Promise(resolve => setTimeout(resolve, 1500));
             setStatus('success');
             formRef.current?.reset();
         } catch (error) {
+            console.error('EmailJS Error:', error);
             setStatus('error');
         } finally {
             setLoading(false);
-            setTimeout(() => setStatus(null), 5000);
+            setTimeout(() => setStatus(null), 6000);
         }
     };
 
@@ -42,7 +55,18 @@ export default function Contact() {
                         viewport={{ once: true }}
                         className="space-y-12"
                     >
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[10px] 3xl:text-xs font-mono uppercase tracking-widest"
+                            >
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                                Open to Work
+                            </motion.div>
                             <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase leading-tight">
                                 Let&apos;s Build <br />
                                 <span className="text-blue-500">Something New</span>
@@ -58,7 +82,7 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Email Me</div>
-                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">chamikashashipriya3@gmail.com</div>
+                                    <a href="mailto:chamikashashipriya3@gmail.com" className="text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors">chamikashashipriya3@gmail.com</a>
                                 </div>
                             </div>
 
@@ -68,7 +92,7 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Call Me</div>
-                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">0704120358</div>
+                                    <a href="tel:0704120358" className="text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors">0704120358</a>
                                 </div>
                             </div>
 
@@ -80,6 +104,19 @@ export default function Contact() {
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Location</div>
                                     <div className="text-white font-medium md:text-lg 3xl:text-2xl">Ambalangoda & Malabe, Sri Lanka</div>
                                 </div>
+                            </div>
+
+                            {/* Social Icons Row */}
+                            <div className="flex items-center gap-4 pt-4">
+                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp">
+                                    <FaWhatsapp className="text-2xl 3xl:text-4xl" />
+                                </a>
+                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn">
+                                    <FaLinkedin className="text-2xl 3xl:text-4xl" />
+                                </a>
+                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub">
+                                    <FaGithub className="text-2xl 3xl:text-4xl" />
+                                </a>
                             </div>
                         </div>
 
@@ -143,9 +180,35 @@ export default function Contact() {
                             </button>
 
                             {status === 'success' && (
-                                <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-green-500 text-center font-bold mt-4 uppercase tracking-widest text-xs">
-                                    Mainframe received your transmission!
-                                </motion.p>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 flex items-center gap-4 mt-4"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 shrink-0">
+                                        <HiCheckCircle className="text-2xl" />
+                                    </div>
+                                    <div>
+                                        <h5 className="text-white font-bold uppercase tracking-wider text-sm mb-1">Transmission Successful!</h5>
+                                        <p className="text-gray-400 text-xs 3xl:text-sm leading-relaxed">The mainframe has received your message. I&apos;ll get back to you soon!</p>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {status === 'error' && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 flex items-center gap-4 mt-4"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
+                                        <HiExclamationCircle className="text-2xl" />
+                                    </div>
+                                    <div>
+                                        <h5 className="text-white font-bold uppercase tracking-wider text-sm mb-1">Transmission Warning</h5>
+                                        <p className="text-gray-400 text-xs 3xl:text-sm leading-relaxed">Please verify your email format or check your connection and try again.</p>
+                                    </div>
+                                </motion.div>
                             )}
                         </form>
                     </motion.div>
