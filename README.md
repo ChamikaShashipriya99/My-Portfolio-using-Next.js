@@ -2,17 +2,19 @@
 
 A high-performance, visually stunning developer portfolio built with modern web technologies. This project features smooth animations, 3D elements, and a fully responsive design to showcase projects and skills with a premium feel.
 
-![Portfolio Preview](https://via.placeholder.com/1200x600?text=Portfolio+Preview+Image) <!-- Update with your actual screenshot -->
+![Portfolio Preview](/portfolio-preview.png)
 
 ## ✨ Key Features
 
 - **🚀 Performance Optimized**: Built with Next.js for fast loading and SEO friendliness.
-- **🎨 Premium UI/UX**: Modern dark-themed design with glassmorphism and smooth micro-animations.
+- **🎨 Premium UI/UX**: Modern dark-themed design with glassmorphism, smooth micro-animations, and vibrant gradients.
 - **🧊 3D Elements**: Interactive 3D scene background powered by Three.js and React Three Fiber.
 - **🎭 Framer Motion**: Advanced layouts and scroll-triggered animations for an engaging experience.
-- **📱 Responsive Design**: Fully optimized for all devices, from mobile phones to ultra-wide desktops.
+- **📱 Ultra-Responsive Design**: Specialized support for everything from old mobile phones to 5K iMac displays.
+- **📏 Capped Readability**: Smart container system that caps content at 1920px for optimal readability on ultra-wide monitors.
+- **📄 CV Download**: Integrated resume download functionality with custom file name support.
 - **⚡ Smooth Scrolling**: Integrated with Lenis for a high-end kinetic scrolling feel.
-- **📧 Contact Integration**: Built-in contact form with EmailJS integration.
+- **📧 Contact Integration**: Built-in contact form with EmailJS integration and validation.
 
 ## 🛠️ Tech Stack
 
