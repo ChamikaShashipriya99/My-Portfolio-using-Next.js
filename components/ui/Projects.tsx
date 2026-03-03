@@ -145,15 +145,23 @@ export default function Projects() {
                                         ))}
                                     </div>
 
-                                    <div className="flex items-center gap-4 pt-4 border-t border-white/5">
-                                        <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
-                                            <FaGithub /> Source
-                                        </a>
-                                        {project.link !== project.github && (
-                                            <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
-                                                <FaExternalLinkAlt /> Live
+                                    <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
+                                        <div className="flex items-center gap-4">
+                                            <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
+                                                <FaGithub /> Source
                                             </a>
-                                        )}
+                                            {project.link !== project.github && (
+                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
+                                                    <FaExternalLinkAlt /> Live
+                                                </a>
+                                            )}
+                                        </div>
+                                        <a
+                                            href={`/project/${project.title.toLowerCase().replace(/ /g, '-')}`}
+                                            className="w-full py-3 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all"
+                                        >
+                                            View Project Intel
+                                        </a>
                                     </div>
                                 </GlassCard>
                             </motion.div>
