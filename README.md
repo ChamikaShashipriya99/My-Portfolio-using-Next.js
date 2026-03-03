@@ -2,7 +2,7 @@
 
 A high-performance, visually stunning developer portfolio built with modern web technologies. This project features smooth animations, 3D elements, and a fully responsive design to showcase projects and skills with a premium feel.
 
-![Portfolio Preview](/portfolio-preview.png)
+![Portfolio Preview](public/portfolio-preview.png)
 
 ## ✨ Key Features
 
