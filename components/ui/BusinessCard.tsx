@@ -84,29 +84,70 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
 export default function BusinessCard() {
     return (
         <section className="py-24 5xl:py-48 relative overflow-hidden flex flex-col items-center">
+            {/* Background Portal Effect */}
+            <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 1.5, ease: "circOut" }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-blue-600/10 rounded-full blur-[180px] pointer-events-none -z-10 ring-1 ring-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.1)]"
+            />
+
             <div className="container mx-auto px-6 mb-24 text-center relative z-10">
-                <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl font-black text-white tracking-tighter uppercase mb-4">
-                    Digital <span className="text-blue-500">Collectibles</span>
-                </h2>
-                <div className="h-1.5 w-24 bg-blue-600 rounded-full mx-auto mb-8" />
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl font-black text-white tracking-tighter uppercase mb-4">
+                        Digital <span className="text-blue-500">Collectibles</span>
+                    </h2>
+                    <div className="h-1.5 w-24 bg-blue-600 rounded-full mx-auto mb-8" />
+                </motion.div>
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-32 px-6">
-                <SingleCard
-                    frontImage="/images/business-card-left.png"
-                    backImage="/images/business-card-left-back.png"
-                    title="Profile Core"
-                    delay={0}
-                />
-                <SingleCard
-                    frontImage="/images/business-card.png"
-                    backImage="/images/business-card-back.png"
-                    title="Main Identity"
-                    delay={1} // Staggered start
-                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0, x: 100, rotate: -20 }}
+                    whileInView={{ opacity: 1, scale: 1, x: 0, rotate: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 20,
+                        delay: 0.5
+                    }}
+                >
+                    <SingleCard
+                        frontImage="/images/business-card-left.png"
+                        backImage="/images/business-card-left-back.png"
+                        title="Profile Core"
+                        delay={0}
+                    />
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0, x: -100, rotate: 20 }}
+                    whileInView={{ opacity: 1, scale: 1, x: 0, rotate: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 20,
+                        delay: 0.7
+                    }}
+                >
+                    <SingleCard
+                        frontImage="/images/business-card.png"
+                        backImage="/images/business-card-back.png"
+                        title="Main Identity"
+                        delay={1}
+                    />
+                </motion.div>
             </div>
 
-            {/* Background Glows */}
+            {/* Additional Background Glows */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[40rem] h-[40rem] bg-blue-600/5 rounded-full blur-[180px] pointer-events-none -z-10" />
             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[40rem] h-[40rem] bg-purple-600/5 rounded-full blur-[180px] pointer-events-none -z-10" />
         </section>
