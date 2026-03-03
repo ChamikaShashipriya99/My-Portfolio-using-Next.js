@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import ProjectPageClient from './ProjectPageClient';
 
 interface ProjectDetails {
+    slug: string;
     name: string;
     description: string;
     readme: string;
@@ -31,6 +32,7 @@ async function getProjectData(slug: string): Promise<ProjectDetails | null> {
         }
 
         return {
+            slug: repoData.name,
             name: repoData.name.replace(/-/g, ' '),
             description: repoData.description || 'No description available.',
             readme: readmeText,
@@ -44,6 +46,53 @@ async function getProjectData(slug: string): Promise<ProjectDetails | null> {
     } catch (error) {
         console.error('Error fetching project:', error);
         return null;
+    }
+}
+
+async function getRelatedProjects(excludeSlug: string): Promise<ProjectDetails[]> {
+    try {
+        const response = await fetch('https://api.github.com/users/ChamikaShashipriya99/repos?sort=updated&per_page=10', { next: { revalidate: 3600 } });
+        if (!response.ok) return [];
+
+        const data = await response.json();
+        const filteredRepos = data
+            .filter((repo: any) => repo.name.toLowerCase() !== excludeSlug.toLowerCase() && !repo.fork)
+            .slice(0, 3);
+
+        const enhancedProjects = await Promise.all(filteredRepos.map(async (repo: any) => {
+            const slug = repo.name;
+            // Try to find if thumbnail exists, otherwise fallback to OG
+            const thumbnailUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${slug}/main/thumbnail.png`;
+
+            // Fetch readme for description snippet
+            const readmeRes = await fetch(`https://raw.githubusercontent.com/ChamikaShashipriya99/${slug}/main/README.md`);
+            let readmeSnippet = repo.description || 'No description available.';
+
+            if (readmeRes.ok) {
+                const fullReadme = await readmeRes.text();
+                // Extract first paragraph or first 150 chars, removing markdown headers/links
+                readmeSnippet = fullReadme
+                    .replace(/#.*?\n/g, '') // Remove headers
+                    .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
+                    .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
+                    .trim()
+                    .slice(0, 160) + '...';
+            }
+
+            return {
+                slug: repo.name,
+                name: repo.name.replace(/-/g, ' '),
+                description: readmeSnippet,
+                tech: repo.language ? [repo.language] : ['Web'],
+                github: repo.html_url,
+                live: repo.homepage || repo.html_url,
+                image: thumbnailUrl // We'll handle fallback in the client
+            };
+        }));
+
+        return enhancedProjects;
+    } catch (e) {
+        return [];
     }
 }
 
@@ -79,6 +128,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const project = await getProjectData(slug);
+    const relatedProjects = await getRelatedProjects(slug);
 
     if (!project) {
         return (
@@ -93,5 +143,5 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         );
     }
 
-    return <ProjectPageClient project={project} />;
+    return <ProjectPageClient project={project} relatedProjects={relatedProjects} />;
 }

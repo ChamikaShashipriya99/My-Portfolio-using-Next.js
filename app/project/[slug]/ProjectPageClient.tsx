@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { HiArrowLeft, HiExternalLink, HiCode, HiStar, HiEye } from 'react-icons/hi';
-import { FaGithub } from 'react-icons/fa';
+import { HiArrowLeft, HiExternalLink, HiCode, HiStar, HiEye, HiClipboardCopy, HiCheck } from 'react-icons/hi';
+import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import GlassCard from '@/components/ui/GlassCard';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface ProjectDetails {
+    slug: string;
     name: string;
     description: string;
     readme: string;
@@ -23,21 +24,53 @@ interface ProjectDetails {
     image: string;
 }
 
-export default function ProjectPageClient({ project }: { project: ProjectDetails }) {
+const CopyButton = ({ text }: { text: string }) => {
+    const [copied, setCopied] = React.useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest"
+        >
+            {copied ? (
+                <>
+                    <HiCheck className="text-green-500" /> Copied!
+                </>
+            ) : (
+                <>
+                    <HiClipboardCopy /> Copy
+                </>
+            )}
+        </button>
+    );
+};
+
+export default function ProjectPageClient({ project, relatedProjects }: { project: ProjectDetails, relatedProjects: ProjectDetails[] }) {
     const router = useRouter();
 
     const MarkdownComponents = {
         code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
+            const codeContent = String(children).replace(/\n$/, '');
+
             return !inline && match ? (
-                <div className="rounded-xl overflow-hidden my-8 border border-white/10 shadow-2xl">
+                <div className="rounded-xl overflow-hidden my-8 border border-white/10 shadow-2xl group/code">
                     <div className="bg-white/5 px-4 py-2 border-b border-white/5 flex items-center justify-between">
-                        <span className="text-[10px] uppercase tracking-widest font-mono text-gray-500">{match[1]} output</span>
-                        <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500/20" />
+                        <div className="flex items-center gap-4">
+                            <span className="text-[10px] uppercase tracking-widest font-mono text-gray-500">{match[1]}</span>
+                            <div className="flex gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500/20" />
+                            </div>
                         </div>
+                        <CopyButton text={codeContent} />
                     </div>
                     <SyntaxHighlighter
                         style={vscDarkPlus}
@@ -46,7 +79,7 @@ export default function ProjectPageClient({ project }: { project: ProjectDetails
                         className="!m-0 !bg-transparent !p-6 font-mono text-sm leading-relaxed"
                         {...props}
                     >
-                        {String(children).replace(/\n$/, '')}
+                        {codeContent}
                     </SyntaxHighlighter>
                 </div>
             ) : (
@@ -106,7 +139,14 @@ export default function ProjectPageClient({ project }: { project: ProjectDetails
             {/* Immersive Header */}
             <header className="relative h-[60vh] flex items-end overflow-hidden border-b border-white/5">
                 <div className="absolute inset-0 z-0">
-                    <img src={project.image} alt={project.name} className="w-full h-full object-cover opacity-30 scale-110 blur-sm" />
+                    <img
+                        src={project.image}
+                        alt={project.name}
+                        className="w-full h-full object-cover opacity-30 scale-110 blur-sm"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.slug}`;
+                        }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                 </div>
 
@@ -187,6 +227,69 @@ export default function ProjectPageClient({ project }: { project: ProjectDetails
                         </GlassCard>
                     </aside>
                 </div>
+
+                {/* Mission Pipeline (Related Projects) */}
+                {relatedProjects.length > 0 && (
+                    <section className="mt-32 pt-24 border-t border-white/5">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                            <div className="space-y-4">
+                                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase leading-tight">
+                                    Mission <span className="text-blue-500">Pipeline</span>
+                                </h2>
+                                <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+                                <p className="text-gray-500 font-mono text-xs uppercase tracking-[0.4em]">Suggested Technical Reconnaissance</p>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {relatedProjects.map((p) => (
+                                <GlassCard key={p.github} className="h-full flex flex-col group p-4 3xl:p-8 hover:border-blue-500/30 transition-all duration-500">
+                                    <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
+                                        <img
+                                            src={p.image}
+                                            alt={p.name}
+                                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${p.slug}`;
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />
+                                    </div>
+
+                                    <h3 className="text-lg md:text-xl font-bold text-white mb-2 capitalize line-clamp-1">{p.name}</h3>
+                                    <p className="text-gray-400 text-xs md:text-sm mb-6 flex-grow line-clamp-2 opacity-80">{p.description}</p>
+
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        {p.tech.map(t => (
+                                            <span key={t} className="text-[10px] font-mono text-blue-400 px-2 py-1 rounded bg-blue-400/10 border border-blue-400/20">
+                                                {t}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
+                                        <div className="flex items-center gap-4">
+                                            <a href={p.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs font-medium">
+                                                <FaGithub /> Source
+                                            </a>
+                                            {p.live !== p.github && (
+                                                <a href={p.live} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs font-medium">
+                                                    <FaExternalLinkAlt /> Live
+                                                </a>
+                                            )}
+                                        </div>
+                                        <a
+                                            href={`/project/${p.name.toLowerCase().replace(/ /g, '-')}`}
+                                            className="w-full py-3 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all shadow-lg shadow-blue-600/5"
+                                        >
+                                            View Project Intel
+                                        </a>
+                                    </div>
+                                </GlassCard>
+                            ))}
+                        </div>
+                    </section>
+                )}
             </div>
         </main>
     );
