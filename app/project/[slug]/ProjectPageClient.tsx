@@ -91,15 +91,27 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
         if (!project.readme) return [];
         const lines = project.readme.split('\n');
         const extracted: { id: string; text: string; level: number }[] = [];
+        const seenIds = new Set<string>();
 
         lines.forEach(line => {
             const match = line.match(/^(#{1,3})\s+(.+)$/);
             if (match) {
                 const text = match[2].trim();
+                let id = generateId(text);
+
+                // Ensure uniqueness by appending a counter if needed
+                let counter = 1;
+                const originalId = id;
+                while (seenIds.has(id)) {
+                    id = `${originalId}-${counter}`;
+                    counter++;
+                }
+                seenIds.add(id);
+
                 extracted.push({
                     level: match[1].length,
                     text,
-                    id: generateId(text)
+                    id
                 });
             }
         });
@@ -184,11 +196,22 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
         a: (props: any) => (
             <a className="text-blue-500 hover:text-blue-400 underline decoration-blue-500/30 underline-offset-4 transition-all" {...props} />
         ),
-        img: (props: any) => (
-            <div className="my-12 rounded-3xl overflow-hidden border border-white/5 shadow-2xl group">
-                <img className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-700" {...props} />
-            </div>
-        )
+        img: ({ src, ...props }: any) => {
+            const isRelative = src && !src.startsWith('http') && !src.startsWith('https') && !src.startsWith('/');
+            const absoluteSrc = isRelative
+                ? `https://raw.githubusercontent.com/ChamikaShashipriya99/${project.slug}/main/${src.replace(/^\.\//, '')}`
+                : src;
+
+            return (
+                <div className="my-12 rounded-3xl overflow-hidden border border-white/5 shadow-2xl group">
+                    <img
+                        src={absoluteSrc}
+                        className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-700"
+                        {...props}
+                    />
+                </div>
+            );
+        }
     };
 
     return (
