@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import SmoothScrolling from "@/components/smooth-scrolling";
 import ClarityScript from "@/components/ClarityScript";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 const dancingScript = Dancing_Script({
@@ -44,6 +45,7 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.className} ${dancingScript.variable} antialiased`}>
                 <ClarityScript />
+                <SpeedInsights />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
