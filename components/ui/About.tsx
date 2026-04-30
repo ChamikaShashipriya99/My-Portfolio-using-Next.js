@@ -49,7 +49,21 @@ export default function About() {
                         My journey in web development began with a curiosity for how things work on the internet. Since then, I&apos;ve honed my skills in both frontend and backend technologies, always striving to learn and adapt to new trends. I enjoy collaborating with others, solving complex problems, and delivering high-quality solutions that make a difference.
                     </p>
 
-                    <div className="grid grid-cols-2 gap-4 3xl:gap-8">
+                    <motion.div
+                        variants={{
+                            hidden: { opacity: 0 },
+                            show: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.1
+                                }
+                            }
+                        }}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true }}
+                        className="grid grid-cols-2 gap-4 3xl:gap-8"
+                    >
                         {[
                             {
                                 icon: <CodeXml className="w-6 h-6 text-white" />,
@@ -76,15 +90,23 @@ export default function About() {
                                 color: "bg-green-500"
                             }
                         ].map((item, i) => (
-                            <GlassCard key={i} className="flex flex-col items-center text-center p-4 sm:p-6 3xl:p-10" hoverScale={true}>
-                                <div className={`${item.color} p-3 sm:p-4 rounded-2xl mb-2 sm:mb-4 shadow-lg shadow-${item.color.split('-')[1]}-500/20`}>
-                                    {item.icon}
-                                </div>
-                                <h4 className="text-white font-bold mb-1 text-sm sm:text-base 3xl:text-2xl">{item.title}</h4>
-                                <p className="text-[9px] sm:text-[10px] 3xl:text-sm text-gray-500 uppercase tracking-wider">{item.desc}</p>
-                            </GlassCard>
+                            <motion.div
+                                key={i}
+                                variants={{
+                                    hidden: { opacity: 0, y: 20 },
+                                    show: { opacity: 1, y: 0 }
+                                }}
+                            >
+                                <GlassCard className="flex flex-col items-center text-center p-4 sm:p-6 3xl:p-10 h-full" hoverScale={true}>
+                                    <div className={`${item.color} p-3 sm:p-4 rounded-2xl mb-2 sm:mb-4 shadow-lg shadow-${item.color.split('-')[1]}-500/20`}>
+                                        {item.icon}
+                                    </div>
+                                    <h4 className="text-white font-bold mb-1 text-sm sm:text-base 3xl:text-2xl">{item.title}</h4>
+                                    <p className="text-[9px] sm:text-[10px] 3xl:text-sm text-gray-500 uppercase tracking-wider">{item.desc}</p>
+                                </GlassCard>
+                            </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 </motion.div>
             </div>
         </section>

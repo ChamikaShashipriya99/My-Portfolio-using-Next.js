@@ -79,14 +79,28 @@ export default function Experience() {
                             <div className="h-[2px] flex-grow bg-blue-500/20" />
                         </div>
 
-                        <div className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4">
+                        <motion.div
+                            variants={{
+                                hidden: { opacity: 0 },
+                                show: {
+                                    opacity: 1,
+                                    transition: {
+                                        staggerChildren: 0.15
+                                    }
+                                }
+                            }}
+                            initial="hidden"
+                            whileInView="show"
+                            viewport={{ once: true }}
+                            className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4"
+                        >
                             {professionalExp.map((exp, i) => (
                                 <motion.div
                                     key={`prof-${i}`}
-                                    initial={{ opacity: 0, x: -30 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    viewport={{ once: true }}
+                                    variants={{
+                                        hidden: { opacity: 0, x: -30 },
+                                        show: { opacity: 1, x: 0 }
+                                    }}
                                     className="relative py-4 group"
                                 >
                                     <div className="absolute top-6 -left-[41px] md:-left-[53px] w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)] border-4 border-black group-hover:scale-125 transition-transform z-10" />
@@ -115,7 +129,7 @@ export default function Experience() {
                                     <p className="text-gray-400 text-sm md:text-base leading-relaxed opacity-80">{exp.description}</p>
                                 </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Education Section */}
@@ -125,14 +139,28 @@ export default function Experience() {
                             <div className="h-[2px] flex-grow bg-blue-500/20" />
                         </div>
 
-                        <div className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4">
+                        <motion.div
+                            variants={{
+                                hidden: { opacity: 0 },
+                                show: {
+                                    opacity: 1,
+                                    transition: {
+                                        staggerChildren: 0.15
+                                    }
+                                }
+                            }}
+                            initial="hidden"
+                            whileInView="show"
+                            viewport={{ once: true }}
+                            className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4"
+                        >
                             {educationExp.map((exp, i) => (
                                 <motion.div
                                     key={`edu-${i}`}
-                                    initial={{ opacity: 0, x: -30 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    viewport={{ once: true }}
+                                    variants={{
+                                        hidden: { opacity: 0, x: -30 },
+                                        show: { opacity: 1, x: 0 }
+                                    }}
                                     className="relative py-4 group"
                                 >
                                     <div className="absolute top-6 -left-[41px] md:-left-[53px] w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)] border-4 border-black group-hover:scale-125 transition-transform z-10" />
@@ -161,7 +189,7 @@ export default function Experience() {
                                     <p className="text-gray-400 text-sm md:text-base leading-relaxed opacity-80">{exp.description}</p>
                                 </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>

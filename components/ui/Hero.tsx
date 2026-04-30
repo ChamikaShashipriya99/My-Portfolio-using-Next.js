@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
+import { useTextScramble } from '@/hooks/useTextScramble';
 
 const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     const [displayText, setDisplayText] = React.useState('');
@@ -49,19 +50,33 @@ const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
 };
 
 export default function Hero() {
+    const { displayText: displayName, scramble: scrambleName } = useTextScramble('CHAMIKA');
+    const { displayText: displaySurname, scramble: scrambleSurname } = useTextScramble('SHASHIPRIYA');
+
     return (
         <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
 
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.8 }}
-                    className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full break-words"
-                >
-                    CHAMIKA <br className="hidden sm:block" />
-                    <span className="text-gradient">SHASHIPRIYA</span>
-                </motion.h1>
+                <div className="flex flex-col items-center">
+                    <motion.h1
+                        onMouseEnter={scrambleName}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.8 }}
+                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default"
+                    >
+                        {displayName}
+                    </motion.h1>
+                    <motion.h1
+                        onMouseEnter={scrambleSurname}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default text-gradient"
+                    >
+                        {displaySurname}
+                    </motion.h1>
+                </div>
 
                 <motion.div
                     initial={{ opacity: 0 }}
