@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.className} ${dancingScript.variable} antialiased`}>
+            <body className={`${inter.className} ${dancingScript.variable} antialiased overflow-x-hidden w-full`}>
                 <ClarityScript />
                 <SpeedInsights />
                 <ThemeProvider

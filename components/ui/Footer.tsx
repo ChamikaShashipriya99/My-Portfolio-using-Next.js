@@ -15,14 +15,14 @@ export default function Footer() {
                             Designing and building immersive digital experiences that merge futuristic aesthetics with high-performance code.
                             Always pushing the boundaries of what&apos;s possible on the web.
                         </p>
-                        <div className="flex items-center gap-8 pt-4">
-                            <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
+                        <div className="flex items-center gap-6 md:gap-8 pt-4 flex-wrap">
+                            <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 -ml-2 md:p-0 md:ml-0 md:text-2xl">
                                 <FaGithub />
                             </a>
-                            <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
+                            <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 md:p-0 md:text-2xl">
                                 <FaLinkedin />
                             </a>
-                            <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-2xl 3xl:text-4xl">
+                            <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 md:p-0 md:text-2xl">
                                 <FaWhatsapp />
                             </a>
                         </div>

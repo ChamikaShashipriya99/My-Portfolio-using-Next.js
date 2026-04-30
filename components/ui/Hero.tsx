@@ -40,8 +40,8 @@ const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     };
 
     return (
-        <div className="flex justify-center items-center h-10">
-            <span className="text-blue-500 font-mono text-base md:text-2xl 3xl:text-3xl uppercase tracking-[0.3rem] md:tracking-[0.5rem] font-bold border-r-2 border-blue-500 animate-pulse pr-2">
+        <div className="flex justify-center items-center h-10 w-full overflow-hidden px-2">
+            <span className="text-blue-500 font-mono text-[10px] sm:text-base md:text-2xl 3xl:text-3xl uppercase tracking-widest md:tracking-[0.5rem] font-bold border-r-2 border-blue-500 animate-pulse pr-1 sm:pr-2 whitespace-nowrap">
                 {displayText}
             </span>
         </div>
@@ -57,9 +57,9 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.8 }}
-                    className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-none"
+                    className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full break-words"
                 >
-                    CHAMIKA <br />
+                    CHAMIKA <br className="hidden sm:block" />
                     <span className="text-gradient">SHASHIPRIYA</span>
                 </motion.h1>
 
@@ -88,10 +88,10 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6, duration: 0.8 }}
-                    className="flex flex-col sm:flex-row items-center gap-4"
+                    className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-[280px] sm:max-w-none mx-auto"
                 >
-                    <a href="#projects" className="group relative px-8 py-4 bg-blue-600 text-white rounded-full font-bold overflow-hidden transition-all hover:bg-blue-700 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] block text-center">
-                        <span className="relative z-10 flex items-center gap-2">
+                    <a href="#projects" className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-full font-bold overflow-hidden transition-all hover:bg-blue-700 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] flex justify-center items-center text-sm sm:text-base">
+                        <span className="relative z-10 flex items-center justify-center gap-2">
                             View Projects <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
                         </span>
                     </a>
@@ -99,7 +99,7 @@ export default function Hero() {
                     <a
                         href="/Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
                         download="Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
-                        className="group px-8 py-4 glassmorphism text-white rounded-full font-bold transition-all hover:bg-white/10 flex items-center gap-2"
+                        className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 glassmorphism text-white rounded-full font-bold transition-all hover:bg-white/10 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
                         Download CV <HiDownload />
                     </a>

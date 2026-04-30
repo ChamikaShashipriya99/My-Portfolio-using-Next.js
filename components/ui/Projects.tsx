@@ -48,6 +48,7 @@ export default function Projects() {
                             if (readmeRes.ok) {
                                 const text = await readmeRes.text();
                                 const cleanText = text
+                                    .replace(/<[^>]*>?/gm, '')
                                     .replace(/#.*?\n/g, '')
                                     .replace(/!\[.*?\]\(.*?\)/g, '')
                                     .replace(/\[.*?\]\(.*?\)/g, '')
@@ -158,7 +159,7 @@ export default function Projects() {
                                         </div>
                                         <a
                                             href={`/project/${project.title.toLowerCase().replace(/ /g, '-')}`}
-                                            className="w-full py-3 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all"
+                                            className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words"
                                         >
                                             View Project Intel
                                         </a>

@@ -89,11 +89,11 @@ export default function Navbar() {
     return (
         <nav
             className={cn(
-                'fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[90%] md:w-auto',
-                isScrolled ? 'top-4' : 'top-8'
+                'fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[90%] md:w-auto',
+                isScrolled ? 'top-2 sm:top-4' : 'top-4 sm:top-8'
             )}
         >
-            <div className="glassmorphism rounded-full px-6 py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-8 md:gap-12 3xl:gap-20 border border-white/10 shadow-2xl">
+            <div className="glassmorphism rounded-full px-4 sm:px-6 py-2 sm:py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-4 sm:gap-8 md:gap-12 3xl:gap-20 border border-white/10 shadow-2xl w-full">
                 <a
                     href="#home"
                     onClick={(e) => handleNavClick(e, '#home', 'Home')}

@@ -107,15 +107,15 @@ export default function Contact() {
                             </div>
 
                             {/* Social Icons Row */}
-                            <div className="flex items-center gap-4 pt-4">
-                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp">
+                            <div className="flex items-center flex-wrap gap-4 pt-4">
+                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp">
                                     <FaWhatsapp className="text-2xl 3xl:text-4xl" />
                                 </a>
-                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn">
-                                    <FaLinkedin className="text-2xl 3xl:text-4xl" />
+                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn">
+                                    <FaLinkedin className="text-xl md:text-2xl 3xl:text-4xl" />
                                 </a>
-                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub">
-                                    <FaGithub className="text-2xl 3xl:text-4xl" />
+                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub">
+                                    <FaGithub className="text-xl md:text-2xl 3xl:text-4xl" />
                                 </a>
                             </div>
                         </div>
@@ -140,7 +140,7 @@ export default function Contact() {
                                     type="text"
                                     name="user_name"
                                     placeholder="Your Name"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
                                 />
                             </div>
 
@@ -151,7 +151,7 @@ export default function Contact() {
                                     type="email"
                                     name="user_email"
                                     placeholder="Email Address"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
                                 />
                             </div>
 
@@ -159,16 +159,16 @@ export default function Contact() {
                                 <textarea
                                     required
                                     name="message"
-                                    rows={6}
+                                    rows={5}
                                     placeholder="Tell me about your project..."
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 resize-none 3xl:text-xl 3xl:py-8"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 px-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 resize-none 3xl:text-xl 3xl:py-8"
                                 />
                             </div>
 
                             <button
                                 disabled={loading}
                                 type="submit"
-                                className="w-full group relative py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-600/20 active:scale-[0.98]"
+                                className="w-full group relative py-4 md:py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-600/20 active:scale-[0.98]"
                             >
                                 {loading ? (
                                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -15,7 +15,7 @@ export default function About() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                     viewport={{ once: true }}
-                    className="relative group max-w-md mx-auto md:max-w-none"
+                    className="relative group max-w-[250px] sm:max-w-md mx-auto md:max-w-none w-full"
                 >
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                     <div className="relative aspect-square rounded-3xl overflow-hidden glassmorphism p-2">
@@ -76,12 +76,12 @@ export default function About() {
                                 color: "bg-green-500"
                             }
                         ].map((item, i) => (
-                            <GlassCard key={i} className="flex flex-col items-center text-center p-6 3xl:p-10" hoverScale={true}>
-                                <div className={`${item.color} p-4 rounded-2xl mb-4 shadow-lg shadow-${item.color.split('-')[1]}-500/20`}>
+                            <GlassCard key={i} className="flex flex-col items-center text-center p-4 sm:p-6 3xl:p-10" hoverScale={true}>
+                                <div className={`${item.color} p-3 sm:p-4 rounded-2xl mb-2 sm:mb-4 shadow-lg shadow-${item.color.split('-')[1]}-500/20`}>
                                     {item.icon}
                                 </div>
-                                <h4 className="text-white font-bold mb-1 3xl:text-2xl">{item.title}</h4>
-                                <p className="text-[10px] 3xl:text-sm text-gray-500 uppercase tracking-wider">{item.desc}</p>
+                                <h4 className="text-white font-bold mb-1 text-sm sm:text-base 3xl:text-2xl">{item.title}</h4>
+                                <p className="text-[9px] sm:text-[10px] 3xl:text-sm text-gray-500 uppercase tracking-wider">{item.desc}</p>
                             </GlassCard>
                         ))}
                     </div>
