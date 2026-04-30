@@ -111,13 +111,13 @@ export default function Hero() {
                     transition={{ delay: 1, duration: 0.8 }}
                     className="mt-16 flex items-center gap-6"
                 >
-                    <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110" aria-label="GitHub Profile">
+                    <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
                         <FaGithub />
                     </a>
-                    <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110" aria-label="LinkedIn Profile">
+                    <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
                         <FaLinkedin />
                     </a>
-                    <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110" aria-label="WhatsApp Contact">
+                    <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
                         <FaWhatsapp />
                     </a>
                 </motion.div>

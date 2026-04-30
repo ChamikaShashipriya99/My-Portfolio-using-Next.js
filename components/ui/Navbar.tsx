@@ -93,7 +93,12 @@ export default function Navbar() {
                 isScrolled ? 'top-2 sm:top-4' : 'top-4 sm:top-8'
             )}
         >
-            <div className="glassmorphism rounded-full px-4 sm:px-6 py-2 sm:py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-4 sm:gap-8 md:gap-12 3xl:gap-20 border border-white/10 shadow-2xl w-full">
+            <div className={cn(
+                "rounded-full px-4 sm:px-6 py-2 sm:py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-4 sm:gap-8 md:gap-12 3xl:gap-20 border transition-all duration-500 w-full",
+                isScrolled 
+                    ? "bg-black/40 backdrop-blur-xl border-white/10 shadow-2xl" 
+                    : "bg-black/10 backdrop-blur-md border-white/5"
+            )}>
                 <a
                     href="#home"
                     onClick={(e) => handleNavClick(e, '#home', 'Home')}
@@ -130,7 +135,6 @@ export default function Navbar() {
                 <button
                     className="md:hidden text-white text-2xl"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 >
                     {mobileMenuOpen ? <HiX /> : <HiMenuAlt3 />}
                 </button>

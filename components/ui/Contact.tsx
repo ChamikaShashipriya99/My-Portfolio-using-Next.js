@@ -108,13 +108,13 @@ export default function Contact() {
 
                             {/* Social Icons Row */}
                             <div className="flex items-center flex-wrap gap-4 pt-4">
-                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp" aria-label="WhatsApp Contact">
+                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp">
                                     <FaWhatsapp className="text-2xl 3xl:text-4xl" />
                                 </a>
-                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn" aria-label="LinkedIn Profile">
+                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn">
                                     <FaLinkedin className="text-xl md:text-2xl 3xl:text-4xl" />
                                 </a>
-                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub" aria-label="GitHub Profile">
+                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub">
                                     <FaGithub className="text-xl md:text-2xl 3xl:text-4xl" />
                                 </a>
                             </div>
