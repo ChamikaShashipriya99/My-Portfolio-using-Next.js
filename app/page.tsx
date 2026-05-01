@@ -15,6 +15,7 @@ import BusinessCard from '@/components/ui/BusinessCard';
 import SkillsMarquee from '@/components/ui/SkillsMarquee';
 import Background from '@/components/ui/Background';
 import ScrollToTop from '@/components/ui/ScrollToTop';
+import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -44,6 +45,7 @@ export default function Home() {
                         <Contact />
                         <BusinessCard />
                         <Footer />
+                        <FloatingWhatsApp />
                     </div>
                 </motion.div>
             )}

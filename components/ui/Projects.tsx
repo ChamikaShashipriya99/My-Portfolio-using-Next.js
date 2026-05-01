@@ -14,6 +14,25 @@ interface Project {
     image: string;
 }
 
+const ProjectSkeleton = () => (
+    <GlassCard className="h-full flex flex-col p-4 3xl:p-8 animate-pulse">
+        <div className="aspect-video mb-6 rounded-2xl bg-white/5 border border-white/5" />
+        <div className="h-7 w-2/3 bg-white/10 rounded-lg mb-4" />
+        <div className="space-y-2 mb-6">
+            <div className="h-4 w-full bg-white/5 rounded-lg" />
+            <div className="h-4 w-5/6 bg-white/5 rounded-lg" />
+        </div>
+        <div className="flex gap-2 mb-8">
+            <div className="h-6 w-12 bg-blue-500/5 rounded border border-white/5" />
+            <div className="h-6 w-16 bg-blue-500/5 rounded border border-white/5" />
+        </div>
+        <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
+            <div className="h-4 w-24 bg-white/5 rounded-lg" />
+            <div className="h-12 w-full bg-white/5 rounded-xl" />
+        </div>
+    </GlassCard>
+);
+
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -22,12 +41,10 @@ export default function Projects() {
     useEffect(() => {
         const fetchRepos = async () => {
             try {
-                // Fetch up to 100 repos to ensure we get "all" (GitHub pagination limit per page)
                 const response = await fetch('https://api.github.com/users/ChamikaShashipriya99/repos?sort=updated&per_page=100');
                 const data = await response.json();
 
                 const projectData = await Promise.all(data.map(async (repo: any) => {
-                    // Check for thumbnail.png and README.md in main/master branches
                     const branches = ['main', 'master'];
                     let finalImage = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${repo.name}`;
                     let readmeDesc = repo.description || 'No description provided.';
@@ -37,13 +54,11 @@ export default function Projects() {
                         const readmeUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${repo.name}/${branch}/README.md`;
 
                         try {
-                            // Try fetching thumbnail
                             if (finalImage.includes('opengraph')) {
                                 const imgCheck = await fetch(thumbUrl, { method: 'HEAD' });
                                 if (imgCheck.ok) finalImage = thumbUrl;
                             }
 
-                            // Try fetching README for description
                             const readmeRes = await fetch(readmeUrl);
                             if (readmeRes.ok) {
                                 const text = await readmeRes.text();
@@ -86,15 +101,6 @@ export default function Projects() {
     const visibleProjects = projects.slice(0, displayCount);
     const hasMore = projects.length > displayCount;
 
-    if (loading) {
-        return (
-            <div className="py-24 text-center">
-                <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <p className="mt-4 text-gray-500 font-mono text-sm animate-pulse tracking-widest uppercase">Syncing GitHub Core...</p>
-            </div>
-        );
-    }
-
     return (
         <section id="projects" className="py-24 5xl:py-48 relative">
             <div className="container mx-auto px-6">
@@ -104,73 +110,88 @@ export default function Projects() {
                             Project <span className="text-blue-500">Inventory</span>
                         </h2>
                         <div className="h-1.5 w-24 bg-blue-600 rounded-full" />
-                        <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">Showing {visibleProjects.length} of {projects.length} Repositories</p>
+                        <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">
+                            {loading ? "Syncing GitHub Core..." : `Showing ${visibleProjects.length} of ${projects.length} Repositories`}
+                        </p>
                     </div>
                 </div>
 
-                <motion.div
-                    layout
-                    className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 5xl:grid-cols-5 2k:grid-cols-6 gap-6 md:gap-8 3xl:gap-12"
-                >
-                    <AnimatePresence mode="popLayout">
-                        {visibleProjects.map((project) => (
-                            <motion.div
-                                key={project.title}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4 }}
-                            >
-                                <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
-                                    <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
-                                        <img
-                                            src={project.image}
-                                            alt={project.title}
-                                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.title.replace(/ /g, '-')}`;
-                                            }}
-                                        />
-                                        <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />
-                                    </div>
-
-                                    <h3 className="text-lg md:text-xl 3xl:text-2xl font-bold text-white mb-2 capitalize">{project.title}</h3>
-                                    <p className="text-gray-400 text-xs md:text-sm 3xl:text-lg mb-6 flex-grow line-clamp-3 opacity-80">{project.description}</p>
-
-                                    <div className="flex flex-wrap gap-2 mb-6">
-                                        {project.tech.map(t => (
-                                            <span key={t} className="text-[10px] 3xl:text-xs font-mono text-blue-400 px-2 py-1 rounded bg-blue-400/10 border border-blue-400/20">
-                                                {t}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
-                                        <div className="flex items-center gap-4">
-                                            <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
-                                                <FaGithub /> Source
-                                            </a>
-                                            {project.link !== project.github && (
-                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
-                                                    <FaExternalLinkAlt /> Live
-                                                </a>
-                                            )}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 5xl:grid-cols-5 2k:grid-cols-6 gap-6 md:gap-8 3xl:gap-12">
+                    <AnimatePresence mode="wait">
+                        {loading ? (
+                            // Render Skeletons
+                            Array.from({ length: 8 }).map((_, i) => (
+                                <motion.div
+                                    key={`skeleton-${i}`}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                                >
+                                    <ProjectSkeleton />
+                                </motion.div>
+                            ))
+                        ) : (
+                            // Render Actual Projects
+                            visibleProjects.map((project) => (
+                                <motion.div
+                                    key={project.title}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.4 }}
+                                >
+                                    <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
+                                        <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
+                                            <img
+                                                src={project.image}
+                                                alt={project.title}
+                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.title.replace(/ /g, '-')}`;
+                                                }}
+                                            />
+                                            <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />
                                         </div>
-                                        <a
-                                            href={`/project/${project.title.toLowerCase().replace(/ /g, '-')}`}
-                                            className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words"
-                                        >
-                                            View Project Intel
-                                        </a>
-                                    </div>
-                                </GlassCard>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </motion.div>
 
-                {hasMore && (
+                                        <h3 className="text-lg md:text-xl 3xl:text-2xl font-bold text-white mb-2 capitalize">{project.title}</h3>
+                                        <p className="text-gray-400 text-xs md:text-sm 3xl:text-lg mb-6 flex-grow line-clamp-3 opacity-80">{project.description}</p>
+
+                                        <div className="flex flex-wrap gap-2 mb-6">
+                                            {project.tech.map(t => (
+                                                <span key={t} className="text-[10px] 3xl:text-xs font-mono text-blue-400 px-2 py-1 rounded bg-blue-400/10 border border-blue-400/20">
+                                                    {t}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
+                                            <div className="flex items-center gap-4">
+                                                <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
+                                                    <FaGithub /> Source
+                                                </a>
+                                                {project.link !== project.github && (
+                                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs md:text-sm 3xl:text-base font-medium">
+                                                        <FaExternalLinkAlt /> Live
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <a
+                                                href={`/project/${project.title.toLowerCase().replace(/ /g, '-')}`}
+                                                className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words"
+                                            >
+                                                View Project Intel
+                                            </a>
+                                        </div>
+                                    </GlassCard>
+                                </motion.div>
+                            ))
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {!loading && hasMore && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}

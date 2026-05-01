@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         siteName: "Portfolio",
         images: [
             {
-                url: "/og-image.png",
+                url: "/portfolio-preview.png",
                 width: 1200,
                 height: 630,
             },
