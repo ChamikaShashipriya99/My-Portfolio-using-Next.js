@@ -112,8 +112,8 @@ export default function Hero() {
                     </a>
 
                     <a
-                        href="/Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
-                        download="Chamika Shashipriya Full-Stack Web Developer Resume.pdf"
+                        href="/resume.pdf"
+                        download="Chamika_Shashipriya_CV.pdf"
                         className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 glassmorphism text-white rounded-full font-bold transition-all hover:bg-white/10 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
                         Download CV <HiDownload />
