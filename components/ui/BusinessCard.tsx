@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface SingleCardProps {
     frontImage: string;
@@ -42,11 +43,14 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
                     className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-neutral-900"
                     style={{ backfaceVisibility: "hidden" }}
                 >
-                    <img
+                    <Image
                         src={frontImage}
                         alt={`${title} Front`}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 240px, (max-width: 2000px) 280px, 350px"
+                        className="object-cover"
                         onError={(e) => {
+                            (e.target as HTMLImageElement).srcset = "";
                             (e.target as HTMLImageElement).src = "https://via.placeholder.com/350x600/111/444?text=Front+Missing";
                         }}
                     />
@@ -62,11 +66,14 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
                         transform: "rotateY(180deg)"
                     }}
                 >
-                    <img
+                    <Image
                         src={backImage}
                         alt={`${title} Back`}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 240px, (max-width: 2000px) 280px, 350px"
+                        className="object-cover"
                         onError={(e) => {
+                            (e.target as HTMLImageElement).srcset = "";
                             (e.target as HTMLImageElement).src = "https://via.placeholder.com/350x600/111/444?text=Back+Missing";
                         }}
                     />
