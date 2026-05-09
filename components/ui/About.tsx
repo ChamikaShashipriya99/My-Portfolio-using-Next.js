@@ -19,12 +19,10 @@ export default function About() {
                 >
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                     <div className="relative aspect-square rounded-3xl overflow-hidden glassmorphism p-2">
-                        <Image
+                        <img
                             src="https://github.com/ChamikaShashipriya99.png"
                             alt="Chamika Shashipriya"
-                            fill
-                            sizes="(max-width: 768px) 100vw, 400px"
-                            className="object-cover rounded-2xl grayscale hover:grayscale-0 transition-all duration-500"
+                            className="w-full h-full object-cover rounded-2xl grayscale hover:grayscale-0 transition-all duration-500"
                         />
                     </div>
                 </motion.div>

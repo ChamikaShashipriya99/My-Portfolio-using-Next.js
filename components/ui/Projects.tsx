@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import Image from 'next/image';
 
 interface Project {
     title: string;
@@ -34,22 +33,6 @@ const ProjectSkeleton = () => (
     </GlassCard>
 );
 
-const ProjectImage = ({ project }: { project: Project }) => {
-    const [imgSrc, setImgSrc] = useState(project.image);
-    return (
-        <Image
-            src={imgSrc}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
-            onError={() => {
-                setImgSrc(`https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.title.replace(/ /g, '-')}`);
-            }}
-        />
-    );
-};
-
 export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -58,9 +41,52 @@ export default function Projects() {
     useEffect(() => {
         const fetchRepos = async () => {
             try {
-                const response = await fetch('/api/projects');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const projectData = await response.json();
+                const response = await fetch('https://api.github.com/users/ChamikaShashipriya99/repos?sort=updated&per_page=100');
+                const data = await response.json();
+
+                const projectData = await Promise.all(data.map(async (repo: any) => {
+                    const branches = ['main', 'master'];
+                    let finalImage = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${repo.name}`;
+                    let readmeDesc = repo.description || 'No description provided.';
+
+                    for (const branch of branches) {
+                        const thumbUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${repo.name}/${branch}/thumbnail.png`;
+                        const readmeUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${repo.name}/${branch}/README.md`;
+
+                        try {
+                            if (finalImage.includes('opengraph')) {
+                                const imgCheck = await fetch(thumbUrl, { method: 'HEAD' });
+                                if (imgCheck.ok) finalImage = thumbUrl;
+                            }
+
+                            const readmeRes = await fetch(readmeUrl);
+                            if (readmeRes.ok) {
+                                const text = await readmeRes.text();
+                                const cleanText = text
+                                    .replace(/<[^>]*>?/gm, '')
+                                    .replace(/#.*?\n/g, '')
+                                    .replace(/!\[.*?\]\(.*?\)/g, '')
+                                    .replace(/\[.*?\]\(.*?\)/g, '')
+                                    .replace(/[*_~`]/g, '')
+                                    .trim();
+
+                                if (cleanText.length > 50) {
+                                    readmeDesc = cleanText.substring(0, 180) + '...';
+                                }
+                            }
+                        } catch (e) { }
+                    }
+
+                    return {
+                        title: repo.name.replace(/-/g, ' '),
+                        description: readmeDesc,
+                        tech: repo.language ? [repo.language] : ['Web'],
+                        link: repo.homepage || repo.html_url,
+                        github: repo.html_url,
+                        image: finalImage
+                    };
+                }));
+
                 setProjects(projectData);
             } catch (error) {
                 console.error('Failed to fetch repositories:', error);
@@ -118,7 +144,14 @@ export default function Projects() {
                                 >
                                     <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
                                         <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
-                                            <ProjectImage project={project} />
+                                            <img
+                                                src={project.image}
+                                                alt={project.title}
+                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.title.replace(/ /g, '-')}`;
+                                                }}
+                                            />
                                             <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />
                                         </div>
 
