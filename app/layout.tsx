@@ -16,15 +16,17 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
+    metadataBase: new URL("https://chamikashashipriya.dev"),
     title: "Chamik.Dev Portfolio",
     description: "Futuristic 3D Web Developer Portfolio built with Next.js, Three.js, and Framer Motion.",
     icons: {
         icon: "/favicon.png",
     },
+    manifest: "/manifest.json",
     openGraph: {
         title: "Chamik.Dev Portfolio",
         description: "Futuristic 3D Web Developer Portfolio",
-        url: "https://chamika-shashipriya.vercel.app/",
+        url: "https://chamikashashipriya.dev",
         siteName: "Portfolio",
         images: [
             {

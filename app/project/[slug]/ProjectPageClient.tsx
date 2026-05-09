@@ -196,7 +196,7 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
         a: (props: any) => (
             <a className="text-blue-500 hover:text-blue-400 underline decoration-blue-500/30 underline-offset-4 transition-all" {...props} />
         ),
-        img: ({ src, ...props }: any) => {
+        img: ({ src, alt, ...props }: any) => {
             const isRelative = src && !src.startsWith('http') && !src.startsWith('https') && !src.startsWith('/');
             const absoluteSrc = isRelative
                 ? `https://raw.githubusercontent.com/ChamikaShashipriya99/${project.slug}/main/${src.replace(/^\.\//, '')}`
@@ -206,6 +206,7 @@ export default function ProjectPageClient({ project, relatedProjects }: { projec
                 <div className="my-12 rounded-3xl overflow-hidden border border-white/5 shadow-2xl group">
                     <img
                         src={absoluteSrc}
+                        alt={alt || "Markdown image"}
                         className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-700"
                         {...props}
                     />
