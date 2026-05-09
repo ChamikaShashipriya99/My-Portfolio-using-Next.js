@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import SmoothScrolling from "@/components/smooth-scrolling";
 import ClarityScript from "@/components/ClarityScript";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import CustomCursor from "@/components/ui/CustomCursor";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -48,6 +49,7 @@ export default function RootLayout({
                 <CustomCursor />
                 <ClarityScript />
                 <SpeedInsights />
+                <Analytics />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
