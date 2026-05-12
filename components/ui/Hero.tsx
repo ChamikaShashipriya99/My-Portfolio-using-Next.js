@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import { useTextScramble } from '@/hooks/useTextScramble';
+import Hero3D from './Hero3D';
 
 const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     const [displayText, setDisplayText] = React.useState('');
@@ -55,6 +56,7 @@ export default function Hero() {
 
     return (
         <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+            <Hero3D />
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
 
                 <div className="flex flex-col items-center">
