@@ -7,6 +7,14 @@ import Image from 'next/image';
 
 const experiences = [
     {
+        company: "Sri Lanka Telecom PLC",
+        role: "Intern Full-Stack Developer",
+        period: "April 2026 - Present",
+        description: "Working as an Intern Full-Stack Developer at Sri Lanka Telecom PLC, gaining hands-on experience in full-stack development.",
+        logo: "/images/SLT.png",
+        category: "professional"
+    },
+    {
         company: "DoMedia",
         role: "3-Month Industrial Program - Full Stack Web Developer Training",
         period: "Nov 2025 - Jan 2026",
@@ -20,14 +28,6 @@ const experiences = [
         period: "Jan 2020 - Jan 2022",
         description: "Worked as an Automobile Motor Mechanic Technician, gaining hands-on experience in automotive repair and maintenance.",
         logo: "/images/united-motors-logo.png",
-        category: "professional"
-    },
-    {
-        company: "Sri Lanka Telecom PLC",
-        role: "Intern Full-Stack Developer",
-        period: "April 2026 - Present",
-        description: "Working as an Intern Full-Stack Developer at Sri Lanka Telecom PLC, gaining hands-on experience in full-stack development.",
-        logo: "/images/SLT.png",
         category: "professional"
     },
     {
