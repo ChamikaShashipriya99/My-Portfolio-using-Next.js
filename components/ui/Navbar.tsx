@@ -118,7 +118,7 @@ export default function Navbar() {
                 <div className={cn(
                     "rounded-full px-4 sm:px-6 py-2 sm:py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-4 sm:gap-8 md:gap-12 3xl:gap-20 border transition-all duration-500 w-full",
                     isScrolled 
-                        ? "bg-black/40 backdrop-blur-xl border-white/10 shadow-2xl" 
+                        ? "bg-gradient-to-r from-black/80 via-blue-900/30 to-black/80 backdrop-blur-2xl border-blue-500/40 shadow-[0_0_25px_rgba(59,130,246,0.25)]" 
                         : "bg-black/10 backdrop-blur-md border-white/5"
                 )}>
                     <a
