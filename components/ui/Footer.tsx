@@ -48,7 +48,7 @@ export default function Footer() {
                         <ul className="space-y-6">
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Email</span>
-                                <a href="mailto:chamikashashipriya3@gmail.com" className="text-gray-400 hover:text-white transition-colors font-medium">chamikashashipriya3@gmail.com</a>
+                                <a href="mailto:chamikashashipriya3@gmail.com" className="text-gray-400 hover:text-white transition-colors font-medium break-all">chamikashashipriya3@gmail.com</a>
                             </li>
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Phone</span>

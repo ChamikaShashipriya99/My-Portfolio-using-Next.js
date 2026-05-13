@@ -104,7 +104,7 @@ export default function Projects() {
     return (
         <section id="projects" className="py-24 5xl:py-48 relative">
             <div className="container mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
                     <div className="space-y-4">
                         <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase leading-tight">
                             Project <span className="text-blue-500">Inventory</span>
