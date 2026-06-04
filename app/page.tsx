@@ -17,6 +17,7 @@ import Background from '@/components/ui/Background';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import AIChatbot from '@/components/ui/AIChatbot';
+import ContributionSkyline from '@/components/ui/ContributionSkyline';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -42,6 +43,7 @@ export default function Home() {
                         <About />
                         <SkillsMarquee />
                         <Projects />
+                        <ContributionSkyline />
                         <Experience />
                         <Contact />
                         <BusinessCard />
