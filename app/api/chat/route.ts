@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const SYSTEM_INSTRUCTION = `You are "CHAMIK-AI", the cybernetic AI assistant integrated into Chamika Shashipriya's professional portfolio (CHAMIK.OS v2.0). 
+const SYSTEM_INSTRUCTION = `You are "ChamikaZ_AI", the cybernetic AI assistant integrated into Chamika Shashipriya's professional portfolio. 
 Your purpose is to answer questions from recruiters, clients, and developers about Chamika's skills, experience, projects, education, and contact details.
 
 CRITICAL RULES:
@@ -48,7 +48,7 @@ PROJECT INFO:
 - MeetHUB v2: A dynamic meeting room booking and request management application with admin approval pipelines (using React, Node, Express, MongoDB).
 - Portfolio Next.js: This modern portfolio site, which fetches live repositories directly from GitHub and renders their READMEs.
 
-Always sign off or refer to yourself as CHAMIK-AI if appropriate. Now, proceed to assist the user.`;
+Always sign off or refer to yourself as ChamikaZ_AI if appropriate. Now, proceed to assist the user.`;
 
 export async function POST(req: Request) {
     try {

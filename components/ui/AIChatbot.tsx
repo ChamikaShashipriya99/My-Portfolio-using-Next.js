@@ -27,7 +27,7 @@ export default function AIChatbot() {
         {
             id: 'welcome',
             role: 'assistant',
-            content: "Welcome to **CHAMIK.OS v2.0**. I am **CHAMIK-AI**, your cybernetic interface. Ask me anything about Chamika's experience, education, or tech stack.",
+            content: "Welcome to **ChamikaZ_AI**. I am your cybernetic interface. Ask me anything about Chamika's experience, education, or tech stack.",
             timestamp: new Date()
         }
     ]);
@@ -129,7 +129,7 @@ export default function AIChatbot() {
                         ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]' 
                         : 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)]'
                 }`}
-                title="Chat with CHAMIK-AI"
+                title="Chat with ChamikaZ_AI"
             >
                 {/* Radar/Ripple Ring */}
                 {showRipple && !isOpen && (
@@ -184,8 +184,8 @@ export default function AIChatbot() {
                                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-black rounded-full" />
                                     </div>
                                     <div>
-                                        <div className="text-xs font-mono font-bold text-white tracking-wider">CHAMIK.OS</div>
-                                        <div className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest">AI Mainframe uplink</div>
+                                        <div className="text-xs font-mono font-bold text-white tracking-wider">ChamikaZ_AI</div>
+                                        <div className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest font-bold">AI Mainframe uplink</div>
                                     </div>
                                 </div>
                                 <button 
