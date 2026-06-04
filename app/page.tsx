@@ -16,6 +16,7 @@ import SkillsMarquee from '@/components/ui/SkillsMarquee';
 import Background from '@/components/ui/Background';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
+import AIChatbot from '@/components/ui/AIChatbot';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -46,6 +47,7 @@ export default function Home() {
                         <BusinessCard />
                         <Footer />
                         <FloatingWhatsApp />
+                        <AIChatbot />
                     </div>
                 </motion.div>
             )}
