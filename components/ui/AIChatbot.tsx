@@ -17,6 +17,10 @@ interface Message {
 const suggestedPrompts = [
     "What is Chamika's tech stack?",
     "Tell me about his SLT internship",
+    "What projects has he built?",
+    "Tell me about MeetHUB v2",
+    "How does his mechanic background help in coding?",
+    "Is he open to job opportunities?",
     "Where is Chamika studying?",
     "How can I contact him?"
 ];
@@ -266,15 +270,15 @@ export default function AIChatbot() {
                             </div>
 
                             {/* Suggested Queries */}
-                            {messages.length === 1 && !loading && (
+                            {!loading && (
                                 <div className="px-6 pb-2 pt-1 shrink-0">
                                     <p className="text-[9px] font-mono text-gray-600 uppercase tracking-widest mb-2 font-bold">Suggested transmissions:</p>
-                                    <div className="flex flex-wrap gap-1.5">
+                                    <div className="flex gap-2 overflow-x-auto items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
                                         {suggestedPrompts.map((prompt) => (
                                             <button
                                                 key={prompt}
                                                 onClick={() => handleSendMessage(prompt)}
-                                                className="text-[10px] font-mono text-blue-400 hover:text-white bg-blue-400/5 hover:bg-blue-600/20 border border-blue-400/20 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-all text-left cursor-pointer"
+                                                className="text-[10px] font-mono text-blue-400 hover:text-white bg-blue-400/5 hover:bg-blue-600/20 border border-blue-400/20 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-all text-left cursor-pointer shrink-0"
                                             >
                                                 {prompt}
                                             </button>
