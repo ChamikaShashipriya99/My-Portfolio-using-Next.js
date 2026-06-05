@@ -223,9 +223,9 @@ export default function AIChatbot() {
                         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
                         className="absolute bottom-20 left-0 w-[calc(100vw-3rem)] sm:w-[380px] h-[500px] md:h-[550px] flex flex-col pointer-events-auto"
                     >
-                        <GlassCard className="h-full flex flex-col p-0 overflow-hidden bg-black/85 border-blue-500/20 shadow-[0_15px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+                        <GlassCard className="h-full flex flex-col p-0 overflow-hidden bg-black sm:bg-black/85 border-blue-500/20 shadow-[0_15px_40px_rgba(0,0,0,0.8)] sm:backdrop-blur-2xl">
                             {/* Panel Header */}
-                            <div className="bg-gradient-to-r from-blue-950/40 via-blue-900/20 to-black px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
+                            <div className="bg-black sm:bg-gradient-to-r sm:from-blue-950/40 sm:via-blue-900/20 sm:to-black px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
                                         <div className="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
@@ -356,7 +356,7 @@ export default function AIChatbot() {
                             {/* Panel Input Form Footer */}
                             <form 
                                 onSubmit={handleFormSubmit} 
-                                className="p-4 border-t border-white/10 flex gap-2 items-center bg-black/50 shrink-0"
+                                className="p-4 border-t border-white/10 flex gap-2 items-center bg-black sm:bg-black/50 shrink-0"
                             >
                                 <input
                                     ref={inputRef}
