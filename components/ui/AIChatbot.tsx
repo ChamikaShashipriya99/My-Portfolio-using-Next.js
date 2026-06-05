@@ -2,10 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, Sparkles, MessageSquare, AlertCircle } from 'lucide-react';
+import { Bot, X, Send, Sparkles, MessageSquare, AlertCircle, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import GlassCard from './GlassCard';
+import emailjs from '@emailjs/browser';
 
 interface Message {
     id: string;
@@ -17,6 +18,10 @@ interface Message {
 const suggestedPrompts = [
     "What is Chamika's tech stack?",
     "Tell me about his SLT internship",
+    "What projects has he built?",
+    "Tell me about MeetHUB v2",
+    "How does his mechanic background help in coding?",
+    "Is he open to job opportunities?",
     "Where is Chamika studying?",
     "How can I contact him?"
 ];
@@ -35,6 +40,7 @@ export default function AIChatbot() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showRipple, setShowRipple] = useState(true);
+    const [emailStatus, setEmailStatus] = useState<null | 'sending' | 'success' | 'error'>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +63,30 @@ export default function AIChatbot() {
             setTimeout(() => inputRef.current?.focus(), 300);
         }
     }, [isOpen, messages]);
+
+    const handleTriggerEmail = async (name: string, email: string, message: string) => {
+        setEmailStatus('sending');
+        try {
+            await emailjs.send(
+                'service_mz488cd',
+                'template_j1ia91i',
+                {
+                    user_name: name,
+                    user_email: email,
+                    message: message
+                },
+                'PNeYKrOGJd3zQ3U-U'
+            );
+            setEmailStatus('success');
+        } catch (err) {
+            console.error('EmailJS Chatbot Error:', err);
+            setEmailStatus('error');
+        } finally {
+            setTimeout(() => {
+                setEmailStatus(null);
+            }, 6000);
+        }
+    };
 
     const handleSendMessage = async (textToSend: string) => {
         const text = textToSend.trim();
@@ -93,14 +123,34 @@ export default function AIChatbot() {
                 throw new Error(data.error || 'Failed to establish uplink.');
             }
 
+            let rawResponse = data.response;
+            let emailTrigger = null;
+
+            // Pattern: [SEND_EMAIL:{"user_name":"...","user_email":"...","message":"..."}]
+            const emailRegex = /\[SEND_EMAIL:(.*?)\]/;
+            const match = rawResponse.match(emailRegex);
+            if (match) {
+                try {
+                    emailTrigger = JSON.parse(match[1]);
+                    // Strip the tag from the final content
+                    rawResponse = rawResponse.replace(emailRegex, '').trim();
+                } catch (e) {
+                    console.error("Failed to parse EmailJS payload from bot response:", e);
+                }
+            }
+
             const aiMsg: Message = {
                 id: `msg-${Date.now()}-${Math.random()}`,
                 role: 'assistant',
-                content: data.response,
+                content: rawResponse,
                 timestamp: new Date()
             };
 
             setMessages(prev => [...prev, aiMsg]);
+
+            if (emailTrigger) {
+                handleTriggerEmail(emailTrigger.user_name, emailTrigger.user_email, emailTrigger.message);
+            }
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Transmission failed. Mainframe connection lost.');
@@ -262,19 +312,39 @@ export default function AIChatbot() {
                                     </div>
                                 )}
 
+                                {/* EmailJS Status Alert */}
+                                {emailStatus === 'sending' && (
+                                    <div className="w-full flex items-center gap-2 text-xs text-blue-400 bg-blue-950/20 border border-blue-500/20 rounded-xl p-3">
+                                        <div className="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin shrink-0" />
+                                        <span className="font-mono">Transmitting message via EmailJS secure link...</span>
+                                    </div>
+                                )}
+                                {emailStatus === 'success' && (
+                                    <div className="w-full flex items-center gap-2 text-xs text-green-400 bg-green-950/20 border border-green-500/20 rounded-xl p-3 animate-pulse">
+                                        <CheckCircle2 size={14} className="shrink-0 text-green-400" />
+                                        <span className="font-mono">Transmission confirmed. Message logged to Chamika's inbox!</span>
+                                    </div>
+                                )}
+                                {emailStatus === 'error' && (
+                                    <div className="w-full flex items-center gap-2 text-xs text-red-400 bg-red-950/20 border border-red-500/20 rounded-xl p-3">
+                                        <AlertCircle size={14} className="shrink-0" />
+                                        <span className="font-mono">Transmission failed. Check connection or retry.</span>
+                                    </div>
+                                )}
+
                                 <div ref={messagesEndRef} />
                             </div>
 
                             {/* Suggested Queries */}
-                            {messages.length === 1 && !loading && (
+                            {!loading && (
                                 <div className="px-6 pb-2 pt-1 shrink-0">
                                     <p className="text-[9px] font-mono text-gray-600 uppercase tracking-widest mb-2 font-bold">Suggested transmissions:</p>
-                                    <div className="flex flex-wrap gap-1.5">
+                                    <div className="flex gap-2 overflow-x-auto items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1">
                                         {suggestedPrompts.map((prompt) => (
                                             <button
                                                 key={prompt}
                                                 onClick={() => handleSendMessage(prompt)}
-                                                className="text-[10px] font-mono text-blue-400 hover:text-white bg-blue-400/5 hover:bg-blue-600/20 border border-blue-400/20 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-all text-left cursor-pointer"
+                                                className="text-[10px] font-mono text-blue-400 hover:text-white bg-blue-400/5 hover:bg-blue-600/20 border border-blue-400/20 hover:border-blue-400/50 px-2.5 py-1 rounded-lg transition-all text-left cursor-pointer shrink-0"
                                             >
                                                 {prompt}
                                             </button>
