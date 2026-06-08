@@ -134,34 +134,59 @@ export default function Contact() {
                         viewport={{ once: true }}
                     >
                         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                            <div className="relative group">
-                                <HiUser className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
-                                <input
-                                    required
-                                    type="text"
-                                    name="user_name"
-                                    placeholder="Your Name"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
-                                />
+                            <div className="flex flex-col gap-2 group">
+                                <label
+                                    htmlFor="user_name"
+                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
+                                >
+                                    Your Name
+                                </label>
+                                <div className="relative">
+                                    <HiUser className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
+                                    <input
+                                        required
+                                        id="user_name"
+                                        type="text"
+                                        name="user_name"
+                                        placeholder="e.g. John Smith"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="relative group">
-                                <HiMail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
-                                <input
-                                    required
-                                    type="email"
-                                    name="user_email"
-                                    placeholder="Email Address"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
-                                />
+                            <div className="flex flex-col gap-2 group">
+                                <label
+                                    htmlFor="user_email"
+                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
+                                >
+                                    Email Address
+                                </label>
+                                <div className="relative">
+                                    <HiMail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
+                                    <input
+                                        required
+                                        id="user_email"
+                                        type="email"
+                                        name="user_email"
+                                        placeholder="e.g. john@example.com"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="relative group">
+                            <div className="flex flex-col gap-2 group">
+                                <label
+                                    htmlFor="message"
+                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
+                                >
+                                    Message
+                                </label>
                                 <textarea
                                     required
+                                    id="message"
                                     name="message"
                                     rows={5}
-                                    placeholder="Tell me about your project..."
+                                    placeholder="Tell me about your project or idea..."
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 px-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 resize-none 3xl:text-xl 3xl:py-8"
                                 />
                             </div>
