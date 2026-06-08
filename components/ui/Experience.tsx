@@ -112,7 +112,14 @@ export default function Experience() {
                                     }}
                                     className="relative py-4 group"
                                 >
-                                    <div className="absolute top-6 -left-[41px] md:-left-[53px] w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)] border-4 border-black group-hover:scale-125 transition-transform z-10" />
+                                    {exp.period.includes('Present') ? (
+                                        <span className="absolute top-6 -left-[41px] md:-left-[53px] flex items-center justify-center w-5 h-5 md:w-6 md:h-6 z-10">
+                                            <span className="absolute w-full h-full rounded-full bg-blue-500 opacity-50 animate-ping" />
+                                            <span className="relative w-full h-full rounded-full bg-blue-600 border-4 border-black shadow-[0_0_20px_rgba(59,130,246,0.7)] group-hover:scale-125 transition-transform block" />
+                                        </span>
+                                    ) : (
+                                        <div className="absolute top-6 -left-[41px] md:-left-[53px] w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)] border-4 border-black group-hover:scale-125 transition-transform z-10" />
+                                    )}
 
                                     <div className="flex flex-col gap-2 mb-4">
                                         <div className="flex items-start gap-4">
