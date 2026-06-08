@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, useAnimationControls } from 'framer-motion';
+import { HiDownload } from 'react-icons/hi';
 
 interface SingleCardProps {
     frontImage: string;
@@ -11,72 +12,85 @@ interface SingleCardProps {
 }
 
 const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps) => {
+    const controls = useAnimationControls();
+
+    const resumeAnimation = () => {
+        controls.start({
+            rotateY: [0, 360],
+            y: [0, -10, 0],
+            transition: {
+                rotateY: { duration: 8, repeat: Infinity, ease: 'linear' },
+                y: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
+            },
+        });
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(resumeAnimation, delay * 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <div className="perspective-1000 group">
-            <motion.div
-                animate={{
-                    rotateY: [0, 360],
-                    y: [0, -10, 0],
-                }}
-                transition={{
-                    rotateY: {
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "linear",
-                        delay,
-                    },
-                    y: {
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay,
-                    }
-                }}
-                style={{
-                    transformStyle: "preserve-3d",
-                }}
-                className="relative w-[240px] h-[400px] md:w-[280px] md:h-[480px] 3xl:w-[350px] 3xl:h-[600px] cursor-pointer"
+        <div className="flex flex-col items-center gap-8">
+            {/* Card with hover pause */}
+            <div
+                className="perspective-1000 group"
+                onMouseEnter={() => controls.stop()}
+                onMouseLeave={resumeAnimation}
             >
-                {/* Front Side */}
-                <div
-                    className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-neutral-900"
-                    style={{ backfaceVisibility: "hidden" }}
+                <motion.div
+                    animate={controls}
+                    style={{ transformStyle: 'preserve-3d' }}
+                    className="relative w-[240px] h-[400px] md:w-[280px] md:h-[480px] 3xl:w-[350px] 3xl:h-[600px] cursor-pointer"
                 >
-                    <img
-                        src={frontImage}
-                        alt={`${title} Front`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://via.placeholder.com/350x600/111/444?text=Front+Missing";
-                        }}
-                    />
-                    {/* Glare effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
-                </div>
+                    {/* Front Side */}
+                    <div
+                        className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-neutral-900"
+                        style={{ backfaceVisibility: 'hidden' }}
+                    >
+                        <img
+                            src={frontImage}
+                            alt={`${title} Front`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/350x600/111/444?text=Front+Missing';
+                            }}
+                        />
+                        {/* Glare effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
+                    </div>
 
-                {/* Back Side */}
-                <div
-                    className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-neutral-900"
-                    style={{
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)"
-                    }}
-                >
-                    <img
-                        src={backImage}
-                        alt={`${title} Back`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://via.placeholder.com/350x600/111/444?text=Back+Missing";
-                        }}
-                    />
-                    {/* Glare effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
-                </div>
+                    {/* Back Side */}
+                    <div
+                        className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-neutral-900"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                    >
+                        <img
+                            src={backImage}
+                            alt={`${title} Back`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/350x600/111/444?text=Back+Missing';
+                            }}
+                        />
+                        {/* Glare effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
+                    </div>
 
-                {/* Constant Glow around the card */}
-                <div className="absolute -inset-1 bg-blue-500/20 rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-            </motion.div>
+                    {/* Glow on hover */}
+                    <div className="absolute -inset-1 bg-blue-500/20 rounded-[2.2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                </motion.div>
+            </div>
+
+            {/* Download button */}
+            <a
+                href={frontImage}
+                download={`${title.replace(/ /g, '-')}-chamika-business-card.png`}
+                className="group flex items-center gap-2.5 px-6 py-3 rounded-full glassmorphism border border-white/10 text-gray-400 hover:text-white hover:border-blue-500/40 hover:bg-blue-500/10 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 text-[10px] font-bold uppercase tracking-[0.2em]"
+            >
+                <HiDownload className="text-base group-hover:-translate-y-0.5 transition-transform duration-200" />
+                Download Card
+            </a>
         </div>
     );
 };
