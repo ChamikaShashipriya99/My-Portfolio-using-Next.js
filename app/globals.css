@@ -60,3 +60,51 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* ── Brand Glitch Effect ─────────────────────────────────────── */
+@keyframes glitch-clip-1 {
+  0%   { clip-path: inset(40% 0 61% 0); transform: translate(-3px,  1px); }
+  20%  { clip-path: inset(92% 0  1% 0); transform: translate( 3px, -1px); }
+  40%  { clip-path: inset(23% 0 60% 0); transform: translate(-3px,  1px); }
+  60%  { clip-path: inset(72% 0 15% 0); transform: translate( 3px, -1px); }
+  80%  { clip-path: inset( 5% 0 70% 0); transform: translate(-3px,  1px); }
+  100% { clip-path: inset(54% 0  7% 0); transform: translate(0); }
+}
+@keyframes glitch-clip-2 {
+  0%   { clip-path: inset(25% 0 50% 0); transform: translate( 3px, -1px); }
+  20%  { clip-path: inset(60% 0 10% 0); transform: translate(-3px,  1px); }
+  40%  { clip-path: inset(10% 0 78% 0); transform: translate( 3px, -1px); }
+  60%  { clip-path: inset(80% 0  5% 0); transform: translate(-3px,  1px); }
+  80%  { clip-path: inset(45% 0 40% 0); transform: translate( 3px, -1px); }
+  100% { clip-path: inset(15% 0 65% 0); transform: translate(0); }
+}
+
+.brand-glitch {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.brand-glitch::before,
+.brand-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.brand-glitch:hover::before {
+  opacity: 1;
+  color: #00d4ff;
+  animation: glitch-clip-1 0.35s steps(1) infinite;
+}
+
+.brand-glitch:hover::after {
+  opacity: 1;
+  color: #ff2d78;
+  animation: glitch-clip-2 0.35s steps(1) infinite;
+}
