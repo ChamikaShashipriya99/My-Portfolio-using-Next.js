@@ -75,7 +75,7 @@ export default function Hero() {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
-                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default text-gradient"
+                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default text-gradient-animated"
                     >
                         {displaySurname}
                     </motion.h1>

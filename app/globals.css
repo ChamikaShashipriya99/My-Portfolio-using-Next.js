@@ -43,6 +43,20 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4, #ffffff, #8b5cf6, #3b82f6);
+  background-size: 300%;
+  animation: gradient-shift 5s ease infinite;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
