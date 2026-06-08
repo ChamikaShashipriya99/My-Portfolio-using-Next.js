@@ -101,8 +101,17 @@ export default function Experience() {
                             initial="hidden"
                             whileInView="show"
                             viewport={{ once: true }}
-                            className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4"
+                            className="space-y-12 relative pl-8 md:pl-12 ml-4"
                         >
+                            {/* Animated draw-in timeline line */}
+                            <motion.div
+                                initial={{ scaleY: 0 }}
+                                whileInView={{ scaleY: 1 }}
+                                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                                viewport={{ once: true }}
+                                style={{ originY: 0 }}
+                                className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-blue-500/70 via-blue-500/20 to-transparent pointer-events-none"
+                            />
                             {professionalExp.map((exp, i) => (
                                 <motion.div
                                     key={`prof-${i}`}
@@ -168,8 +177,17 @@ export default function Experience() {
                             initial="hidden"
                             whileInView="show"
                             viewport={{ once: true }}
-                            className="space-y-12 relative border-l-2 border-white/5 pl-8 md:pl-12 ml-4"
+                            className="space-y-12 relative pl-8 md:pl-12 ml-4"
                         >
+                            {/* Animated draw-in timeline line */}
+                            <motion.div
+                                initial={{ scaleY: 0 }}
+                                whileInView={{ scaleY: 1 }}
+                                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                                viewport={{ once: true }}
+                                style={{ originY: 0 }}
+                                className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-blue-500/70 via-blue-500/20 to-transparent pointer-events-none"
+                            />
                             {educationExp.map((exp, i) => (
                                 <motion.div
                                     key={`edu-${i}`}
