@@ -130,25 +130,25 @@ export default function Navbar() {
                     </a>
 
                     {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-6 lg:gap-8 3xl:gap-12">
+                    <div className="hidden md:flex items-center gap-1 lg:gap-1 3xl:gap-2">
                         {navItems.map((item) => (
                             <a
                                 key={item.name}
                                 href={item.href}
                                 onClick={(e) => handleNavClick(e, item.href, item.name)}
                                 className={cn(
-                                    'text-sm 3xl:text-xl font-bold uppercase tracking-widest transition-colors relative px-2 py-1',
-                                    activeTab === item.name ? 'text-white' : 'text-gray-500 hover:text-white font-medium'
+                                    'relative text-sm 3xl:text-xl font-bold uppercase tracking-widest px-3 py-1.5 3xl:px-5 3xl:py-2.5 rounded-full transition-colors',
+                                    activeTab === item.name ? 'text-white' : 'text-gray-500 hover:text-gray-300'
                                 )}
                             >
-                                {item.name}
                                 {activeTab === item.name && (
                                     <motion.div
-                                        layoutId="active-tab"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
-                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                        layoutId="nav-pill"
+                                        className="absolute inset-0 rounded-full bg-blue-500/20 border border-blue-500/40 shadow-[0_0_12px_rgba(59,130,246,0.25)]"
+                                        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                                     />
                                 )}
+                                <span className="relative z-10">{item.name}</span>
                             </a>
                         ))}
                     </div>

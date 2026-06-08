@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, useAnimationControls } from 'framer-motion';
 import {
     SiJavascript, SiPython, SiC, SiCplusplus, SiSharp, SiPhp,
     SiKotlin, SiHtml5, SiCss3, SiMongodb, SiMysql,
@@ -70,26 +70,51 @@ const skillCategories = [
 ];
 
 const MarqueeRow = ({ skills, direction = 1 }: { skills: any[], direction?: number }) => {
+    const controls = useAnimationControls();
+
+    const xStart = direction > 0 ? 0 : -((skills.length * 2) * 200); // approximate
+    const target = direction > 0 ? [0, '-50%'] : ['-50%', 0];
+
+    useEffect(() => {
+        controls.start({
+            x: target,
+            transition: {
+                x: {
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    duration: 50,
+                    ease: 'linear',
+                },
+            },
+        });
+    }, []);
+
     return (
-        <div className="flex overflow-hidden py-4 md:py-8 select-none group">
-            <motion.div
-                animate={{
-                    x: direction > 0 ? [0, "-50%"] : ["-50%", 0],
-                }}
-                transition={{
-                    x: {
-                        repeat: Infinity,
-                        repeatType: "loop",
-                        duration: 50,
-                        ease: "linear",
+        <div
+            className="flex overflow-hidden py-4 md:py-8 select-none"
+            onMouseEnter={() => controls.stop()}
+            onMouseLeave={() =>
+                controls.start({
+                    x: target,
+                    transition: {
+                        x: {
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            duration: 50,
+                            ease: 'linear',
+                        },
                     },
-                }}
+                })
+            }
+        >
+            <motion.div
+                animate={controls}
                 className="flex flex-none gap-6 md:gap-12 pr-6 md:pr-12"
             >
                 {[...skills, ...skills, ...skills, ...skills].map((skill, i) => (
                     <div
                         key={i}
-                        className="flex items-center gap-3 md:gap-5 glassmorphism px-5 py-3 md:px-8 md:py-4 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300"
+                        className="flex items-center gap-3 md:gap-5 glassmorphism px-5 py-3 md:px-8 md:py-4 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300 cursor-default"
                     >
                         <skill.icon className="text-xl md:text-3xl 3xl:text-4xl" style={{ color: skill.color }} />
                         <span className="text-white font-mono text-xs md:text-sm 3xl:text-lg uppercase tracking-widest whitespace-nowrap">
