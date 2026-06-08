@@ -130,6 +130,7 @@ const MarqueeRow = ({ skills, direction = 1 }: { skills: any[], direction?: numb
 export default function SkillsMarquee() {
     return (
         <section id="skills" className="py-24 5xl:py-48 relative overflow-hidden bg-black/50">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">03</span>
             <div className="container mx-auto px-6 mb-16 relative z-10">
                 <div className="space-y-4 text-center">
                     <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase">

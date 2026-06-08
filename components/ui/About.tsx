@@ -9,6 +9,7 @@ import { CodeXml, Heart, Coffee, Lightbulb } from 'lucide-react';
 export default function About() {
     return (
         <section id="about" className="py-24 5xl:py-48 relative overflow-hidden">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">02</span>
             <div className="container mx-auto px-6 grid md:grid-cols-2 gap-16 xl:gap-24 3xl:gap-32 items-center">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}

@@ -56,6 +56,7 @@ export default function Hero() {
 
     return (
         <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
             <Hero3D />
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
 

@@ -70,6 +70,7 @@ export default function Experience() {
 
     return (
         <section id="experience" className="py-24 5xl:py-48 relative overflow-hidden">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">06</span>
             <div className="container mx-auto px-6">
                 <div className="space-y-4 mb-24 text-center">
                     <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl 2k:text-9xl 5k:text-[12rem] font-black text-white tracking-tighter uppercase leading-tight">

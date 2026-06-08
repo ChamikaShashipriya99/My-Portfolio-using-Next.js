@@ -255,6 +255,7 @@ export default function ContributionSkyline() {
 
     return (
         <section id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-t border-b border-white/5">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">05</span>
             <div className="container mx-auto px-6 relative z-10">
                 
                 {/* Section Header */}

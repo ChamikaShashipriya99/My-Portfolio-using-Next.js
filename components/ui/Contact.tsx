@@ -47,6 +47,7 @@ export default function Contact() {
 
     return (
         <section id="contact" className="py-24 5xl:py-48 relative">
+            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">07</span>
             <div className="container mx-auto px-6 max-w-5xl 3xl:max-w-7xl">
                 <div className="grid md:grid-cols-2 gap-16 xl:gap-24">
                     <motion.div
