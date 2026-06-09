@@ -22,7 +22,10 @@ const builtWith = [
 
 export default function Footer() {
     return (
-        <footer className="py-24 5xl:py-48 border-t border-white/5 relative overflow-hidden">
+        <footer className="py-24 5xl:py-48 relative overflow-hidden">
+            {/* Animated top border */}
+            <div className="gradient-divider absolute top-0 left-0 right-0 z-10" />
+            <div className="absolute top-0 left-0 right-0 h-[6px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent blur-md pointer-events-none z-10" />
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24">
                     {/* Brand & Bio */}
@@ -87,7 +90,13 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom bar — copyright + Built With */}
-                <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                {/* Animated bottom-bar divider */}
+                <div className="mt-12 mb-12">
+                    <div className="gradient-divider" />
+                    <div className="h-[6px] bg-gradient-to-r from-transparent via-violet-500/10 to-transparent blur-md mt-[-1px]" />
+                </div>
+
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="text-gray-600 text-[10px] md:text-xs 3xl:text-lg font-mono tracking-[0.3em] uppercase">
                         &copy; {new Date().getFullYear()} Chamika.portfolio &bull; all rights reserved
                     </div>
