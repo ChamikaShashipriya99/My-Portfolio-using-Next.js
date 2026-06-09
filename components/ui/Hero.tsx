@@ -6,6 +6,7 @@ import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import { useTextScramble } from '@/hooks/useTextScramble';
 import Hero3D from './Hero3D';
+import StarField from './StarField';
 
 const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     const [displayText, setDisplayText] = React.useState('');
@@ -58,6 +59,33 @@ export default function Hero() {
         <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
             <Hero3D />
+            <StarField count={120} />
+
+            {/* Film grain texture — premium editorial feel */}
+            <div
+                aria-hidden="true"
+                className="hero-grain absolute inset-0 pointer-events-none opacity-[0.035]"
+                style={{ zIndex: 3 }}
+            />
+
+            {/* Radar scan line — sweeps once on page load */}
+            <motion.div
+                aria-hidden="true"
+                className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
+                style={{
+                    zIndex: 4,
+                    background: 'linear-gradient(to right, transparent 0%, transparent 15%, rgba(59,130,246,0.9) 45%, rgba(103,232,249,0.6) 55%, transparent 85%, transparent 100%)',
+                    boxShadow: '0 0 8px rgba(59,130,246,0.6), 0 0 24px rgba(59,130,246,0.25)',
+                }}
+                initial={{ y: 0, opacity: 0 }}
+                animate={{ y: '100vh', opacity: [0, 1, 1, 1, 0] }}
+                transition={{
+                    duration: 2.5,
+                    delay: 0.8,
+                    ease: 'linear',
+                    opacity: { times: [0, 0.03, 0.5, 0.88, 1], ease: 'linear' },
+                }}
+            />
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
 
                 <div className="flex flex-col items-center">
