@@ -1,5 +1,8 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
+import { HiCheck, HiDuplicate } from 'react-icons/hi';
 import {
     SiNextdotjs,
     SiReact,
@@ -9,6 +12,9 @@ import {
     SiFramer,
     SiVercel,
 } from 'react-icons/si';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const EMAIL = 'chamikashashipriya3@gmail.com';
 
 const builtWith = [
     { icon: SiNextdotjs,   label: 'Next.js',       color: '#ffffff' },
@@ -20,17 +26,111 @@ const builtWith = [
     { icon: SiVercel,      label: 'Vercel',         color: '#ffffff' },
 ];
 
+// ── Live IST Clock ─────────────────────────────────────────────
+function ISTClock() {
+    const [time, setTime] = useState('');
+    const [isWorkHours, setIsWorkHours] = useState(false);
+
+    useEffect(() => {
+        const update = () => {
+            const now = new Date();
+            const ist = now.toLocaleTimeString('en-US', {
+                timeZone: 'Asia/Colombo',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            });
+            const hour = Number(
+                now.toLocaleString('en-US', { timeZone: 'Asia/Colombo', hour: 'numeric', hour12: false })
+            );
+            setTime(ist);
+            setIsWorkHours(hour >= 8 && hour < 23);
+        };
+        update();
+        const id = setInterval(update, 1000);
+        return () => clearInterval(id);
+    }, []);
+
+    if (!time) return null;
+
+    return (
+        <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-gray-600 uppercase">
+            <span
+                className={`w-1.5 h-1.5 rounded-full ${isWorkHours ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`}
+                title={isWorkHours ? 'Likely online' : 'Likely offline'}
+            />
+            <span>IST · UTC+5:30</span>
+            <span className="text-gray-500 tabular-nums">{time}</span>
+        </div>
+    );
+}
+
+// ── Email Copy Button ──────────────────────────────────────────
+function CopyEmailButton() {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(EMAIL);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        } catch {
+            // fallback: open mail client
+            window.location.href = `mailto:${EMAIL}`;
+        }
+    };
+
+    return (
+        <div className="space-y-2">
+            <button
+                onClick={handleCopy}
+                className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors font-medium text-sm 3xl:text-xl break-all text-left"
+                title="Click to copy email"
+            >
+                <span>{EMAIL}</span>
+                <span className="shrink-0 opacity-0 group-hover:opacity-60 transition-opacity">
+                    {copied ? <HiCheck className="text-green-400" /> : <HiDuplicate />}
+                </span>
+            </button>
+
+            {/* Toast badge */}
+            <AnimatePresence>
+                {copied && (
+                    <motion.span
+                        initial={{ opacity: 0, y: -4, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0,  scale: 1   }}
+                        exit={{    opacity: 0, y:  4, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-widest"
+                    >
+                        <HiCheck className="text-sm" /> Copied!
+                    </motion.span>
+                )}
+            </AnimatePresence>
+
+            {/* Response time badge — always visible */}
+            <div className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-gray-600">
+                <span>⚡</span>
+                <span>Replies within 24h</span>
+            </div>
+        </div>
+    );
+}
+
+// ── Footer ─────────────────────────────────────────────────────
 export default function Footer() {
     return (
         <footer className="py-24 5xl:py-48 relative overflow-hidden">
             {/* Animated top border */}
             <div className="gradient-divider absolute top-0 left-0 right-0 z-10" />
             <div className="absolute top-0 left-0 right-0 h-[6px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent blur-md pointer-events-none z-10" />
+
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24">
+
                     {/* Brand & Bio */}
                     <div className="col-span-1 md:col-span-2 space-y-8">
-                        {/* Glitch brand name */}
                         <div
                             data-text="CHAMIKA.DEV"
                             className="brand-glitch text-white font-black text-2xl md:text-3xl 3xl:text-5xl 5k:text-7xl tracking-tighter uppercase select-none"
@@ -42,7 +142,11 @@ export default function Footer() {
                             Designing and building immersive digital experiences that merge futuristic aesthetics with high-performance code.
                             Always pushing the boundaries of what&apos;s possible on the web.
                         </p>
-                        <div className="flex items-center gap-6 md:gap-8 pt-4 flex-wrap">
+
+                        {/* Live clock */}
+                        <ISTClock />
+
+                        <div className="flex items-center gap-6 md:gap-8 pt-2 flex-wrap">
                             <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 -ml-2 md:p-0 md:ml-0 md:text-2xl">
                                 <FaGithub />
                             </a>
@@ -75,7 +179,7 @@ export default function Footer() {
                         <ul className="space-y-6">
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Email</span>
-                                <a href="mailto:chamikashashipriya3@gmail.com" className="text-gray-400 hover:text-white transition-colors font-medium break-all">chamikashashipriya3@gmail.com</a>
+                                <CopyEmailButton />
                             </li>
                             <li className="text-sm 3xl:text-xl">
                                 <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Phone</span>
@@ -89,7 +193,6 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Bottom bar — copyright + Built With */}
                 {/* Animated bottom-bar divider */}
                 <div className="mt-12 mb-12">
                     <div className="gradient-divider" />
