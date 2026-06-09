@@ -61,20 +61,40 @@ export default function Hero() {
             <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
 
                 <div className="flex flex-col items-center">
-                    <motion.h1
+                    {/* CHAMIKA — letter-by-letter stagger slide-up */}
+                    <h1
                         onMouseEnter={scrambleName}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.8 }}
-                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default"
+                        aria-label="CHAMIKA"
+                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full cursor-default"
                     >
-                        {displayName}
-                    </motion.h1>
+                        {'CHAMIKA'.split('').map((letter, i) => (
+                            <span
+                                key={i}
+                                className="inline-block overflow-hidden"
+                                style={{ verticalAlign: 'bottom', lineHeight: 'inherit' }}
+                            >
+                                <motion.span
+                                    className="inline-block"
+                                    initial={{ y: '110%', opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{
+                                        delay: 0.15 + i * 0.07,
+                                        duration: 0.75,
+                                        ease: [0.16, 1, 0.3, 1],
+                                    }}
+                                >
+                                    {displayName[i] ?? letter}
+                                </motion.span>
+                            </span>
+                        ))}
+                    </h1>
+
+                    {/* SHASHIPRIYA — left-to-right clip wipe (preserves animated gradient) */}
                     <motion.h1
                         onMouseEnter={scrambleSurname}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
+                        initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                        animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                        transition={{ delay: 0.75, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                         className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default text-gradient-animated"
                     >
                         {displaySurname}
