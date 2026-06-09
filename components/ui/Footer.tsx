@@ -26,6 +26,23 @@ const builtWith = [
     { icon: SiVercel,      label: 'Vercel',         color: '#ffffff' },
 ];
 
+// ── Stagger variants ───────────────────────────────────────────
+const gridVariants = {
+    hidden: {},
+    show: {
+        transition: { staggerChildren: 0.13, delayChildren: 0.05 },
+    },
+};
+
+const colVariants = {
+    hidden: { opacity: 0, y: 36 },
+    show:   {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+    },
+};
+
 // ── Live IST Clock ─────────────────────────────────────────────
 function ISTClock() {
     const [time, setTime] = useState('');
@@ -33,13 +50,10 @@ function ISTClock() {
 
     useEffect(() => {
         const update = () => {
-            const now = new Date();
-            const ist = now.toLocaleTimeString('en-US', {
+            const now  = new Date();
+            const ist  = now.toLocaleTimeString('en-US', {
                 timeZone: 'Asia/Colombo',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true,
             });
             const hour = Number(
                 now.toLocaleString('en-US', { timeZone: 'Asia/Colombo', hour: 'numeric', hour12: false })
@@ -76,7 +90,6 @@ function CopyEmailButton() {
             setCopied(true);
             setTimeout(() => setCopied(false), 2500);
         } catch {
-            // fallback: open mail client
             window.location.href = `mailto:${EMAIL}`;
         }
     };
@@ -94,7 +107,6 @@ function CopyEmailButton() {
                 </span>
             </button>
 
-            {/* Toast badge */}
             <AnimatePresence>
                 {copied && (
                     <motion.span
@@ -109,7 +121,6 @@ function CopyEmailButton() {
                 )}
             </AnimatePresence>
 
-            {/* Response time badge — always visible */}
             <div className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-gray-600">
                 <span>⚡</span>
                 <span>Replies within 24h</span>
@@ -122,15 +133,43 @@ function CopyEmailButton() {
 export default function Footer() {
     return (
         <footer className="py-24 5xl:py-48 relative overflow-hidden">
-            {/* Animated top border */}
+
+            {/* ── Background: multi-orb glows ── */}
+            {/* Blue orb — bottom-right (original) */}
+            <div className="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] bg-blue-600/6 rounded-full blur-[130px] pointer-events-none" />
+            {/* Violet orb — top-left (new) */}
+            <div className="absolute -top-24 -left-24 w-[24rem] h-[24rem] bg-violet-600/6 rounded-full blur-[130px] pointer-events-none" />
+            {/* Cyan accent — bottom-left, subtle */}
+            <div className="absolute bottom-0 left-1/3 w-[20rem] h-[20rem] bg-cyan-600/4 rounded-full blur-[100px] pointer-events-none" />
+
+            {/* ── Background: CSS dot grid ── */}
+            <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    backgroundImage: 'radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px)',
+                    backgroundSize: '28px 28px',
+                    maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
+                }}
+            />
+
+            {/* ── Animated top border ── */}
             <div className="gradient-divider absolute top-0 left-0 right-0 z-10" />
             <div className="absolute top-0 left-0 right-0 h-[6px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent blur-md pointer-events-none z-10" />
 
-            <div className="container mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24">
+            <div className="container mx-auto px-6 relative z-10">
 
+                {/* ── Staggered grid columns ── */}
+                <motion.div
+                    variants={gridVariants}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, margin: '-80px' }}
+                    className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24"
+                >
                     {/* Brand & Bio */}
-                    <div className="col-span-1 md:col-span-2 space-y-8">
+                    <motion.div variants={colVariants} className="col-span-1 md:col-span-2 space-y-8">
                         <div
                             data-text="CHAMIKA.DEV"
                             className="brand-glitch text-white font-black text-2xl md:text-3xl 3xl:text-5xl 5k:text-7xl tracking-tighter uppercase select-none"
@@ -143,7 +182,6 @@ export default function Footer() {
                             Always pushing the boundaries of what&apos;s possible on the web.
                         </p>
 
-                        {/* Live clock */}
                         <ISTClock />
 
                         <div className="flex items-center gap-6 md:gap-8 pt-2 flex-wrap">
@@ -157,10 +195,10 @@ export default function Footer() {
                                 <FaWhatsapp />
                             </a>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Quick Links */}
-                    <div className="space-y-8">
+                    <motion.div variants={colVariants} className="space-y-8">
                         <h4 className="text-white font-black uppercase tracking-[0.3em] text-xs 3xl:text-lg opacity-50">Navigation</h4>
                         <ul className="space-y-4">
                             {['Home', 'About', 'Skills', 'Projects', 'Experience', 'Contact'].map((item) => (
@@ -171,10 +209,10 @@ export default function Footer() {
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </motion.div>
 
                     {/* Contact Details */}
-                    <div className="space-y-8">
+                    <motion.div variants={colVariants} className="space-y-8">
                         <h4 className="text-white font-black uppercase tracking-[0.3em] text-xs 3xl:text-lg opacity-50">Contact</h4>
                         <ul className="space-y-6">
                             <li className="text-sm 3xl:text-xl">
@@ -190,8 +228,8 @@ export default function Footer() {
                                 <span className="text-gray-400 font-medium">Ambalangoda &amp; Malabe, Sri Lanka</span>
                             </li>
                         </ul>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Animated bottom-bar divider */}
                 <div className="mt-12 mb-12">
@@ -199,7 +237,13 @@ export default function Footer() {
                     <div className="h-[6px] bg-gradient-to-r from-transparent via-violet-500/10 to-transparent blur-md mt-[-1px]" />
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col md:flex-row items-center justify-between gap-6"
+                >
                     <div className="text-gray-600 text-[10px] md:text-xs 3xl:text-lg font-mono tracking-[0.3em] uppercase">
                         &copy; {new Date().getFullYear()} Chamika.portfolio &bull; all rights reserved
                     </div>
@@ -222,11 +266,8 @@ export default function Footer() {
                             ))}
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
-
-            {/* Subtle Background Accent */}
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
         </footer>
     );
 }
