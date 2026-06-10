@@ -138,17 +138,45 @@ export default function Hero() {
                     <Typewriter text="Full-Stack Web Developer" delay={0.5} />
                 </motion.div>
 
-                <motion.p
+                {/* Pull quote */}
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.8 }}
-                    className="max-w-xl md:max-w-2xl 3xl:max-w-3xl text-gray-400 text-base md:text-xl 3xl:text-2xl mb-12 leading-relaxed px-4"
+                    transition={{ delay: 0.4, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative max-w-xl md:max-w-2xl mx-auto mb-12 px-8 text-center"
                 >
-                    Hello! I&apos;m Chamika Shashipriya, a passionate Full-Stack Developer
-                    dedicated to building modern, scalable, and user-friendly web applications.
-                    With a strong foundation in JavaScript, React.js, Node.js, and the MERN stack,
-                    I love turning ideas into reality through code.
-                </motion.p>
+                    {/* Opening decorative quote */}
+                    <span
+                        aria-hidden="true"
+                        className="absolute -top-6 left-2 text-[6rem] md:text-[8rem] leading-none font-black text-blue-500/20 select-none pointer-events-none"
+                        style={{ fontFamily: 'Georgia, serif', lineHeight: 1 }}
+                    >
+                        &ldquo;
+                    </span>
+
+                    <blockquote className="relative z-10">
+                        <p className="font-sans font-bold text-white text-2xl md:text-3xl 3xl:text-4xl leading-snug tracking-tight mb-6">
+                            Turning ideas into<br />
+                            <span className="text-gradient-animated">reality through code.</span>
+                        </p>
+
+                        {/* Divider */}
+                        <div className="gradient-divider w-24 mx-auto mb-4 opacity-60" />
+
+                        <footer className="font-mono text-[10px] md:text-xs uppercase tracking-[0.4em] text-gray-500">
+                            — Chamika Shashipriya
+                        </footer>
+                    </blockquote>
+
+                    {/* Closing decorative quote */}
+                    <span
+                        aria-hidden="true"
+                        className="absolute -bottom-10 right-2 text-[6rem] md:text-[8rem] leading-none font-black text-blue-500/20 select-none pointer-events-none"
+                        style={{ fontFamily: 'Georgia, serif', lineHeight: 1 }}
+                    >
+                        &rdquo;
+                    </span>
+                </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
