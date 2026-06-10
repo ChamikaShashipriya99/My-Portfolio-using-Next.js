@@ -37,6 +37,7 @@ export default function Projects() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [displayCount, setDisplayCount] = useState(12);
+    const [selectedLanguage, setSelectedLanguage] = useState('All');
 
     useEffect(() => {
         const fetchRepos = async () => {
@@ -98,8 +99,37 @@ export default function Projects() {
         fetchRepos();
     }, []);
 
-    const visibleProjects = projects.slice(0, displayCount);
-    const hasMore = projects.length > displayCount;
+    const { languages, counts } = React.useMemo(() => {
+        if (projects.length === 0) return { languages: ['All'], counts: { All: 0 } as Record<string, number> };
+        const langCounts: Record<string, number> = { All: projects.length };
+        projects.forEach(p => {
+            p.tech.forEach(t => {
+                langCounts[t] = (langCounts[t] || 0) + 1;
+            });
+        });
+
+        const sorted = Object.keys(langCounts)
+            .filter(lang => lang !== 'All')
+            .sort((a, b) => langCounts[b] - langCounts[a]);
+
+        return {
+            languages: ['All', ...sorted],
+            counts: langCounts
+        };
+    }, [projects]);
+
+    const filteredProjects = selectedLanguage === 'All'
+        ? projects
+        : projects.filter(p => p.tech.includes(selectedLanguage));
+
+    const visibleProjects = filteredProjects.slice(0, displayCount);
+    const hasMore = filteredProjects.length > displayCount;
+
+    const countLabel = loading
+        ? "Syncing GitHub Core..."
+        : selectedLanguage === 'All'
+            ? `Showing ${visibleProjects.length} of ${projects.length} Repositories`
+            : `Showing ${visibleProjects.length} of ${filteredProjects.length} Repositories (${selectedLanguage})`;
 
     return (
         <section id="projects" className="py-24 5xl:py-48 relative">
@@ -112,10 +142,47 @@ export default function Projects() {
                         </h2>
                         <div className="h-1.5 w-24 bg-blue-600 rounded-full" />
                         <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">
-                            {loading ? "Syncing GitHub Core..." : `Showing ${visibleProjects.length} of ${projects.length} Repositories`}
+                            {countLabel}
                         </p>
                     </div>
                 </div>
+
+                {/* ── Language Filter Tabs ── */}
+                {!loading && languages.length > 1 && (
+                    <div className="flex items-center gap-3 overflow-x-auto pb-6 mb-12 select-none -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        {languages.map((lang) => {
+                            const isActive = selectedLanguage === lang;
+                            return (
+                                <button
+                                    key={lang}
+                                    onClick={() => {
+                                        setSelectedLanguage(lang);
+                                        setDisplayCount(12);
+                                    }}
+                                    className={`relative px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center gap-2 shrink-0 border ${
+                                        isActive
+                                            ? 'text-white border-blue-500/30 shadow-lg shadow-blue-500/10'
+                                            : 'text-gray-400 border-white/5 bg-white/5 hover:text-white hover:border-white/10'
+                                    }`}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeProjectFilter"
+                                            className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full -z-10"
+                                            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                        />
+                                    )}
+                                    <span>{lang}</span>
+                                    <span className={`text-[10px] font-mono rounded-full px-1.5 py-0.5 ${
+                                        isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-400'
+                                    }`}>
+                                        {counts[lang]}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 5xl:grid-cols-5 2k:grid-cols-6 gap-6 md:gap-8 3xl:gap-12">
                     <AnimatePresence>
@@ -140,7 +207,7 @@ export default function Projects() {
                                     layout
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    viewport={{ once: true }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.4 }}
                                 >
                                     <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
@@ -199,10 +266,10 @@ export default function Projects() {
                         className="mt-16 md:mt-24 text-center"
                     >
                         <button
-                            onClick={() => setDisplayCount(projects.length)}
+                            onClick={() => setDisplayCount(filteredProjects.length)}
                             className="px-8 py-4 md:px-12 md:py-6 glassmorphism border-white/10 text-white font-bold uppercase tracking-widest text-xs md:text-sm 3xl:text-lg hover:bg-white hover:text-black transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
                         >
-                            Load {projects.length - displayCount} More Projects ↓
+                            Load {filteredProjects.length - displayCount} More Projects ↓
                         </button>
                     </motion.div>
                 )}
