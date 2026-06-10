@@ -1,16 +1,27 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import emailjs from '@emailjs/browser';
-import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone, HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone, HiCheckCircle, HiExclamationCircle, HiDuplicate } from 'react-icons/hi';
 import { FaWhatsapp, FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Contact() {
     const formRef = useRef<HTMLFormElement>(null);
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<null | 'success' | 'error'>(null);
+    const [copied, setCopied] = useState(false);
+
+    const copyEmail = async () => {
+        try {
+            await navigator.clipboard.writeText('chamikashashipriya3@gmail.com');
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        } catch {
+            window.location.href = 'mailto:chamikashashipriya3@gmail.com';
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,7 +94,33 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Email Me</div>
-                                    <a href="mailto:chamikashashipriya3@gmail.com" className="text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors break-all">chamikashashipriya3@gmail.com</a>
+                                    <button
+                                        onClick={copyEmail}
+                                        title="Click to copy email"
+                                        className="group/email flex items-center gap-2 text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors break-all text-left"
+                                    >
+                                        <span>chamikashashipriya3@gmail.com</span>
+                                        <span className="shrink-0 opacity-0 group-hover/email:opacity-60 transition-opacity">
+                                            {copied
+                                                ? <HiCheckCircle className="text-green-400" />
+                                                : <HiDuplicate />}
+                                        </span>
+                                    </button>
+                                    <AnimatePresence>
+                                        {copied && (
+                                            <motion.span
+                                                initial={{ opacity: 0, y: -4, scale: 0.9 }}
+                                                animate={{ opacity: 1, y: 0,  scale: 1   }}
+                                                exit={{    opacity: 0, y:  4, scale: 0.9 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mt-2 rounded-full
+                                                           bg-green-500/15 border border-green-500/30
+                                                           text-green-400 text-[9px] font-bold uppercase tracking-widest"
+                                            >
+                                                <HiCheckCircle className="text-sm" /> Copied!
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
 
