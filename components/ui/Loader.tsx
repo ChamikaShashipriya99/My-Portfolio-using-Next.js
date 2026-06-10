@@ -113,6 +113,38 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
 
             <HexDump />
 
+            {/* ── Brand flash at 100% ── */}
+            {progress === 100 && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="absolute inset-0 z-[25] flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm"
+                >
+                    {/* Name */}
+                    <motion.h1
+                        initial={{ scale: 0.7, opacity: 0, y: 20 }}
+                        animate={{ scale: 1,   opacity: 1, y: 0  }}
+                        transition={{ delay: 0.15, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                        className="font-black tracking-tighter text-5xl md:text-8xl lg:text-9xl leading-none select-none"
+                    >
+                        <span className="text-white">CHAMIKA</span>
+                        <span className="text-blue-500">.</span>
+                        <span className="text-gradient-animated">DEV</span>
+                    </motion.h1>
+
+                    {/* Tagline */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0  }}
+                        transition={{ delay: 0.5, duration: 0.4 }}
+                        className="font-mono text-[10px] md:text-xs uppercase tracking-[0.6em] text-blue-400 mt-6 animate-pulse"
+                    >
+                        ▶&nbsp;&nbsp;Portfolio Ready
+                    </motion.p>
+                </motion.div>
+            )}
+
             {/* Extreme Glitch RGB Overlay */}
             {glitch && (
                 <div 
