@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Dancing_Script } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import SmoothScrolling from "@/components/smooth-scrolling";
@@ -8,7 +8,18 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import CustomCursor from "@/components/ui/CustomCursor";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+    subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700"],
+    variable: "--font-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+    subsets: ["latin"],
+    weight: ["400", "500", "700"],
+    variable: "--font-mono",
+});
+
 const dancingScript = Dancing_Script({
     subsets: ["latin"],
     weight: ["700"],
@@ -47,7 +58,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.className} ${dancingScript.variable} antialiased overflow-x-hidden w-full`}>
+            <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${dancingScript.variable} font-sans antialiased overflow-x-hidden w-full`}>
                 <CustomCursor />
                 <ClarityScript />
                 <SpeedInsights />

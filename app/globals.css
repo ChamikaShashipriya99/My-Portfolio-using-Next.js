@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-sans, 'Space Grotesk', ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-mono, 'JetBrains Mono', ui-monospace, 'Fira Code', monospace);
+}
+
+
 .font-cursive {
   font-family: var(--font-cursive), cursive;
 }
@@ -8,7 +14,15 @@
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
   --background-end-rgb: 0, 0, 0;
+  /* Typography */
+  --font-family-sans: var(--font-sans), 'Space Grotesk', system-ui, sans-serif;
+  --font-family-mono: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
 }
+
+body {
+  font-family: var(--font-family-sans);
+}
+
 
 [data-theme='light'] {
   --foreground-rgb: 0, 0, 0;

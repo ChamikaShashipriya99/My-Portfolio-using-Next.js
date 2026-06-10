@@ -42,11 +42,11 @@ export default function About() {
                         <div className="h-1.5 w-24 bg-blue-600 rounded-full" />
                     </div>
 
-                    <p className="text-gray-400 text-base md:text-lg 3xl:text-2xl leading-relaxed">
+                    <p className="font-sans text-justify text-gray-400 text-base md:text-lg 3xl:text-2xl leading-relaxed">
                         Hello! I&apos;m Chamika Shashipriya, a passionate Full-Stack Developer dedicated to building modern, scalable, and user-friendly web applications. With a strong foundation in JavaScript, React.js, Node.js, and the MERN stack, I love turning ideas into reality through code.
                     </p>
 
-                    <p className="text-gray-400 text-sm md:text-base 3xl:text-xl leading-relaxed opacity-80">
+                    <p className="font-sans text-justify text-gray-400 text-sm md:text-base 3xl:text-xl leading-relaxed opacity-80">
                         My journey in web development began with a curiosity for how things work on the internet. Since then, I&apos;ve honed my skills in both frontend and backend technologies, always striving to learn and adapt to new trends. I enjoy collaborating with others, solving complex problems, and delivering high-quality solutions that make a difference.
                     </p>
 

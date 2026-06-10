@@ -40,6 +40,10 @@ module.exports = {
             '5k': '5120px',
         },
         extend: {
+            fontFamily: {
+                sans: ['var(--font-sans)', 'Space Grotesk', 'system-ui', 'sans-serif'],
+                mono: ['var(--font-mono)', 'JetBrains Mono', 'Fira Code', 'monospace'],
+            },
             colors: {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
