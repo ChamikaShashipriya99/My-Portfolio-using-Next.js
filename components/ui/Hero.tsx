@@ -177,23 +177,55 @@ export default function Hero() {
                     transition={{ delay: 1, duration: 0.8 }}
                     className="mt-16 flex items-center gap-6"
                 >
-                    <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
+                    {/* GitHub — white glow */}
+                    <a
+                        href="https://github.com/ChamikaShashipriya99"
+                        target="_blank" rel="noopener noreferrer"
+                        aria-label="GitHub"
+                        className="text-gray-500 text-2xl transition-all duration-300 hover:scale-125 hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.55)]"
+                    >
                         <FaGithub />
                     </a>
-                    <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
+                    {/* LinkedIn — brand blue glow */}
+                    <a
+                        href="https://www.linkedin.com/in/chamika-shashipriya-722366321"
+                        target="_blank" rel="noopener noreferrer"
+                        aria-label="LinkedIn"
+                        className="text-gray-500 text-2xl transition-all duration-300 hover:scale-125 hover:text-[#0a66c2] hover:drop-shadow-[0_0_10px_rgba(10,102,194,0.8)]"
+                    >
                         <FaLinkedin />
                     </a>
-                    <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-2xl hover:scale-110">
+                    {/* WhatsApp — brand green glow */}
+                    <a
+                        href="https://wa.me/94750471511"
+                        target="_blank" rel="noopener noreferrer"
+                        aria-label="WhatsApp"
+                        className="text-gray-500 text-2xl transition-all duration-300 hover:scale-125 hover:text-[#25d366] hover:drop-shadow-[0_0_10px_rgba(37,211,102,0.8)]"
+                    >
                         <FaWhatsapp />
                     </a>
                 </motion.div>
             </div>
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-30">
-                <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center p-1">
-                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
+            {/* Scroll indicator — animated dot + label */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.6, duration: 0.8 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-50 hover:opacity-90 transition-opacity cursor-pointer group"
+                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+                <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center pt-1.5 group-hover:border-blue-400/80 transition-colors">
+                    <motion.div
+                        animate={{ y: [0, 10, 0] }}
+                        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                        className="w-1 h-2.5 bg-white rounded-full group-hover:bg-blue-400 transition-colors"
+                    />
                 </div>
-            </div>
+                <span className="text-white/50 text-[8px] font-mono uppercase tracking-[0.5em] group-hover:text-blue-400/80 transition-colors">
+                    Scroll
+                </span>
+            </motion.div>
         </section>
     );
 }
