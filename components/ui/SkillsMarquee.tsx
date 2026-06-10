@@ -8,7 +8,7 @@ import {
     SiXampp, SiGit, SiGithub, SiNpm, SiFigma, SiCanva,
     SiCisco, SiTrello, SiNodemon, SiApachetomcat, SiReact, SiNodedotjs,
     SiExpress, SiBootstrap, SiTailwindcss, SiDotnet, SiSpringboot,
-    SiJsonwebtokens, SiCodeigniter, SiWordpress
+    SiJsonwebtokens, SiCodeigniter, SiWordpress, SiNextdotjs
 } from 'react-icons/si';
 import { FaJava, FaServer, FaDatabase } from 'react-icons/fa';
 
@@ -41,16 +41,17 @@ const skillCategories = [
     {
         title: "Frameworks & Platforms",
         skills: [
-            { name: "React", icon: SiReact, color: "#61DAFB" },
-            { name: "Node.js", icon: SiNodedotjs, color: "#339933" },
-            { name: "Express.js", icon: SiExpress, color: "#FFFFFF" },
-            { name: "Bootstrap", icon: SiBootstrap, color: "#7952B3" },
-            { name: "Tailwind", icon: SiTailwindcss, color: "#06B6D4" },
-            { name: ".NET", icon: SiDotnet, color: "#512BD4" },
-            { name: "Spring", icon: SiSpringboot, color: "#6DB33F" },
-            { name: "JWT", icon: SiJsonwebtokens, color: "#FFFFFF" },
+            { name: "Next.js",     icon: SiNextdotjs,   color: "#ffffff" },
+            { name: "React",       icon: SiReact,       color: "#61DAFB" },
+            { name: "Node.js",     icon: SiNodedotjs,   color: "#339933" },
+            { name: "Express.js",  icon: SiExpress,     color: "#FFFFFF" },
+            { name: "Bootstrap",   icon: SiBootstrap,   color: "#7952B3" },
+            { name: "Tailwind",    icon: SiTailwindcss, color: "#06B6D4" },
+            { name: ".NET",        icon: SiDotnet,      color: "#512BD4" },
+            { name: "Spring",      icon: SiSpringboot,  color: "#6DB33F" },
+            { name: "JWT",         icon: SiJsonwebtokens, color: "#FFFFFF" },
             { name: "CodeIgniter", icon: SiCodeigniter, color: "#EE4323" },
-            { name: "WordPress", icon: SiWordpress, color: "#21759B" },
+            { name: "WordPress",   icon: SiWordpress,   color: "#21759B" },
         ]
     },
     {
