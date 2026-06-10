@@ -202,7 +202,7 @@ export default function Projects() {
                             onClick={() => setDisplayCount(projects.length)}
                             className="px-8 py-4 md:px-12 md:py-6 glassmorphism border-white/10 text-white font-bold uppercase tracking-widest text-xs md:text-sm 3xl:text-lg hover:bg-white hover:text-black transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
                         >
-                            Initialize All Modules (Show More)
+                            Load {projects.length - displayCount} More Projects ↓
                         </button>
                     </motion.div>
                 )}
