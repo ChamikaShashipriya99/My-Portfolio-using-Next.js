@@ -11,6 +11,7 @@ import {
     SiJsonwebtokens, SiCodeigniter, SiWordpress, SiNextdotjs
 } from 'react-icons/si';
 import { FaJava, FaServer, FaDatabase } from 'react-icons/fa';
+import Skills3DCloud from './Skills3DCloud';
 
 export const skillCategories = [
     {
@@ -132,9 +133,9 @@ export default function SkillsMarquee() {
     const [viewMode, setViewMode] = useState<'marquee' | 'orbit'>('orbit');
 
     return (
-        <section id="skills" className="py-24 5xl:py-48 relative overflow-hidden bg-black/50">
+        <section id="skills" className="pt-24 pb-12 5xl:pt-48 5xl:pb-24 relative overflow-hidden bg-black/50">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">03</span>
-            <div className="container mx-auto px-6 mb-16 relative z-10">
+            <div className="container mx-auto px-6 mb-8 relative z-10">
                 <div className="space-y-4 text-center">
                     <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase">
                         Technical <span className="text-blue-500">Arsenal</span>
@@ -188,7 +189,7 @@ export default function SkillsMarquee() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.4 }}
-                        className="flex flex-col gap-2 md:gap-6"
+                        className="flex flex-col gap-2 md:gap-6 pt-8"
                     >
                         {skillCategories.map((category, idx) => (
                             <div key={idx} className="relative">
@@ -212,7 +213,7 @@ export default function SkillsMarquee() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.4 }}
-                        className="w-full flex justify-center items-center py-10"
+                        className="w-full flex justify-center items-center pb-10 pt-2"
                     >
                         <Skills3DCloud />
                     </motion.div>

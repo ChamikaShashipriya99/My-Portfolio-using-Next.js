@@ -160,7 +160,7 @@ export default function Projects() {
             : `Showing ${visibleProjects.length} of ${filteredProjects.length} Repositories (${selectedLanguage})`;
 
     return (
-        <section id="projects" className="py-24 5xl:py-48 relative">
+        <section id="projects" className="pt-12 pb-24 5xl:pt-24 5xl:pb-48 relative">
             <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">04</span>
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
