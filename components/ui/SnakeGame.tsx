@@ -19,6 +19,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
     const [highScore, setHighScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
     const [speed, setSpeed] = useState(90); // speed in ms (lower is faster)
+    const [isStarted, setIsStarted] = useState(false);
 
     // Keep state values in refs to access them inside the canvas loop without closures stale states
     const snakeRef = useRef<Position[]>([
@@ -114,6 +115,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
         setScore(0);
         setGameOver(false);
         isPausedRef.current = false;
+        setIsStarted(false);
     };
 
     // Keyboard handlers
@@ -131,21 +133,25 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                 case 'w':
                 case 'W':
                     if (currentDir !== 'DOWN') directionRef.current = 'UP';
+                    if (!isStarted) setIsStarted(true);
                     break;
                 case 'ArrowDown':
                 case 's':
                 case 'S':
                     if (currentDir !== 'UP') directionRef.current = 'DOWN';
+                    if (!isStarted) setIsStarted(true);
                     break;
                 case 'ArrowLeft':
                 case 'a':
                 case 'A':
                     if (currentDir !== 'RIGHT') directionRef.current = 'LEFT';
+                    if (!isStarted) setIsStarted(true);
                     break;
                 case 'ArrowRight':
                 case 'd':
                 case 'D':
                     if (currentDir !== 'LEFT') directionRef.current = 'RIGHT';
+                    if (!isStarted) setIsStarted(true);
                     break;
                 case 'Enter':
                     if (gameOver) {
@@ -158,7 +164,11 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                 case ' ':
                 case 'Spacebar':
                     if (!gameOver) {
-                        isPausedRef.current = !isPausedRef.current;
+                        if (!isStarted) {
+                            setIsStarted(true);
+                        } else {
+                            isPausedRef.current = !isPausedRef.current;
+                        }
                     }
                     break;
             }
@@ -166,7 +176,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameOver, onExit]);
+    }, [gameOver, isStarted, onExit]);
 
     // Main Game Loop
     useEffect(() => {
@@ -179,7 +189,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
         let intervalId: NodeJS.Timeout;
 
         const loop = () => {
-            if (gameOver || isPausedRef.current) return;
+            if (!isStarted || gameOver || isPausedRef.current) return;
 
             const snake = [...snakeRef.current];
             const direction = directionRef.current;
@@ -230,7 +240,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
 
         intervalId = setInterval(loop, speed);
         return () => clearInterval(intervalId);
-    }, [gameOver, highScore, speed]);
+    }, [gameOver, highScore, speed, isStarted]);
 
     // Canvas Render Loop (Render separately for smooth graphics matching monitor updates)
     useEffect(() => {
@@ -285,8 +295,24 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                 ctx.shadowBlur = 0;
             });
 
+            // Start screen layout overlay
+            if (!isStarted && !gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#10b981';
+                ctx.font = '14px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('SYSTEM READY: CORE OFFLINE', canvas.width / 2, canvas.height / 2 - 15);
+                ctx.font = '9px monospace';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('SELECT CORE SPEED ON THE RIGHT', canvas.width / 2, canvas.height / 2 + 15);
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText('Press SPACE, Arrow keys or click START ENGINE', canvas.width / 2, canvas.height / 2 + 45);
+            }
+
             // Pause screen layout overlay
-            if (isPausedRef.current && !gameOver) {
+            if (isStarted && isPausedRef.current && !gameOver) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#10b981';
@@ -328,7 +354,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
 
         animationFrameId = requestAnimationFrame(render);
         return () => cancelAnimationFrame(animationFrameId);
-    }, [gameOver, score]);
+    }, [gameOver, score, isStarted]);
 
     return (
         <div className="w-full flex flex-col items-center gap-6 select-none relative z-50">
@@ -419,6 +445,17 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                             })}
                         </div>
                     </div>
+
+                    {!isStarted && !gameOver && (
+                        <div className="mt-2">
+                            <button
+                                onClick={() => setIsStarted(true)}
+                                className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl cursor-pointer text-[10px] uppercase text-center tracking-widest transition-all duration-300 shadow-md shadow-emerald-600/30 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                            >
+                                Start Engine
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
