@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { HiMenuAlt3, HiX } from 'react-icons/hi';
+import { HiMenuAlt3, HiX, HiTerminal } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp, FaDownload } from 'react-icons/fa';
 import { useLenis } from 'lenis/react';
 
@@ -151,6 +151,14 @@ export default function Navbar() {
                                 <span className="relative z-10">{item.name}</span>
                             </a>
                         ))}
+                        {/* Terminal Toggle Button */}
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))}
+                            title="Open Developer Console (or press ~)"
+                            className="p-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:text-white transition-all duration-300 ml-4 group/terminal active:scale-95 cursor-pointer flex items-center justify-center shadow-md shadow-blue-500/5"
+                        >
+                            <HiTerminal className="text-base group-hover/terminal:scale-110 transition-transform" />
+                        </button>
                     </div>
 
                     {/* Mobile Toggle */}
@@ -244,6 +252,23 @@ export default function Navbar() {
                                 >
                                     <FaDownload /> Download CV
                                 </a>
+                            </motion.div>
+
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.9 }}
+                                className="mt-4"
+                            >
+                                <button 
+                                    onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        window.dispatchEvent(new CustomEvent('toggle-terminal'));
+                                    }}
+                                    className="w-full flex items-center justify-center gap-3 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all cursor-pointer"
+                                >
+                                    <HiTerminal className="text-base text-blue-400" /> Developer Console
+                                </button>
                             </motion.div>
 
                             <motion.div 

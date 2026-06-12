@@ -18,6 +18,7 @@ import ScrollToTop from '@/components/ui/ScrollToTop';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import AIChatbot from '@/components/ui/AIChatbot';
 import ContributionSkyline from '@/components/ui/ContributionSkyline';
+import DevConsole from '@/components/ui/DevConsole';
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -50,6 +51,7 @@ export default function Home() {
                         <Footer />
                         <FloatingWhatsApp />
                         <AIChatbot />
+                        <DevConsole />
                     </div>
                 </motion.div>
             )}
