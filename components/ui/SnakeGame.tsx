@@ -30,7 +30,14 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
     const directionRef = useRef<string>('RIGHT');
     const foodRef = useRef<Position>({ x: 22, y: 9 });
     const foodEmojiRef = useRef<string>('🐞');
+    const [isPaused, setIsPaused] = useState(false);
     const isPausedRef = useRef<boolean>(false);
+
+    const togglePause = () => {
+        const newVal = !isPausedRef.current;
+        isPausedRef.current = newVal;
+        setIsPaused(newVal);
+    };
 
     // Play retro beeps and buzzes natively using Web Audio API
     const playSynthesizerSound = (type: 'eat' | 'crash') => {
@@ -115,6 +122,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
         setScore(0);
         setGameOver(false);
         isPausedRef.current = false;
+        setIsPaused(false);
         setIsStarted(false);
     };
 
@@ -167,7 +175,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                         if (!isStarted) {
                             setIsStarted(true);
                         } else {
-                            isPausedRef.current = !isPausedRef.current;
+                            togglePause();
                         }
                     }
                     break;
@@ -356,6 +364,36 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
         return () => cancelAnimationFrame(animationFrameId);
     }, [gameOver, score, isStarted]);
 
+    const handleDirectionChange = (newDir: string) => {
+        const currentDir = directionRef.current;
+        if (!isStarted) {
+            setIsStarted(true);
+        }
+
+        switch (newDir) {
+            case 'UP':
+                if (currentDir !== 'DOWN') directionRef.current = 'UP';
+                break;
+            case 'DOWN':
+                if (currentDir !== 'UP') directionRef.current = 'DOWN';
+                break;
+            case 'LEFT':
+                if (currentDir !== 'RIGHT') directionRef.current = 'LEFT';
+                break;
+            case 'RIGHT':
+                if (currentDir !== 'LEFT') directionRef.current = 'RIGHT';
+                break;
+        }
+    };
+
+    const handlePauseToggle = () => {
+        if (!isStarted) {
+            setIsStarted(true);
+        } else {
+            togglePause();
+        }
+    };
+
     return (
         <div className="w-full flex flex-col items-center gap-6 select-none relative z-50">
             {/* Header Score Display Dashboard */}
@@ -386,6 +424,62 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
                         <span>SPACE to Pause</span>
                         <span>•</span>
                         <span>ESC to Quit</span>
+                    </div>
+
+                    {/* On-Screen D-Pad (visible on mobile only) */}
+                    <div className="flex flex-col items-center gap-4 mt-2 md:hidden w-full max-w-[280px]">
+                        {/* Grid layout for classic arcade D-pad */}
+                        <div className="grid grid-cols-3 gap-2 w-full aspect-square max-w-[160px]">
+                            {/* Row 1 */}
+                            <div />
+                            <button
+                                onClick={() => handleDirectionChange('UP')}
+                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
+                            >
+                                ▲
+                            </button>
+                            <div />
+
+                            {/* Row 2 */}
+                            <button
+                                onClick={() => handleDirectionChange('LEFT')}
+                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
+                            >
+                                ◀
+                            </button>
+                            <button
+                                onClick={handlePauseToggle}
+                                className="flex items-center justify-center border border-emerald-500/25 bg-black/60 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 text-[9px] font-mono font-bold cursor-pointer select-none leading-none"
+                            >
+                                {isPaused ? 'PLAY' : 'PAUS'}
+                            </button>
+                            <button
+                                onClick={() => handleDirectionChange('RIGHT')}
+                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
+                            >
+                                ▶
+                            </button>
+
+                            {/* Row 3 */}
+                            <div />
+                            <button
+                                onClick={() => handleDirectionChange('DOWN')}
+                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
+                            >
+                                ▼
+                            </button>
+                            <div />
+                        </div>
+
+                        {/* Reset / Action triggers on crash */}
+                        {gameOver && (
+                            <button
+                                onClick={resetGame}
+                                className="w-full py-2.5 px-4 bg-red-600/80 hover:bg-red-600 text-white font-bold rounded-xl cursor-pointer text-[10px] uppercase tracking-widest transition-all duration-300 text-center active:scale-95 shadow-md shadow-red-600/20"
+                            >
+                                Compile & Restart
+                            </button>
+                        )}
                     </div>
                 </div>
 
