@@ -9,6 +9,7 @@ interface SkillItem {
     name: string;
     icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
     color: string;
+    category?: string;
 }
 
 interface SkillPoint extends SkillItem {
@@ -17,16 +18,44 @@ interface SkillPoint extends SkillItem {
     z: number;
 }
 
+const categories = [
+    { id: 'All', label: 'All' },
+    { id: 'Programming Languages', label: 'Languages' },
+    { id: 'Databases & Servers', label: 'Databases' },
+    { id: 'Frameworks & Platforms', label: 'Frameworks' },
+    { id: 'Tools & IDE\'s', label: 'Tools' }
+];
+
 export default function Skills3DCloud() {
     const containerRef = useRef<HTMLDivElement>(null);
     const elementRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const searchQueryRef = useRef(searchQuery);
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const selectedCategoryRef = useRef(selectedCategory);
 
-    // Flatten skill categories to get all skills
+    // Drag and Momentum rotation refs
+    const isDraggingRef = useRef(false);
+    const startXRef = useRef(0);
+    const startYRef = useRef(0);
+    const totalDragDistRef = useRef(0);
+    const inertiaX = useRef(0);
+    const inertiaY = useRef(0);
+
+    // Flatten skill categories to get all skills with category field
     const skills = React.useMemo(() => {
-        return skillCategories.flatMap(category => category.skills);
+        return skillCategories.flatMap(category => 
+            category.skills.map(skill => ({
+                ...skill,
+                category: category.title
+            }))
+        );
     }, []);
+
+    // Sync selected category to ref for access in requestAnimationFrame
+    useEffect(() => {
+        selectedCategoryRef.current = selectedCategory;
+    }, [selectedCategory]);
 
     // Sync search query to ref for access in the requestAnimationFrame loop
     useEffect(() => {
@@ -38,8 +67,8 @@ export default function Skills3DCloud() {
         if (!container) return;
 
         const count = skills.length;
-        const radius = Math.min(240, window.innerWidth * 0.35);
-        const depth = 300;
+        const radius = Math.min(200, window.innerWidth * 0.3);
+        const depth = 450;
 
         // Fibonacci sphere distribution for uniform layout
         let points: SkillPoint[] = skills.map((skill, index) => {
@@ -56,19 +85,69 @@ export default function Skills3DCloud() {
         let currentRotationX = 0.002; // default self-rotation speeds
         let currentRotationY = 0.002;
         let isHovered = false;
-        let mouseX = 0;
-        let mouseY = 0;
         let activeHoveredIndex: number | null = null;
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const rect = container.getBoundingClientRect();
-            // Center-relative mouse coordinates
-            mouseX = e.clientX - rect.left - rect.width / 2;
-            mouseY = e.clientY - rect.top - rect.height / 2;
+        // Mouse Drag Handlers
+        const handleMouseDown = (e: MouseEvent) => {
+            isDraggingRef.current = true;
+            startXRef.current = e.clientX;
+            startYRef.current = e.clientY;
+            totalDragDistRef.current = 0;
+            inertiaX.current = 0;
+            inertiaY.current = 0;
+        };
 
-            // Compute rotation speed proportional to mouse displacement
-            currentRotationX = (mouseY / (rect.height / 2)) * 0.015;
-            currentRotationY = -(mouseX / (rect.width / 2)) * 0.015;
+        const handleMouseMoveWindow = (e: MouseEvent) => {
+            // Track cursor coordinates relative to center for normal hover speed when NOT dragging
+            const rect = container.getBoundingClientRect();
+            const relativeMouseX = e.clientX - rect.left - rect.width / 2;
+            const relativeMouseY = e.clientY - rect.top - rect.height / 2;
+            currentRotationX = (relativeMouseY / (rect.height / 2)) * 0.015;
+            currentRotationY = -(relativeMouseX / (rect.width / 2)) * 0.015;
+
+            if (!isDraggingRef.current) return;
+
+            const dx = e.clientX - startXRef.current;
+            const dy = e.clientY - startYRef.current;
+
+            inertiaX.current = dx * 0.006;
+            inertiaY.current = dy * 0.006;
+            totalDragDistRef.current += Math.abs(dx) + Math.abs(dy);
+
+            startXRef.current = e.clientX;
+            startYRef.current = e.clientY;
+        };
+
+        const handleMouseUpWindow = () => {
+            isDraggingRef.current = false;
+        };
+
+        // Touch Drag Handlers for Mobile
+        const handleTouchStart = (e: TouchEvent) => {
+            if (e.touches.length === 0) return;
+            isDraggingRef.current = true;
+            startXRef.current = e.touches[0].clientX;
+            startYRef.current = e.touches[0].clientY;
+            totalDragDistRef.current = 0;
+            inertiaX.current = 0;
+            inertiaY.current = 0;
+        };
+
+        const handleTouchMoveWindow = (e: TouchEvent) => {
+            if (!isDraggingRef.current || e.touches.length === 0) return;
+            const dx = e.touches[0].clientX - startXRef.current;
+            const dy = e.touches[0].clientY - startYRef.current;
+
+            inertiaX.current = dx * 0.006;
+            inertiaY.current = dy * 0.006;
+            totalDragDistRef.current += Math.abs(dx) + Math.abs(dy);
+
+            startXRef.current = e.touches[0].clientX;
+            startYRef.current = e.touches[0].clientY;
+        };
+
+        const handleTouchEndWindow = () => {
+            isDraggingRef.current = false;
         };
 
         const handleMouseEnter = () => {
@@ -77,23 +156,45 @@ export default function Skills3DCloud() {
 
         const handleMouseLeave = () => {
             isHovered = false;
-            // Gradually return to default self-rotation
-            mouseX = 0;
-            mouseY = 0;
         };
 
-        container.addEventListener('mousemove', handleMouseMove);
+        container.addEventListener('mousedown', handleMouseDown);
+        container.addEventListener('touchstart', handleTouchStart);
         container.addEventListener('mouseenter', handleMouseEnter);
         container.addEventListener('mouseleave', handleMouseLeave);
+
+        window.addEventListener('mousemove', handleMouseMoveWindow);
+        window.addEventListener('mouseup', handleMouseUpWindow);
+        window.addEventListener('touchmove', handleTouchMoveWindow, { passive: true });
+        window.addEventListener('touchend', handleTouchEndWindow);
 
         let animationFrameId: number;
 
         const updatePositions = () => {
-            // Apply rotation speeds
-            // If hovering a specific bubble, slow down the rotation for easier clicking
-            const damping = activeHoveredIndex !== null ? 0.1 : 1.0;
-            const rx = (isHovered ? currentRotationX : 0.002) * damping;
-            const ry = (isHovered ? currentRotationY : 0.002) * damping;
+            let rx = 0;
+            let ry = 0;
+
+            if (isDraggingRef.current) {
+                // Drag rotation speed
+                rx = inertiaY.current;
+                ry = -inertiaX.current;
+                // Decay inertia when dragging is active but mouse is stationary
+                inertiaX.current *= 0.85;
+                inertiaY.current *= 0.85;
+            } else {
+                // If there's drag release momentum (inertia), spin with it
+                if (Math.abs(inertiaX.current) > 0.0001 || Math.abs(inertiaY.current) > 0.0001) {
+                    rx = inertiaY.current;
+                    ry = -inertiaX.current;
+                    inertiaX.current *= 0.95; // apply friction
+                    inertiaY.current *= 0.95;
+                } else {
+                    // Hover/Self rotation speed
+                    const damping = activeHoveredIndex !== null ? 0.1 : 1.0;
+                    rx = (isHovered ? currentRotationX : 0.002) * damping;
+                    ry = (isHovered ? currentRotationY : 0.002) * damping;
+                }
+            }
 
             const cosX = Math.cos(rx);
             const sinX = Math.sin(rx);
@@ -110,22 +211,26 @@ export default function Skills3DCloud() {
                 const z2 = -p.x * sinY + z1 * cosY;
 
                 // 3. Project to 2D
-                const scale = depth / (depth - z2);
+                let scale = depth / (depth - z2);
+                // Cap the scale to a safe range to prevent giant or tiny overlaps
+                scale = Math.max(0.65, Math.min(1.2, scale));
                 
                 // Update DOM directly for maximum 60FPS performance
                 const el = elementRefs.current[index];
                 if (el) {
                     const query = searchQueryRef.current.toLowerCase();
                     const matchesSearch = query === '' || p.name.toLowerCase().includes(query);
+                    const matchesCategory = selectedCategoryRef.current === 'All' || p.category === selectedCategoryRef.current;
+                    const isVisible = matchesSearch && matchesCategory;
                     
                     // Style attributes
-                    const screenX = x2;
-                    const screenY = y1;
+                    const screenX = x2 * scale;
+                    const screenY = y1 * scale;
                     const isBubbleHovered = activeHoveredIndex === index;
                     
                     let opacity = (z2 + radius) / (2 * radius) * 0.6 + 0.4;
-                    if (!matchesSearch) {
-                        opacity *= 0.15; // Dim non-matching skills
+                    if (!isVisible) {
+                        opacity *= 0.12; // Dim non-matching skills heavily
                     } else if (isBubbleHovered) {
                         opacity = 1.0;
                     }
@@ -180,10 +285,16 @@ export default function Skills3DCloud() {
         return () => {
             cancelAnimationFrame(animationFrameId);
             if (container) {
-                container.removeEventListener('mousemove', handleMouseMove);
+                container.removeEventListener('mousedown', handleMouseDown);
+                container.removeEventListener('touchstart', handleTouchStart);
                 container.removeEventListener('mouseenter', handleMouseEnter);
                 container.removeEventListener('mouseleave', handleMouseLeave);
             }
+            window.removeEventListener('mousemove', handleMouseMoveWindow);
+            window.removeEventListener('mouseup', handleMouseUpWindow);
+            window.removeEventListener('touchmove', handleTouchMoveWindow);
+            window.removeEventListener('touchend', handleTouchEndWindow);
+
             // Clean up hover event listeners
             elementRefs.current.forEach((el) => {
                 if (el) {
@@ -195,6 +306,10 @@ export default function Skills3DCloud() {
     }, [skills]);
 
     const handleSkillClick = (techName: string) => {
+        // If the user dragged more than 8 pixels, treat it as a drag rotation, not a filter click
+        if (totalDragDistRef.current > 8) {
+            return;
+        }
         // Dispatch custom event to trigger filter on Projects section
         const event = new CustomEvent('filter-projects', { detail: { tech: techName } });
         window.dispatchEvent(event);
@@ -203,7 +318,7 @@ export default function Skills3DCloud() {
     return (
         <div className="w-full max-w-3xl flex flex-col items-center select-none">
             {/* Search Input Bar */}
-            <div className="relative w-full max-w-sm mb-12 px-6">
+            <div className="relative w-full max-w-sm mb-6 px-6">
                 <HiSearch className="absolute left-9 top-1/2 -translate-y-1/2 text-gray-500 text-lg" />
                 <input
                     type="text"
@@ -212,6 +327,26 @@ export default function Skills3DCloud() {
                     placeholder="Search technical arsenal..."
                     className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-12 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.08] transition-all placeholder:text-gray-500 text-xs md:text-sm tracking-wider font-mono"
                 />
+            </div>
+
+            {/* Category Filter Tabs */}
+            <div className="flex flex-wrap justify-center gap-2 mb-12 px-6">
+                {categories.map((cat) => {
+                    const isActive = selectedCategory === cat.id;
+                    return (
+                        <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat.id)}
+                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 border ${
+                                isActive
+                                    ? 'text-white border-blue-500 bg-blue-600/20 shadow-md shadow-blue-500/10'
+                                    : 'text-gray-400 border-white/5 bg-white/5 hover:text-white hover:border-white/10'
+                            }`}
+                        >
+                            {cat.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* 3D Sphere Container */}
@@ -226,10 +361,10 @@ export default function Skills3DCloud() {
                             key={index}
                             ref={(el) => { elementRefs.current[index] = el; }}
                             onClick={() => handleSkillClick(skill.name)}
-                            className="absolute left-1/2 top-1/2 rounded-2xl glassmorphism px-3 py-2 sm:px-5 sm:py-3 flex items-center gap-2 border border-white/5 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-colors duration-200"
+                            className="absolute left-1/2 top-1/2 rounded-xl glassmorphism px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1.5 sm:gap-2 border border-white/5 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-colors duration-200"
                         >
-                            <Icon className="text-sm sm:text-2xl" style={{ color: skill.color }} />
-                            <span className="text-white font-mono text-[9px] sm:text-xs uppercase tracking-wider whitespace-nowrap">
+                            <Icon className="text-[10px] sm:text-lg" style={{ color: skill.color }} />
+                            <span className="text-white font-mono text-[8px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap">
                                 {skill.name}
                             </span>
                         </div>
