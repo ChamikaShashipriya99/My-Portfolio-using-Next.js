@@ -98,7 +98,7 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
 export default function BusinessCard() {
     return (
         <section className="py-24 5xl:py-48 relative overflow-hidden flex flex-col items-center">
-            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">08</span>
+            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">09</span>
             {/* Background Portal Effect */}
             <motion.div
                 initial={{ scale: 0, opacity: 0 }}
