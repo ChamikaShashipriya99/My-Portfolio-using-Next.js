@@ -214,9 +214,7 @@ export default function SkillsMarquee() {
                         transition={{ duration: 0.4 }}
                         className="w-full flex justify-center items-center py-10"
                     >
-                        <div className="text-white text-center py-20 font-mono text-xs uppercase tracking-widest animate-pulse">
-                            Quantum Orbit Initializing...
-                        </div>
+                        <Skills3DCloud />
                     </motion.div>
                 )}
             </AnimatePresence>
