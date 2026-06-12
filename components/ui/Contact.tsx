@@ -56,6 +56,39 @@ export default function Contact() {
         }
     };
 
+    const handleWhatsAppSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+
+        if (!formRef.current) return;
+
+        // Custom validation check using reportValidity on the fields
+        const nameInput = formRef.current.querySelector('#user_name') as HTMLInputElement;
+        const emailInput = formRef.current.querySelector('#user_email') as HTMLInputElement;
+        const messageInput = formRef.current.querySelector('#message') as HTMLTextAreaElement;
+
+        if (!nameInput.value || !emailInput.value || !messageInput.value) {
+            formRef.current.reportValidity();
+            return;
+        }
+
+        const email = emailInput.value;
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            setStatus('error');
+            setTimeout(() => setStatus(null), 5000);
+            return;
+        }
+
+        const name = nameInput.value;
+        const message = messageInput.value;
+
+        // Format the message nicely for WhatsApp with emojis and bolding
+        const formattedMessage = `Hello Chamika! 👋\n\nI filled out your website contact form:\n\n👤 *Name:* ${name}\n📧 *Email:* ${email}\n\n💬 *Message:*\n${message}`;
+        const encodedText = encodeURIComponent(formattedMessage);
+        
+        // Open WhatsApp in a new tab
+        window.open(`https://wa.me/94750471511?text=${encodedText}`, '_blank', 'noopener,noreferrer');
+    };
+
     return (
         <section id="contact" className="py-24 5xl:py-48 relative">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">07</span>
@@ -228,19 +261,29 @@ export default function Contact() {
                                 />
                             </div>
 
-                            <button
-                                disabled={loading}
-                                type="submit"
-                                className="w-full group relative py-4 md:py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-600/20 active:scale-[0.98]"
-                            >
-                                {loading ? (
-                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                    <>
-                                        Transmit Message <HiPaperAirplane className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    </>
-                                )}
-                            </button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <button
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full group relative py-4 md:py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-600/20 active:scale-[0.98]"
+                                >
+                                    {loading ? (
+                                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            Transmit Email <HiPaperAirplane className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-lg" />
+                                        </>
+                                    )}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleWhatsAppSubmit}
+                                    className="w-full group relative py-4 md:py-6 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-[0.98]"
+                                >
+                                    WhatsApp Message <FaWhatsapp className="group-hover:scale-110 transition-transform text-lg" />
+                                </button>
+                            </div>
 
                             {status === 'success' && (
                                 <motion.div
