@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { motion, useAnimationControls } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, useAnimationControls, AnimatePresence } from 'framer-motion';
 import {
     SiJavascript, SiPython, SiC, SiCplusplus, SiSharp, SiPhp,
     SiKotlin, SiHtml5, SiCss3, SiMongodb, SiMysql,
@@ -12,7 +12,7 @@ import {
 } from 'react-icons/si';
 import { FaJava, FaServer, FaDatabase } from 'react-icons/fa';
 
-const skillCategories = [
+export const skillCategories = [
     {
         title: "Programming Languages",
         skills: [
@@ -129,6 +129,8 @@ const MarqueeRow = ({ skills, direction = 1 }: { skills: any[], direction?: numb
 };
 
 export default function SkillsMarquee() {
+    const [viewMode, setViewMode] = useState<'marquee' | 'orbit'>('orbit');
+
     return (
         <section id="skills" className="py-24 5xl:py-48 relative overflow-hidden bg-black/50">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">03</span>
@@ -139,25 +141,85 @@ export default function SkillsMarquee() {
                     </h2>
                     <div className="h-1.5 w-24 bg-blue-600 rounded-full mx-auto" />
                     <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">Advanced Skillset Matrix</p>
+                    
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center justify-center pt-6 select-none">
+                        <div className="inline-flex bg-white/5 border border-white/10 p-1 rounded-full relative">
+                            <button
+                                onClick={() => setViewMode('orbit')}
+                                className={`relative px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 z-10 ${
+                                    viewMode === 'orbit' ? 'text-white' : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {viewMode === 'orbit' && (
+                                    <motion.div
+                                        layoutId="activeSkillsView"
+                                        className="absolute inset-0 bg-blue-600 rounded-full -z-10"
+                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                    />
+                                )}
+                                Quantum Orbit
+                            </button>
+                            <button
+                                onClick={() => setViewMode('marquee')}
+                                className={`relative px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 z-10 ${
+                                    viewMode === 'marquee' ? 'text-white' : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {viewMode === 'marquee' && (
+                                    <motion.div
+                                        layoutId="activeSkillsView"
+                                        className="absolute inset-0 bg-blue-600 rounded-full -z-10"
+                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                    />
+                                )}
+                                System Stream
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2 md:gap-6">
-                {skillCategories.map((category, idx) => (
-                    <div key={idx} className="relative">
-                        <div className="container mx-auto px-6 mb-2">
-                            <span className="text-[10px] md:text-xs text-gray-600 uppercase tracking-[0.5em] font-bold opacity-50">
-                                {category.title}
-                            </span>
-                        </div>
+            <AnimatePresence mode="wait">
+                {viewMode === 'marquee' ? (
+                    <motion.div
+                        key="marquee-view"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.4 }}
+                        className="flex flex-col gap-2 md:gap-6"
+                    >
+                        {skillCategories.map((category, idx) => (
+                            <div key={idx} className="relative">
+                                <div className="container mx-auto px-6 mb-2">
+                                    <span className="text-[10px] md:text-xs text-gray-600 uppercase tracking-[0.5em] font-bold opacity-50">
+                                        {category.title}
+                                    </span>
+                                </div>
 
-                        <MarqueeRow
-                            skills={category.skills}
-                            direction={idx % 2 === 0 ? 1 : -1}
-                        />
-                    </div>
-                ))}
-            </div>
+                                <MarqueeRow
+                                    skills={category.skills}
+                                    direction={idx % 2 === 0 ? 1 : -1}
+                                />
+                            </div>
+                        ))}
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="orbit-view"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.4 }}
+                        className="w-full flex justify-center items-center py-10"
+                    >
+                        <div className="text-white text-center py-20 font-mono text-xs uppercase tracking-widest animate-pulse">
+                            Quantum Orbit Initializing...
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Background Glows */}
             <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-blue-600/5 rounded-full blur-[150px] pointer-events-none" />
