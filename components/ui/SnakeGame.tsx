@@ -10,7 +10,6 @@ interface Position {
 const GRID_SIZE = 20; // Size of each square cell in pixels
 const CELL_COUNT_X = 32; // Number of columns
 const CELL_COUNT_Y = 18; // Number of rows
-const SPEED = 90; // Speed of game loop in ms
 
 const BUG_EMOJIS = ['🐞', '🐛', '👾', '🐜', '🕷️'];
 
@@ -19,6 +18,7 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
+    const [speed, setSpeed] = useState(90); // speed in ms (lower is faster)
 
     // Keep state values in refs to access them inside the canvas loop without closures stale states
     const snakeRef = useRef<Position[]>([
@@ -228,9 +228,9 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
             snakeRef.current = snake;
         };
 
-        intervalId = setInterval(loop, SPEED);
+        intervalId = setInterval(loop, speed);
         return () => clearInterval(intervalId);
-    }, [gameOver, highScore]);
+    }, [gameOver, highScore, speed]);
 
     // Canvas Render Loop (Render separately for smooth graphics matching monitor updates)
     useEffect(() => {
@@ -333,29 +333,93 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
     return (
         <div className="w-full flex flex-col items-center gap-6 select-none relative z-50">
             {/* Header Score Display Dashboard */}
-            <div className="w-full max-w-[640px] flex justify-between px-6 py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-xl font-mono text-[10px] md:text-xs text-emerald-400">
+            <div className="w-full max-w-[850px] flex justify-between px-6 py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-xl font-mono text-[10px] md:text-xs text-emerald-400">
                 <div>SCORE: <span className="text-white font-bold">{score}</span></div>
                 <div className="text-emerald-500/60 font-semibold animate-pulse">TERMINAL ARCADE // DE-BUGGER RUN</div>
                 <div>HIGH SCORE: <span className="text-white font-bold">{highScore}</span></div>
             </div>
 
-            {/* Game Canvas Box */}
-            <div className="relative border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(16,185,129,0.1)] bg-[#050505] p-[1px]">
-                <canvas
-                    ref={canvasRef}
-                    width={CELL_COUNT_X * GRID_SIZE}
-                    height={CELL_COUNT_Y * GRID_SIZE}
-                    className="block w-full max-w-[640px] aspect-[16/9]"
-                />
-            </div>
+            {/* Game Canvas and Side Panel Wrapper */}
+            <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-[850px]">
+                {/* Left Side: Game Canvas & Key Hints */}
+                <div className="flex flex-col items-center gap-4 flex-grow max-w-[640px] w-full">
+                    {/* Game Canvas Box */}
+                    <div className="relative w-full border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(16,185,129,0.1)] bg-[#050505] p-[1px]">
+                        <canvas
+                            ref={canvasRef}
+                            width={CELL_COUNT_X * GRID_SIZE}
+                            height={CELL_COUNT_Y * GRID_SIZE}
+                            className="block w-full aspect-[16/9]"
+                        />
+                    </div>
 
-            {/* Bottom Instructions Panel */}
-            <div className="font-mono text-[9px] text-gray-500 flex gap-6 tracking-wider uppercase select-none pointer-events-none">
-                <span>W, A, S, D or ARROWS to Navigate</span>
-                <span>•</span>
-                <span>SPACE to Pause</span>
-                <span>•</span>
-                <span>ESC to Quit</span>
+                    {/* Bottom Instructions Panel */}
+                    <div className="font-mono text-[9px] text-gray-500 flex flex-wrap justify-center gap-x-6 gap-y-1 tracking-wider uppercase select-none pointer-events-none">
+                        <span>W, A, S, D or ARROWS to Navigate</span>
+                        <span>•</span>
+                        <span>SPACE to Pause</span>
+                        <span>•</span>
+                        <span>ESC to Quit</span>
+                    </div>
+                </div>
+
+                {/* Right Side: Speed Controller Side Panel */}
+                <div className="flex flex-col justify-between p-5 border border-emerald-500/20 bg-black/40 backdrop-blur-md rounded-2xl w-full md:w-[180px] text-emerald-400 font-mono text-xs gap-5">
+                    <div>
+                        <div className="text-[10px] text-emerald-500/60 uppercase tracking-widest mb-3 font-bold">
+                            // Core Freq
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="text-[10px] text-gray-500 uppercase">SYS_CLOCK</div>
+                                <div className="text-xl font-bold text-white tracking-tight">
+                                    {speed === 130 && '1.2 GHz'}
+                                    {speed === 90 && '2.4 GHz'}
+                                    {speed === 60 && '4.8 GHz'}
+                                    {speed === 40 && '8.0 GHz'}
+                                </div>
+                            </div>
+                            
+                            {/* Visual clock bar representation */}
+                            <div className="flex gap-1 items-end h-5 w-full bg-emerald-950/20 rounded p-1">
+                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 130 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
+                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 90 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
+                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 60 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
+                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 40 ? 'bg-red-500 animate-pulse' : 'bg-emerald-950/30'}`} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div className="text-[10px] text-emerald-500/60 uppercase tracking-widest mb-3 font-bold">
+                            // Core Speed
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            {[
+                                { label: 'SLOW', val: 130, freq: '1.2 GHz' },
+                                { label: 'STABLE', val: 90, freq: '2.4 GHz' },
+                                { label: 'TURBO', val: 60, freq: '4.8 GHz' },
+                                { label: 'HACKER', val: 40, freq: '8.0 GHz' }
+                            ].map((opt) => {
+                                const isActive = speed === opt.val;
+                                return (
+                                    <button
+                                        key={opt.val}
+                                        onClick={() => setSpeed(opt.val)}
+                                        className={`w-full py-2 px-3 border rounded-xl text-left transition-all duration-300 cursor-pointer text-[10px] uppercase font-bold flex flex-col ${
+                                            isActive
+                                                ? 'bg-emerald-500/20 border-emerald-400 text-white shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                                                : 'bg-transparent border-emerald-500/15 text-emerald-500/60 hover:border-emerald-500/40 hover:text-emerald-400'
+                                        }`}
+                                    >
+                                        <span>{opt.label}</span>
+                                        <span className="text-[8px] opacity-60 font-medium">{opt.freq}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

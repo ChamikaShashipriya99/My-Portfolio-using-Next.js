@@ -346,7 +346,7 @@ export default function DevConsole() {
 
                         {/* Visual Snake Game overlay screen */}
                         {viewMode === 'snake' && (
-                            <div className="absolute inset-0 z-50 bg-[#050505] flex items-center justify-center p-6">
+                            <div className="absolute inset-0 z-50 bg-[#050505] flex items-center justify-center p-6 overflow-y-auto">
                                 <SnakeGame onExit={() => setViewMode('console')} />
                             </div>
                         )}

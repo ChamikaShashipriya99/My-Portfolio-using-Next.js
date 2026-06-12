@@ -28,10 +28,10 @@ export default function MainframeArcade() {
                 </div>
 
                 {/* CRT Screen Outer Box Wrapper */}
-                <div className="w-full max-w-3xl border border-white/10 rounded-3xl bg-[#080808]/80 backdrop-blur-xl p-4 sm:p-8 flex flex-col items-center shadow-2xl relative">
+                <div className="w-full max-w-4xl border border-white/10 rounded-3xl bg-[#080808]/80 backdrop-blur-xl p-4 sm:p-8 flex flex-col items-center shadow-2xl relative">
                     
                     {/* Retro Monitor Tube Shell */}
-                    <div className="w-full aspect-[16/10] sm:aspect-[16/9] border border-emerald-500/20 bg-[#050505] rounded-2xl relative shadow-[0_0_40px_rgba(16,185,129,0.03)] overflow-hidden flex flex-col justify-center items-center p-4">
+                    <div className={`w-full border border-emerald-500/20 bg-[#050505] rounded-2xl relative shadow-[0_0_40px_rgba(16,185,129,0.03)] overflow-hidden flex flex-col justify-center items-center p-4 sm:p-6 transition-all duration-300 ${!isActive ? 'aspect-[16/10] sm:aspect-[16/9]' : 'min-h-[480px] h-auto'}`}>
                         
                         {/* CRT Screen Scanlines filter */}
                         <div className="absolute inset-0 pointer-events-none z-40 bg-[linear-gradient(rgba(18,16,16,0)_50%,_rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-[0.08]" />
