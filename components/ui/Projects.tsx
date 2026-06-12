@@ -118,6 +118,34 @@ export default function Projects() {
         };
     }, [projects]);
 
+    useEffect(() => {
+        const handleFilterEvent = (e: Event) => {
+            const customEvent = e as CustomEvent<{ tech: string }>;
+            const tech = customEvent.detail?.tech;
+            if (!tech) return;
+
+            const matchedLang = languages.find(
+                (lang) => lang.toLowerCase() === tech.toLowerCase()
+            );
+
+            if (matchedLang) {
+                setSelectedLanguage(matchedLang);
+            } else {
+                setSelectedLanguage('All');
+            }
+
+            setDisplayCount(12);
+
+            const projectsSection = document.getElementById('projects');
+            if (projectsSection) {
+                projectsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        window.addEventListener('filter-projects', handleFilterEvent);
+        return () => window.removeEventListener('filter-projects', handleFilterEvent);
+    }, [languages]);
+
     const filteredProjects = selectedLanguage === 'All'
         ? projects
         : projects.filter(p => p.tech.includes(selectedLanguage));
