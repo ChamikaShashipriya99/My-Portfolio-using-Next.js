@@ -8,8 +8,8 @@ interface Position {
 }
 
 const GRID_SIZE = 20; // Size of each square cell in pixels
-const CELL_COUNT_X = 32; // Number of columns
-const CELL_COUNT_Y = 18; // Number of rows
+const CELL_COUNT_X = 40; // Number of columns
+const CELL_COUNT_Y = 22; // Number of rows
 
 const BUG_EMOJIS = ['🐞', '🐛', '👾', '🐜', '🕷️'];
 
@@ -359,23 +359,23 @@ export default function SnakeGame({ onExit }: { onExit: () => void }) {
     return (
         <div className="w-full flex flex-col items-center gap-6 select-none relative z-50">
             {/* Header Score Display Dashboard */}
-            <div className="w-full max-w-[850px] flex justify-between px-6 py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-xl font-mono text-[10px] md:text-xs text-emerald-400">
+            <div className="w-full max-w-[1010px] flex justify-between px-6 py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-xl font-mono text-[10px] md:text-xs text-emerald-400">
                 <div>SCORE: <span className="text-white font-bold">{score}</span></div>
                 <div className="text-emerald-500/60 font-semibold animate-pulse">TERMINAL ARCADE // DE-BUGGER RUN</div>
                 <div>HIGH SCORE: <span className="text-white font-bold">{highScore}</span></div>
             </div>
 
             {/* Game Canvas and Side Panel Wrapper */}
-            <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-[850px]">
+            <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-[1010px]">
                 {/* Left Side: Game Canvas & Key Hints */}
-                <div className="flex flex-col items-center gap-4 flex-grow max-w-[640px] w-full">
+                <div className="flex flex-col items-center gap-4 flex-grow max-w-[800px] w-full">
                     {/* Game Canvas Box */}
                     <div className="relative w-full border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(16,185,129,0.1)] bg-[#050505] p-[1px]">
                         <canvas
                             ref={canvasRef}
                             width={CELL_COUNT_X * GRID_SIZE}
                             height={CELL_COUNT_Y * GRID_SIZE}
-                            className="block w-full aspect-[16/9]"
+                            className="block w-full aspect-[20/11]"
                         />
                     </div>
 

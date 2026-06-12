@@ -28,7 +28,7 @@ export default function MainframeArcade() {
                 </div>
 
                 {/* CRT Screen Outer Box Wrapper */}
-                <div className="w-full max-w-4xl border border-white/10 rounded-3xl bg-[#080808]/80 backdrop-blur-xl p-4 sm:p-8 flex flex-col items-center shadow-2xl relative">
+                <div className="w-full max-w-5xl border border-white/10 rounded-3xl bg-[#080808]/80 backdrop-blur-xl p-4 sm:p-8 flex flex-col items-center shadow-2xl relative">
                     
                     {/* Retro Monitor Tube Shell */}
                     <div className={`w-full border border-emerald-500/20 bg-[#050505] rounded-2xl relative shadow-[0_0_40px_rgba(16,185,129,0.03)] overflow-hidden flex flex-col justify-center items-center p-4 sm:p-6 transition-all duration-300 ${!isActive ? 'aspect-[16/10] sm:aspect-[16/9]' : 'min-h-[480px] h-auto'}`}>
@@ -92,7 +92,7 @@ export default function MainframeArcade() {
                 </div>
 
                 {/* Info Note Callout */}
-                <div className="w-full max-w-3xl mt-10">
+                <div className="w-full max-w-4xl mt-10">
                     <GlassCard className="!p-6 bg-blue-600/5 group hover:bg-blue-600/10 border-blue-500/10" hoverScale={false}>
                         <p className="text-gray-400 text-xs md:text-sm leading-relaxed text-center opacity-85 font-mono uppercase tracking-wider">
                             Interactive debugger running on native Web Audio API synthesizer oscillators. No external audio files loaded.
