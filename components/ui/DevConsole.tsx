@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiTerminal, HiX, HiChevronRight } from 'react-icons/hi';
+import SnakeGame from './SnakeGame';
 
 // CRT Screen Matrix Digital Rain canvas overlay
 function MatrixRain({ onExit }: { onExit: () => void }) {
@@ -90,7 +91,7 @@ interface LogLine {
 
 export default function DevConsole() {
     const [isOpen, setIsOpen] = useState(false);
-    const [viewMode, setViewMode] = useState<'console' | 'matrix'>('console');
+    const [viewMode, setViewMode] = useState<'console' | 'matrix' | 'snake'>('console');
     const [inputValue, setInputValue] = useState('');
     const [history, setHistory] = useState<LogLine[]>([]);
     const [cmdHistory, setCmdHistory] = useState<string[]>([]);
@@ -179,6 +180,7 @@ export default function DevConsole() {
                     { text: '  projects - Sync & list featured showcase repositories', isInput: false },
                     { text: '  contact  - View communication points (Email, Phone, WhatsApp)', isInput: false },
                     { text: '  matrix   - Initiate falling digital matrix rain sequence', isInput: false },
+                    { text: '  snake    - Launch retro debugger snake game', isInput: false },
                     { text: '  clear    - Clear console output history', isInput: false },
                     { text: '  exit     - Close the mainframe shell terminal', isInput: false },
                     { text: ' ', isInput: false }
@@ -261,6 +263,16 @@ export default function DevConsole() {
                     { text: ' ', isInput: false }
                 ]);
                 break;
+            case 'snake':
+            case 'game':
+                setViewMode('snake');
+                setHistory([
+                    ...updatedHistory,
+                    { text: 'Loading retro debugger game modules... OK', isInput: false },
+                    { text: 'Compiling snake vector elements... OK', isInput: false },
+                    { text: ' ', isInput: false }
+                ]);
+                break;
             case 'clear':
                 setHistory([]);
                 break;
@@ -330,6 +342,13 @@ export default function DevConsole() {
                         {/* Visual Matrix rain override screen */}
                         {viewMode === 'matrix' && (
                             <MatrixRain onExit={() => setViewMode('console')} />
+                        )}
+
+                        {/* Visual Snake Game overlay screen */}
+                        {viewMode === 'snake' && (
+                            <div className="absolute inset-0 z-50 bg-[#050505] flex items-center justify-center p-6">
+                                <SnakeGame onExit={() => setViewMode('console')} />
+                            </div>
                         )}
 
                         {/* Shell Header Bar */}
