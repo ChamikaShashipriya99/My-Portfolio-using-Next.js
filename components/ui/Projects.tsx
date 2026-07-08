@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import ProjectInspectorModal from './ProjectInspectorModal';
 
 interface Project {
     title: string;
@@ -38,6 +39,7 @@ export default function Projects() {
     const [loading, setLoading] = useState(true);
     const [displayCount, setDisplayCount] = useState(12);
     const [selectedLanguage, setSelectedLanguage] = useState('All');
+    const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRepos = async () => {
@@ -273,12 +275,12 @@ export default function Projects() {
                                                     </a>
                                                 )}
                                             </div>
-                                            <a
-                                                href={`/project/${project.title.toLowerCase().replace(/ /g, '-')}`}
-                                                className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words"
+                                            <button
+                                                onClick={() => setSelectedSlug(project.title.toLowerCase().replace(/ /g, '-'))}
+                                                className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words cursor-pointer"
                                             >
                                                 View Project Intel
-                                            </a>
+                                            </button>
                                         </div>
                                     </GlassCard>
                                 </motion.div>
@@ -302,6 +304,15 @@ export default function Projects() {
                     </motion.div>
                 )}
             </div>
+
+            <AnimatePresence>
+                {selectedSlug && (
+                    <ProjectInspectorModal
+                        slug={selectedSlug}
+                        onClose={() => setSelectedSlug(null)}
+                    />
+                )}
+            </AnimatePresence>
         </section>
     );
 }
