@@ -11,7 +11,16 @@ import {
     SiJsonwebtokens, SiCodeigniter, SiWordpress, SiNextdotjs
 } from 'react-icons/si';
 import { FaJava, FaServer, FaDatabase } from 'react-icons/fa';
-import Skills3DCloud from './Skills3DCloud';
+import dynamic from 'next/dynamic';
+
+const Skills3DCloud = dynamic(() => import('./Skills3DCloud'), {
+    ssr: false,
+    loading: () => (
+        <div className="h-[400px] w-full flex items-center justify-center flex-col gap-4 font-mono text-xs text-blue-500/50 uppercase tracking-[0.2em] animate-pulse">
+            Mapping Quantum Orbit...
+        </div>
+    )
+});
 
 export const skillCategories = [
     {

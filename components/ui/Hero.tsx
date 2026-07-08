@@ -4,9 +4,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
 import { useTextScramble } from '@/hooks/useTextScramble';
-import Hero3D from './Hero3D';
 import StarField from './StarField';
+
+const Hero3D = dynamic(() => import('./Hero3D'), {
+    ssr: false
+});
 
 const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     const [displayText, setDisplayText] = React.useState('');

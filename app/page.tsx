@@ -7,6 +7,8 @@ import Navbar from '@/components/ui/Navbar';
 import Hero from '@/components/ui/Hero';
 import About from '@/components/ui/About';
 import dynamic from 'next/dynamic';
+import DevConsole from '@/components/ui/DevConsole';
+import MainframeArcade from '@/components/ui/MainframeArcade';
 import Projects from '@/components/ui/Projects';
 import Experience from '@/components/ui/Experience';
 import Contact from '@/components/ui/Contact';
@@ -17,9 +19,15 @@ import Background from '@/components/ui/Background';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import AIChatbot from '@/components/ui/AIChatbot';
-import ContributionSkyline from '@/components/ui/ContributionSkyline';
-import DevConsole from '@/components/ui/DevConsole';
-import MainframeArcade from '@/components/ui/MainframeArcade';
+
+const ContributionSkyline = dynamic(() => import('@/components/ui/ContributionSkyline'), {
+    ssr: false,
+    loading: () => (
+        <div className="py-24 flex items-center justify-center flex-col gap-4 font-mono text-xs text-blue-500/50 uppercase tracking-[0.2em] animate-pulse">
+            Initializing 3D Skyline Core...
+        </div>
+    )
+});
 
 export default function Home() {
     const [loading, setLoading] = useState(true);

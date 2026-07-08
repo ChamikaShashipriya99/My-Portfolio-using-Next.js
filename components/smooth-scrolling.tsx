@@ -5,6 +5,13 @@ import { ReactNode, useEffect } from 'react';
 
 export default function SmoothScrolling({ children }: { children: ReactNode }) {
     useEffect(() => {
+        // Register PWA Service Worker
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((reg) => console.log('Service Worker registered successfully with scope:', reg.scope))
+                .catch((err) => console.error('Service Worker registration failed:', err));
+        }
+
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
         };
