@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { motion, useAnimationControls } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate, animate } from 'framer-motion';
 import { HiDownload } from 'react-icons/hi';
 
 interface SingleCardProps {
@@ -12,35 +12,172 @@ interface SingleCardProps {
 }
 
 const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps) => {
-    const controls = useAnimationControls();
-
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    
+    // Y base rotation (used for auto-spinning and snapping to front/back faces)
+    const rotateY = useMotionValue(0);
+    // Y vertical float offset (floating when idle, flat when hovered)
+    const yFloat = useMotionValue(0);
+    
+    // Tilt angle offset targets relative to mouse position
+    const tiltX = useMotionValue(0);
+    const tiltY = useMotionValue(0);
+    
+    // Mouse glare positions (percentage 0 to 100)
+    const glareX = useMotionValue(50);
+    const glareY = useMotionValue(50);
+    
+    // Target opacity of the glare sheen (0 when not hovering, 1 when hovering)
+    const glareOpacityTarget = useMotionValue(0);
+    
+    // Spring physics configuration to smooth coordinates and tilts
+    const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
+    const springTiltX = useSpring(tiltX, springConfig);
+    const springTiltY = useSpring(tiltY, springConfig);
+    const springGlareX = useSpring(glareX, springConfig);
+    const springGlareY = useSpring(glareY, springConfig);
+    const glareOpacity = useSpring(glareOpacityTarget, springConfig);
+    
+    // Glare templates
+    const glareBgFront = useMotionTemplate`radial-gradient(circle at ${springGlareX}% ${springGlareY}%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 65%)`;
+    
+    // Invert horizontal coordinate of glare on the back face to match card orientation
+    const springGlareXBack = useTransform(springGlareX, (x) => 100 - x);
+    const glareBgBack = useMotionTemplate`radial-gradient(circle at ${springGlareXBack}% ${springGlareY}%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 65%)`;
+    
+    // Combine base auto-spin rotateY and interactive springTiltY
+    const finalRotateY = useTransform(
+        [rotateY, springTiltY],
+        ([latestRotateY, latestTiltY]) => Number(latestRotateY) + Number(latestTiltY)
+    );
+    
+    // Store running animation instances to stop them on hover
+    const floatAnimRef = useRef<any>(null);
+    const spinAnimRef = useRef<any>(null);
+    
     const resumeAnimation = () => {
-        controls.start({
-            rotateY: [0, 360],
-            y: [0, -10, 0],
-            transition: {
-                rotateY: { duration: 8, repeat: Infinity, ease: 'linear' },
-                y: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-            },
+        // Stop current animation references if any
+        if (floatAnimRef.current) floatAnimRef.current.stop();
+        if (spinAnimRef.current) spinAnimRef.current.stop();
+        
+        // Start infinite float loop
+        floatAnimRef.current = animate(yFloat, [yFloat.get(), -10, yFloat.get()], {
+            duration: 4,
+            repeat: Infinity,
+            ease: 'easeInOut'
+        });
+        
+        // Start infinite spin loop
+        const startY = rotateY.get();
+        spinAnimRef.current = animate(rotateY, [startY, startY + 360], {
+            duration: 10,
+            repeat: Infinity,
+            ease: 'linear'
         });
     };
-
+    
     useEffect(() => {
+        // Start animation after delay
         const timer = setTimeout(resumeAnimation, delay * 1000);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            if (floatAnimRef.current) floatAnimRef.current.stop();
+            if (spinAnimRef.current) spinAnimRef.current.stop();
+        };
     }, []);
-
+    
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        
+        // 1. Stop active animations
+        if (floatAnimRef.current) floatAnimRef.current.stop();
+        if (spinAnimRef.current) spinAnimRef.current.stop();
+        
+        // 2. Snap to nearest flat side (front 0/360 or back 180 degrees)
+        const currentY = rotateY.get();
+        let normalizedY = currentY % 360;
+        if (normalizedY < 0) normalizedY += 360;
+        
+        let targetY = 0;
+        if (normalizedY > 90 && normalizedY < 270) {
+            targetY = 180;
+        } else {
+            targetY = normalizedY >= 270 ? 360 : 0;
+        }
+        
+        const fullRotations = Math.floor(currentY / 360) * 360;
+        const absoluteTargetY = fullRotations + targetY;
+        
+        // Smoothly snap to target flat angle and lower vertical float height to 0
+        animate(rotateY, absoluteTargetY, { type: 'spring', stiffness: 100, damping: 20 });
+        animate(yFloat, 0, { type: 'spring', stiffness: 100, damping: 20 });
+        
+        // 3. Fade in glare effect
+        glareOpacityTarget.set(1);
+    };
+    
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!cardRef.current) return;
+        
+        const rect = cardRef.current.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        
+        // Mouse coordinate offset relative to center of the card
+        const mouseXVal = e.clientX - rect.left;
+        const mouseYVal = e.clientY - rect.top;
+        
+        // Normalize coordinates to [-0.5, 0.5] range
+        const normX = (mouseXVal / width) - 0.5;
+        const normY = (mouseYVal / height) - 0.5;
+        
+        // Determine whether card is facing back or front to flip tilt coordinates
+        const currentY = rotateY.get();
+        let normalizedY = currentY % 360;
+        if (normalizedY < 0) normalizedY += 360;
+        const isBack = normalizedY > 90 && normalizedY < 270;
+        const factor = isBack ? -1 : 1;
+        
+        // Set rotational tilt values (max 20 degrees)
+        tiltX.set(normY * -20 * factor);
+        tiltY.set(normX * 20 * factor);
+        
+        // Set glare coordinates targets
+        glareX.set((mouseXVal / width) * 100);
+        glareY.set((mouseYVal / height) * 100);
+    };
+    
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        
+        // 1. Reset tilts
+        tiltX.set(0);
+        tiltY.set(0);
+        
+        // 2. Fade out glare effect
+        glareOpacityTarget.set(0);
+        
+        // 3. Resume auto float and spin immediately
+        resumeAnimation();
+    };
+    
     return (
         <div className="flex flex-col items-center gap-8">
-            {/* Card with hover pause */}
             <div
                 className="perspective-1000 group"
-                onMouseEnter={() => controls.stop()}
-                onMouseLeave={resumeAnimation}
+                onMouseEnter={handleMouseEnter}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
             >
                 <motion.div
-                    animate={controls}
-                    style={{ transformStyle: 'preserve-3d' }}
+                    ref={cardRef}
+                    style={{
+                        y: yFloat,
+                        rotateX: springTiltX,
+                        rotateY: finalRotateY,
+                        transformStyle: 'preserve-3d'
+                    }}
                     className="relative w-[240px] h-[400px] md:w-[280px] md:h-[480px] 3xl:w-[350px] 3xl:h-[600px] cursor-pointer"
                 >
                     {/* Front Side */}
@@ -56,8 +193,11 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
                                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/350x600/111/444?text=Front+Missing';
                             }}
                         />
-                        {/* Glare effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
+                        {/* Dynamic Holographic Glare */}
+                        <motion.div 
+                            className="absolute inset-0 pointer-events-none mix-blend-overlay z-10"
+                            style={{ background: glareBgFront, opacity: glareOpacity }}
+                        />
                     </div>
 
                     {/* Back Side */}
@@ -73,8 +213,11 @@ const SingleCard = ({ frontImage, backImage, title, delay = 0 }: SingleCardProps
                                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/350x600/111/444?text=Back+Missing';
                             }}
                         />
-                        {/* Glare effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
+                        {/* Dynamic Holographic Glare */}
+                        <motion.div 
+                            className="absolute inset-0 pointer-events-none mix-blend-overlay z-10"
+                            style={{ background: glareBgBack, opacity: glareOpacity }}
+                        />
                     </div>
 
                     {/* Glow on hover */}
