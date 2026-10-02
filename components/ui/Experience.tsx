@@ -9,7 +9,7 @@ const experiences = [
     {
         company: "Sri Lanka Telecom PLC",
         role: "Intern Full-Stack Developer",
-        period: "April 2026 - Present",
+        period: "April 2026 - October 2026",
         description: "Working as an Intern Full-Stack Developer at Sri Lanka Telecom PLC, gaining hands-on experience in full-stack development.",
         logo: "/images/SLT.png",
         category: "professional"

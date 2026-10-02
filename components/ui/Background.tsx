@@ -28,10 +28,10 @@ export default function Background() {
             {/* Animated Glow 1 */}
             <motion.div
                 style={{
-                    left: smoothedX,
-                    top: smoothedY,
+                    x: smoothedX,
+                    y: smoothedY,
                 }}
-                className="absolute w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-blue-600/10 rounded-full blur-[120px]"
+                className="absolute top-0 left-0 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.15)_0%,_transparent_70%)] rounded-full will-change-transform"
             />
 
             {/* Animated Glow 2 */}
@@ -45,11 +45,11 @@ export default function Background() {
                     repeat: Infinity,
                     ease: "linear"
                 }}
-                className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[100px]"
+                className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,_rgba(147,51,234,0.1)_0%,_transparent_70%)] rounded-full will-change-transform"
             />
 
             {/* Grid Pattern */}
-            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-50 contrast-150" />
+            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.08]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
             {/* Vignette */}

@@ -25,7 +25,7 @@ function HexDump() {
                 str += Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase() + ' ';
             }
             setHex(str);
-        }, 50);
+        }, 150);
         return () => clearInterval(timer);
     }, []);
     return (
@@ -91,9 +91,22 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
 
     return (
         <motion.div 
-            exit={{ opacity: 1, transition: { duration: 1.5 } }}
+            key="app-loader"
+            exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
             className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 md:p-12 pointer-events-none overflow-hidden"
         >
+            {/* Skip Button - Top Right */}
+            {progress < 100 && (
+                <div className="absolute top-6 right-6 md:top-8 md:right-12 z-[110] pointer-events-auto">
+                    <button 
+                        onClick={onComplete}
+                        className="text-[10px] md:text-xs font-mono text-blue-500/70 hover:text-white hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500 px-3 py-1.5 transition-all duration-300 uppercase tracking-widest backdrop-blur-sm"
+                    >
+                        [ Skip Boot ]
+                    </button>
+                </div>
+            )}
+
             {/* The Background Shutters (Alternating sliding out) */}
             <div className="absolute inset-0 z-0 flex pointer-events-none">
                 {[...Array(columns)].map((_, i) => (

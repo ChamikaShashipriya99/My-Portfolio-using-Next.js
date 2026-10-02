@@ -230,8 +230,8 @@ export default function SkillsMarquee() {
             </AnimatePresence>
 
             {/* Background Glows */}
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-blue-600/5 rounded-full blur-[150px] pointer-events-none" />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-purple-600/5 rounded-full blur-[150px] pointer-events-none" />
+            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.1)_0%,_transparent_70%)] rounded-full pointer-events-none" />
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,_rgba(147,51,234,0.1)_0%,_transparent_70%)] rounded-full pointer-events-none" />
         </section>
     );
 }
