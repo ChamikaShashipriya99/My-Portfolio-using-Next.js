@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { HiMenuAlt3, HiX, HiTerminal } from 'react-icons/hi';
@@ -19,71 +19,55 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Home');
     const lenis = useLenis();
+    const navRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    useEffect(() => {
-        if (mobileMenuOpen) {
-            lenis?.stop();
-        } else {
-            lenis?.start();
-        }
+        if (mobileMenuOpen) lenis?.stop();
+        else lenis?.start();
     }, [mobileMenuOpen, lenis]);
 
-    // Scroll Spy Logic
-    const syncActiveTab = () => {
-        const sections = navItems.map(item => {
-            const el = document.querySelector(item.href);
-            return {
-                name: item.name,
-                offset: el ? el.getBoundingClientRect().top : Infinity,
-            };
+    const syncActiveTab = useCallback(() => {
+        setIsScrolled(window.scrollY > 50);
+        const navBottom = navRef.current?.getBoundingClientRect().bottom ?? 80;
+        const marker = Math.min(window.innerHeight * 0.5, navBottom + 48);
+        const sections = Array.from(document.querySelectorAll<HTMLElement>('main section'));
+        const current = sections.find(section => {
+            const bounds = section.getBoundingClientRect();
+            return bounds.height > 0 && bounds.top <= marker && bounds.bottom > marker;
         });
-
-        // Find the section that is currently most visible in the viewport
-        // We look for the last section whose top is less than or equal to a threshold
-        const threshold = 160;
-        const currentSection = sections.reduce((acc, section) => {
-            if (section.offset <= threshold) return section.name;
-            return acc;
-        }, 'Home');
-
-        if (currentSection !== activeTab) {
-            setActiveTab(currentSection);
-        }
-    };
-
-    useLenis(({ scroll }) => {
-        syncActiveTab();
-    });
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-
-        // Initial sync on mount
-        syncActiveTab();
-
-        // Periodically sync for a short bit to handle async rendered components like Projects
-        const interval = setInterval(syncActiveTab, 500);
-        const timeout = setTimeout(() => clearInterval(interval), 3000);
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
+        const name = current ? navItems.find(item => item.href === '#' + current.id)?.name ?? '' : 'Home';
+        setActiveTab(previous => previous === name ? previous : name);
     }, []);
 
-    const handleNavClick = (e: React.MouseEvent, href: string, name: string) => {
+    useLenis(syncActiveTab);
+
+    useEffect(() => {
+        let frame = 0;
+        const scheduleSync = () => {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(syncActiveTab);
+        };
+        const observer = new ResizeObserver(scheduleSync);
+        document.querySelectorAll('main, main section').forEach(element => observer.observe(element));
+        // Lazy-loaded sections can change the section under the navigation.
+        const mutations = new MutationObserver(scheduleSync);
+        const main = document.querySelector('main');
+        if (main) mutations.observe(main, { childList: true, subtree: true });
+        window.addEventListener('scroll', scheduleSync, { passive: true });
+        window.addEventListener('resize', scheduleSync);
+        window.addEventListener('hashchange', scheduleSync);
+        scheduleSync();
+        return () => {
+            cancelAnimationFrame(frame);
+            observer.disconnect();
+            mutations.disconnect();
+            window.removeEventListener('scroll', scheduleSync);
+            window.removeEventListener('resize', scheduleSync);
+            window.removeEventListener('hashchange', scheduleSync);
+        };
+    }, [syncActiveTab]);
+
+    const handleNavClick = (e: React.MouseEvent, href: string, _name: string) => {
         e.preventDefault();
         
         // Close menu immediately for feedback
@@ -93,23 +77,24 @@ export default function Navbar() {
         setTimeout(() => {
             if (lenis) {
                 lenis.scrollTo(href, {
-                    offset: -100,
+                    offset: -((navRef.current?.getBoundingClientRect().bottom ?? 80) + 16),
                     duration: 1.5,
                 });
             } else {
                 // Fallback to native scroll if lenis is not available
                 const element = document.querySelector(href);
                 if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+                    window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top - (navRef.current?.getBoundingClientRect().bottom ?? 80) - 16, behavior: 'smooth' });
                 }
             }
-            setActiveTab(name);
+            window.history.replaceState(null, '', href);
+            syncActiveTab();
         }, 300);
     };
 
     return (
         <>
-            <nav
+            <nav ref={navRef}
                 className={cn(
                     'fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[90%] md:w-auto',
                     isScrolled ? 'top-2 sm:top-4' : 'top-4 sm:top-8'
@@ -135,6 +120,7 @@ export default function Navbar() {
                             <a
                                 key={item.name}
                                 href={item.href}
+                                aria-current={activeTab === item.name ? 'location' : undefined}
                                 onClick={(e) => handleNavClick(e, item.href, item.name)}
                                 className={cn(
                                     'relative text-sm 3xl:text-xl font-bold uppercase tracking-widest px-3 py-1.5 3xl:px-5 3xl:py-2.5 rounded-full transition-colors',
@@ -220,6 +206,7 @@ export default function Navbar() {
                                     >
                                         <a
                                             href={item.href}
+                                aria-current={activeTab === item.name ? 'location' : undefined}
                                             onClick={(e) => handleNavClick(e, item.href, item.name)}
                                             className={cn(
                                                 'text-lg font-bold uppercase tracking-[0.2em] transition-all relative px-4 py-4 rounded-xl flex items-center group',

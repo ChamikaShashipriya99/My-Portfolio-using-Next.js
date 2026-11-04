@@ -4,13 +4,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import dynamic from 'next/dynamic';
+import HeroProjectCarousel from './HeroProjectCarousel';
 import { useTextScramble } from '@/hooks/useTextScramble';
 import StarField from './StarField';
-
-const Hero3D = dynamic(() => import('./Hero3D'), {
-    ssr: false
-});
 
 const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     const [displayText, setDisplayText] = React.useState('');
@@ -47,8 +43,8 @@ const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
     };
 
     return (
-        <div className="flex justify-center items-center h-10 w-full overflow-hidden px-2">
-            <span className="text-blue-500 font-mono text-[10px] sm:text-base md:text-2xl 3xl:text-3xl uppercase tracking-widest md:tracking-[0.5rem] font-bold border-r-2 border-blue-500 animate-pulse pr-1 sm:pr-2 whitespace-nowrap">
+        <div className="flex justify-center lg:justify-start items-center h-7 sm:h-8 w-full overflow-hidden">
+            <span className="text-blue-500 font-mono text-[10px] sm:text-sm md:text-base uppercase tracking-[0.15em] sm:tracking-[0.25em] font-bold border-r-2 border-blue-500 animate-pulse pr-1 sm:pr-2 whitespace-nowrap">
                 {displayText}
             </span>
         </div>
@@ -60,9 +56,8 @@ export default function Hero() {
     const { displayText: displaySurname, scramble: scrambleSurname } = useTextScramble('SHASHIPRIYA');
 
     return (
-        <section id="home" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <section id="home" className="relative min-h-[100svh] flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
-            <Hero3D />
             <StarField count={120} />
 
             {/* Film grain texture — premium editorial feel */}
@@ -90,14 +85,24 @@ export default function Hero() {
                     opacity: { times: [0, 0.03, 0.5, 0.88, 1], ease: 'linear' },
                 }}
             />
-            <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+            <div className="container mx-auto px-6 lg:px-10 relative z-10 grid lg:grid-cols-[1.1fr_1fr] items-center gap-10 lg:gap-8 max-w-7xl">
 
-                <div className="flex flex-col items-center">
+                <div className="min-w-0 flex flex-col items-center text-center lg:items-start lg:text-left">
+                <div className="w-full flex flex-col items-center lg:items-start">
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-blue-500/25 bg-blue-500/10 px-4 py-2 text-[10px] sm:text-xs font-mono tracking-wide text-blue-200"
+                    >
+                        <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.45)]" />
+                        Open to full-time opportunities
+                    </motion.div>
                     {/* CHAMIKA — letter-by-letter stagger slide-up */}
                     <h1
                         onMouseEnter={scrambleName}
                         aria-label="CHAMIKA"
-                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black text-white tracking-tighter mb-4 leading-[1.1] w-full cursor-default"
+                        className="text-[clamp(2rem,5.8vw,4.5rem)] lg:text-[clamp(2.5rem,4.6vw,4.5rem)] font-black text-white tracking-tighter mb-1 leading-[1.05] w-full cursor-default"
                     >
                         {'CHAMIKA'.split('').map((letter, i) => (
                             <span
@@ -127,7 +132,7 @@ export default function Hero() {
                         initial={{ clipPath: 'inset(0 100% 0 0)' }}
                         animate={{ clipPath: 'inset(0 0% 0 0)' }}
                         transition={{ delay: 0.75, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl 5xl:text-[10rem] 2k:text-[12rem] 5k:text-[15rem] font-black tracking-tighter mb-4 leading-[1.1] w-full break-words cursor-default text-gradient-animated"
+                        className="text-[clamp(2rem,5.8vw,4.5rem)] lg:text-[clamp(2.5rem,4.6vw,4.5rem)] font-black tracking-tighter mb-1 leading-[1.05] w-full break-words cursor-default text-gradient-animated"
                     >
                         {displaySurname}
                     </motion.h1>
@@ -137,56 +142,30 @@ export default function Hero() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.8 }}
-                    className="mb-10 md:mb-12"
+                    className="mt-4 mb-5"
                 >
                     <Typewriter text="Full-Stack Web Developer" delay={0.5} />
                 </motion.div>
 
-                {/* Pull quote */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative max-w-xl md:max-w-2xl mx-auto mb-12 px-8 text-center"
+                    transition={{ delay: 0.4, duration: 0.7 }}
+                    className="max-w-xl mb-7 text-center lg:text-left"
                 >
-                    {/* Opening decorative quote */}
-                    <span
-                        aria-hidden="true"
-                        className="absolute -top-6 left-2 text-[6rem] md:text-[8rem] leading-none font-black text-blue-500/20 select-none pointer-events-none"
-                        style={{ fontFamily: 'Georgia, serif', lineHeight: 1 }}
-                    >
-                        &ldquo;
-                    </span>
-
-                    <blockquote className="relative z-10">
-                        <p className="font-sans font-bold text-white text-2xl md:text-3xl 3xl:text-4xl leading-snug tracking-tight mb-6">
-                            Turning ideas into<br />
-                            <span className="text-gradient-animated">reality through code.</span>
-                        </p>
-
-                        {/* Divider */}
-                        <div className="gradient-divider w-24 mx-auto mb-4 opacity-60" />
-
-                        <footer className="font-mono text-[10px] md:text-xs uppercase tracking-[0.4em] text-gray-500">
-                            — Chamika Shashipriya
-                        </footer>
-                    </blockquote>
-
-                    {/* Closing decorative quote */}
-                    <span
-                        aria-hidden="true"
-                        className="absolute -bottom-10 right-2 text-[6rem] md:text-[8rem] leading-none font-black text-blue-500/20 select-none pointer-events-none"
-                        style={{ fontFamily: 'Georgia, serif', lineHeight: 1 }}
-                    >
-                        &rdquo;
-                    </span>
+                    <h2 className="text-xl sm:text-2xl font-semibold leading-snug tracking-tight text-white">
+                        Thoughtful interfaces. <span className="text-gradient-animated">Reliable web applications.</span>
+                    </h2>
+                    <p className="mt-3 text-sm sm:text-base text-gray-400 leading-relaxed">
+                        I help people bring their ideas to the web with responsive applications, thoughtful interfaces, and reliable backends.
+                    </p>
                 </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6, duration: 0.8 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-[280px] sm:max-w-none mx-auto"
+                    className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 w-full max-w-[280px] sm:max-w-none"
                 >
                     <a href="#projects" className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-full font-bold overflow-hidden transition-all hover:bg-blue-700 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] flex justify-center items-center text-sm sm:text-base">
                         <span className="relative z-10 flex items-center justify-center gap-2">
@@ -207,7 +186,7 @@ export default function Hero() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 0.8 }}
-                    className="mt-16 flex items-center gap-6"
+                    className="mt-6 flex items-center gap-6"
                 >
                     {/* GitHub — white glow */}
                     <a
@@ -237,14 +216,16 @@ export default function Hero() {
                         <FaWhatsapp />
                     </a>
                 </motion.div>
+                </div>
+                <HeroProjectCarousel />
             </div>
 
             {/* Scroll indicator — animated dot + label */}
-            <motion.div
+            <motion.button type="button" aria-label="Scroll to About"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.6, duration: 0.8 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-50 hover:opacity-90 transition-opacity cursor-pointer group"
+                className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 hover:opacity-90 transition-opacity cursor-pointer group"
                 onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
             >
                 <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center pt-1.5 group-hover:border-blue-400/80 transition-colors">
@@ -257,7 +238,7 @@ export default function Hero() {
                 <span className="text-white/50 text-[8px] font-mono uppercase tracking-[0.5em] group-hover:text-blue-400/80 transition-colors">
                     Scroll
                 </span>
-            </motion.div>
+            </motion.button>
         </section>
     );
 }
