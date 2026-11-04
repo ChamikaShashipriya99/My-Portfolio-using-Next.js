@@ -110,19 +110,27 @@ export default function Navbar() {
         // Close menu immediately for feedback
         setMobileMenuOpen(false);
         
-        // Small delay to allow the menu to start closing before scrolling
+        const focusTarget = () => {
+            const target = document.querySelector<HTMLElement>(href);
+            if (!target) return;
+            target.setAttribute('tabindex', '-1');
+            target.focus({ preventScroll: true });
+        };
+        // Allow the menu to close before transferring focus into the section.
         setTimeout(() => {
             if (lenis) {
                 lenis.scrollTo(href, {
                     offset: -((navRef.current?.getBoundingClientRect().bottom ?? 80) + 16),
                     duration: reducedMotion ? 0 : 1.5,
                     immediate: !!reducedMotion,
+                    onComplete: focusTarget,
                 });
             } else {
                 // Fallback to native scroll if lenis is not available
                 const element = document.querySelector(href);
                 if (element) {
                     window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top - (navRef.current?.getBoundingClientRect().bottom ?? 80) - 16, behavior: reducedMotion ? 'instant' : 'smooth' });
+                    focusTarget();
                 }
             }
             window.history.replaceState(null, '', href);
@@ -134,9 +142,9 @@ export default function Navbar() {
         <MotionConfig reducedMotion="user">
             <nav ref={navRef} aria-label="Main navigation"
                 className={cn('fixed inset-x-0 z-50 px-4 sm:px-6 lg:px-10 transition-all duration-300', isScrolled ? 'top-3' : 'top-5 sm:top-7')}>
-                <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3 lg:gap-5">
+                <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2 2xl:gap-5">
                     <a href="#home" onClick={e => handleNavClick(e, '#home', 'Home')}
-                        className={cn('shrink-0 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-5 text-white font-cursive whitespace-nowrap hover:border-blue-500/40 hover:text-blue-300 transition-all duration-300 shadow-lg shadow-black/15 focus-visible:outline focus-visible:outline-blue-400', isScrolled ? 'py-2.5 text-xl' : 'py-3.5 text-xl')}>
+                        className={cn('shrink-0 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-3 sm:px-5 text-white font-cursive whitespace-nowrap hover:border-blue-500/40 hover:text-blue-300 transition-all duration-300 shadow-lg shadow-black/15 focus-visible:outline focus-visible:outline-blue-400', isScrolled ? 'py-2.5 text-lg sm:text-xl' : 'py-3.5 text-lg sm:text-xl')}>
                         Chamika<span className="text-blue-500">.</span>Shashipriya
                     </a>
                     <div className={cn('hidden xl:flex items-center justify-center gap-1 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-4 shadow-lg shadow-black/15 transition-all duration-300', isScrolled ? 'py-1.5' : 'py-2.5')}>

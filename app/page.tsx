@@ -44,11 +44,12 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1 }}
                 >
+                    <a href="#main-content" className="fixed left-4 top-4 z-[200] -translate-y-24 focus:translate-y-0 rounded-lg bg-blue-600 px-4 py-3 text-white focus:outline focus:outline-white" onClick={event => { event.preventDefault(); const target = document.getElementById('main-content'); target?.focus({ preventScroll: true }); target?.scrollIntoView({ behavior: 'instant', block: 'start' }); }}>Skip to content</a>
                     <Background />
                     <ScrollToTop />
                     <Navbar />
 
-                    <div className="relative z-10">
+                    <div id="main-content" tabIndex={-1} className="relative z-10 outline-none">
                         <Hero />
                         <About />
                         <SkillsMarquee />

@@ -1,0 +1,9 @@
+/* Keep the hero actions in view on short laptops without compressing phones. */
+@media (min-width: 1024px) and (max-height: 800px) {
+  .hero-section { padding-top: 116px; padding-bottom: 84px; }
+  .hero-project-carousel .carousel-stage { height: 210px; }
+  .hero-project-carousel .carousel-details { height: 190px; padding-top: 12px; }
+}
+@media (max-width: 639px) {
+  .hero-project-carousel .carousel-stage { height: 210px; }
+}

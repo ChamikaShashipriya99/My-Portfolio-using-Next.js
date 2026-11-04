@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface Repo {
     id: number; name: string; description: string | null; language: string | null;
@@ -13,9 +13,12 @@ async function github(path: string) {
     });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const requested = request.nextUrl.searchParams.get('limit');
+    const limit = requested === null ? 100 : Number(requested);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) return NextResponse.json({ error: 'Invalid project limit' }, { status: 400 });
     try {
-        const response = await github('users/ChamikaShashipriya99/repos?sort=updated&direction=desc&per_page=100');
+        const response = await github(`users/ChamikaShashipriya99/repos?sort=updated&direction=desc&per_page=${limit}`);
         if (!response.ok) return NextResponse.json({ error: 'Projects unavailable' }, { status: 503 });
         const repos: Repo[] = await response.json();
         if (!Array.isArray(repos)) throw new Error('Invalid repository response');

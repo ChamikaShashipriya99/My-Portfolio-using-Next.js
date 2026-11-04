@@ -47,7 +47,7 @@ export default function HeroProjectCarousel() {
         const controller = new AbortController();
         async function load() {
             try {
-                const response = await fetch('/api/github-projects', { signal: controller.signal });
+                const response = await fetch('/api/github-projects?limit=6', { signal: controller.signal });
                 if (!response.ok) throw new Error('Projects unavailable');
                 const { projects: repos }: { projects: Repository[] } = await response.json();
                 if (!Array.isArray(repos)) throw new Error('Invalid projects');
@@ -66,13 +66,15 @@ export default function HeroProjectCarousel() {
         return () => window.clearInterval(timer);
     }, [paused, hovered, focused, reducedMotion, visible, projects.length, index]);
 
+    const touchStart = useRef<{ x: number; y: number } | null>(null);
+    const swiped = useRef(false);
     const project = projects[index];
     const buttonClass = 'rounded-full border border-white/10 p-2.5 text-gray-400 hover:text-white hover:border-blue-400/50 transition-colors focus-visible:outline focus-visible:outline-blue-400';
     return <div ref={ref} role="region" aria-roledescription="carousel" aria-label="Project highlights"
         onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
         onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false); }}
         onKeyDown={event => { if (event.target !== event.currentTarget || projects.length < 2) return; if (event.key === 'ArrowLeft') { event.preventDefault(); move(-1); } if (event.key === 'ArrowRight') { event.preventDefault(); move(1); } }} tabIndex={0}
-        className="relative isolate w-full max-w-[560px] mx-auto py-2 focus-visible:outline focus-visible:outline-blue-400 rounded-[2rem]">
+        className="hero-project-carousel relative isolate w-full max-w-[560px] mx-auto py-2 focus-visible:outline focus-visible:outline-blue-400 rounded-[2rem]">
         <div className="relative">
         <div className="flex items-center justify-between px-2 py-4">
             <span className="flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] uppercase text-blue-300"><span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Project highlights</span>
@@ -83,7 +85,19 @@ export default function HeroProjectCarousel() {
             <p className="text-sm text-gray-400">{loading ? 'Loading project highlights…' : 'Project previews are currently unavailable.'}</p>
             {!loading && <a href="#projects" className="text-sm text-blue-300">Explore my projects →</a>}
         </div> : <>
-            <div className="relative h-[230px] sm:h-[290px] overflow-hidden" style={{ perspective: '1000px' }} aria-label="Choose a project preview">
+            <div className="carousel-stage relative h-[230px] sm:h-[290px] overflow-hidden" aria-label="Choose a project preview"
+                style={{ perspective: '1000px', touchAction: 'pan-y' }}
+                onTouchStart={event => { const touch = event.touches[0]; touchStart.current = { x: touch.clientX, y: touch.clientY }; swiped.current = false; }}
+                onTouchEnd={event => {
+                    const start = touchStart.current;
+                    touchStart.current = null;
+                    if (!start) return;
+                    const touch = event.changedTouches[0];
+                    const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
+                    if (Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.3) { swiped.current = true; move(dx < 0 ? 1 : -1); }
+                }}
+                onTouchCancel={() => { touchStart.current = null; }}
+                onClickCapture={event => { if (swiped.current) { event.preventDefault(); event.stopPropagation(); swiped.current = false; } }}>
                 <div aria-hidden="true" className="absolute inset-[20%] rounded-full bg-blue-600/15 blur-3xl" />
                 {projects.map((repo, position) => {
                     let offset = (position - index + projects.length) % projects.length;
@@ -107,7 +121,7 @@ export default function HeroProjectCarousel() {
                         custom={direction}
                         variants={{ enter: (step: number) => ({ opacity: 0, x: reducedMotion ? 0 : step * 36 }), center: { opacity: 1, x: 0 }, exit: (step: number) => ({ opacity: 0, x: reducedMotion ? 0 : step * -36 }) }}
                         initial="enter" animate="center" exit="exit" transition={{ duration: reducedMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}>
-                        <div className="px-2 pt-5 pb-4 h-[224px] sm:h-[212px] flex flex-col">
+                        <div className="carousel-details px-2 pt-5 pb-4 h-[224px] sm:h-[212px] flex flex-col">
                             <div className="flex items-start justify-between gap-3 h-14 shrink-0"><Link href={`/project/${encodeURIComponent(project.name)}`} className="text-xl sm:text-2xl font-bold text-white capitalize hover:text-blue-300 break-words min-w-0 line-clamp-2">{project.name.replace(/[-_]/g, ' ')}</Link>{project.language && <span className="shrink-0 rounded-full bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 text-[10px] text-blue-300 font-mono">{project.language}</span>}</div>
                             <p className="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-2 h-10 shrink-0">{project.description || 'Explore the project details and source code to see how it works.'}</p>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-auto pt-3 text-xs"><Link href={`/project/${encodeURIComponent(project.name)}`} className="text-blue-300 hover:text-white inline-flex items-center gap-1">View project <ArrowUpRight size={14} /></Link><a href={project.html_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white inline-flex items-center gap-1.5"><Github size={14} /> Source</a>{project.homepage && /^https?:\/\//i.test(project.homepage) && <a href={project.homepage} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white inline-flex items-center gap-1">Live demo <ArrowUpRight size={14} /></a>}</div>

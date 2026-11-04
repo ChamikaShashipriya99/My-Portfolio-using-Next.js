@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import './hero-layout.css';
 import { motion, MotionConfig, useReducedMotion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
@@ -15,7 +16,7 @@ export default function Hero() {
 
     return (
         <MotionConfig reducedMotion="user">
-        <section id="home" className="relative min-h-[100svh] motion-reduce:[&_*]:animate-none flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
+        <section id="home" className="hero-section relative min-h-[100svh] motion-reduce:[&_*]:animate-none flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
             {!reducedMotion && <StarField count={120} />}
 
