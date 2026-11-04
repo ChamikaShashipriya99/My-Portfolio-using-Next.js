@@ -10,8 +10,11 @@ const navItems = [
     { name: 'About', href: '#about' },
     { name: 'Skills', href: '#skills' },
     { name: 'Projects', href: '#projects' },
+    { name: 'Activity', href: '#skyline' },
     { name: 'Experience', href: '#experience' },
     { name: 'Contact', href: '#contact' },
+    { name: 'Arcade', href: '#arcade' },
+    { name: 'Card', href: '#business-card' },
 ];
 
 export default function Navbar() {
@@ -94,66 +97,28 @@ export default function Navbar() {
 
     return (
         <>
-            <nav ref={navRef}
-                className={cn(
-                    'fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[90%] md:w-auto',
-                    isScrolled ? 'top-2 sm:top-4' : 'top-4 sm:top-8'
-                )}
-            >
-                <div className={cn(
-                    "rounded-full px-4 sm:px-6 py-2 sm:py-3 3xl:px-10 3xl:py-5 flex items-center justify-between gap-4 sm:gap-8 md:gap-12 3xl:gap-20 border transition-all duration-500 w-full",
-                    isScrolled 
-                        ? "bg-gradient-to-r from-black/80 via-blue-900/30 to-black/80 backdrop-blur-2xl border-blue-500/40 shadow-[0_0_25px_rgba(59,130,246,0.25)]" 
-                        : "bg-black/10 backdrop-blur-md border-white/5"
-                )}>
-                    <a
-                        href="#home"
-                        onClick={(e) => handleNavClick(e, '#home', 'Home')}
-                        className="text-white text-xl md:text-2xl 3xl:text-4xl font-cursive hover:text-blue-400 transition-colors cursor-pointer whitespace-nowrap"
-                    >
+            <nav ref={navRef} aria-label="Main navigation"
+                className={cn('fixed inset-x-0 z-50 px-4 sm:px-6 lg:px-10 transition-all duration-300', isScrolled ? 'top-3' : 'top-5 sm:top-7')}>
+                <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3 lg:gap-5">
+                    <a href="#home" onClick={e => handleNavClick(e, '#home', 'Home')}
+                        className={cn('shrink-0 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-5 text-white font-cursive whitespace-nowrap hover:border-blue-500/40 hover:text-blue-300 transition-all duration-300 shadow-lg shadow-black/15 focus-visible:outline focus-visible:outline-blue-400', isScrolled ? 'py-2.5 text-xl' : 'py-3.5 text-xl xl:text-2xl')}>
                         Chamika<span className="text-blue-500">.</span>Shashipriya
                     </a>
-
-                    {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-1 lg:gap-1 3xl:gap-2">
-                        {navItems.map((item) => (
-                            <a
-                                key={item.name}
-                                href={item.href}
-                                aria-current={activeTab === item.name ? 'location' : undefined}
-                                onClick={(e) => handleNavClick(e, item.href, item.name)}
-                                className={cn(
-                                    'relative text-sm 3xl:text-xl font-bold uppercase tracking-widest px-3 py-1.5 3xl:px-5 3xl:py-2.5 rounded-full transition-colors',
-                                    activeTab === item.name ? 'text-white' : 'text-gray-500 hover:text-gray-300'
-                                )}
-                            >
-                                {activeTab === item.name && (
-                                    <motion.div
-                                        layoutId="nav-pill"
-                                        className="absolute inset-0 rounded-full bg-blue-500/20 border border-blue-500/40 shadow-[0_0_12px_rgba(59,130,246,0.25)]"
-                                        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-                                    />
-                                )}
-                                <span className="relative z-10">{item.name}</span>
-                            </a>
-                        ))}
-                        {/* Terminal Toggle Button */}
-                        <button
-                            onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))}
-                            title="Open Developer Console (or press ~)"
-                            className="p-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:text-white transition-all duration-300 ml-4 group/terminal active:scale-95 cursor-pointer flex items-center justify-center shadow-md shadow-blue-500/5"
-                        >
-                            <HiTerminal className="text-base group-hover/terminal:scale-110 transition-transform" />
-                        </button>
+                    <div className={cn('hidden 2xl:flex items-center justify-center gap-1 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-4 shadow-lg shadow-black/15 transition-all duration-300', isScrolled ? 'py-1.5' : 'py-2.5')}>
+                        {navItems.map(item => <a key={item.name} href={item.href} aria-current={activeTab === item.name ? 'location' : undefined}
+                            onClick={e => handleNavClick(e, item.href, item.name)}
+                            className={cn('relative px-3 py-3 text-[11px] font-bold uppercase tracking-[0.12em] transition-colors rounded focus-visible:outline focus-visible:outline-blue-400', activeTab === item.name ? 'text-white' : 'text-gray-400 hover:text-white')}>
+                            {item.name}
+                            {activeTab === item.name && <motion.span layoutId="nav-underline" className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]" transition={{ type: 'spring', stiffness: 400, damping: 35 }} />}
+                        </a>)}
                     </div>
-
-                    {/* Mobile Toggle */}
-                    <button
-                        className="md:hidden text-white text-2xl"
-                        onClick={() => setMobileMenuOpen(true)}
-                    >
-                        <HiMenuAlt3 />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))} title="Open Developer Console (or press ~)" aria-label="Open developer console"
+                            className="hidden 2xl:flex p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-gray-400 hover:text-blue-300 hover:border-blue-500/40 transition-colors focus-visible:outline focus-visible:outline-blue-400"><HiTerminal size={18} /></button>
+                        <a href="#contact" onClick={e => handleNavClick(e, '#contact', 'Contact')}
+                            className={cn('hidden sm:inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-600 text-white px-5 text-xs font-semibold hover:bg-blue-500 transition-all duration-300 whitespace-nowrap focus-visible:outline focus-visible:outline-blue-300', isScrolled ? 'py-3' : 'py-4')}>Let’s talk <span aria-hidden="true">↗</span></a>
+                        <button type="button" aria-label="Open navigation menu" aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} className="2xl:hidden p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-white text-xl focus-visible:outline focus-visible:outline-blue-400"><HiMenuAlt3 /></button>
+                    </div>
                 </div>
             </nav>
 
@@ -167,7 +132,7 @@ export default function Navbar() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] md:hidden"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] 2xl:hidden"
                         />
 
                         {/* Sidebar */}
@@ -177,7 +142,7 @@ export default function Navbar() {
                             exit={{ x: '-100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[340px] bg-[#050505] z-[101] p-8 flex flex-col border-r border-white/10 md:hidden shadow-[20px_0_50px_rgba(0,0,0,0.8)] overflow-y-auto"
+                            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[340px] bg-[#050505] z-[101] p-8 flex flex-col border-r border-white/10 2xl:hidden shadow-[20px_0_50px_rgba(0,0,0,0.8)] overflow-y-auto"
                         >
                             <div className="flex items-center justify-between mb-10">
                                 <motion.span 
