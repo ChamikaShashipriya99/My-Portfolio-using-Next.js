@@ -1,297 +1,93 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Terminal, FileCode, FolderGit, Cpu, Wifi, Settings } from 'lucide-react';
+import Image from 'next/image';
+import React, { useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, Check } from 'lucide-react';
+
+const tabs = [
+    { id: 'story', label: 'My story' },
+    { id: 'approach', label: 'My approach' },
+    { id: 'json', label: 'profile.json' },
+] as const;
+type Tab = typeof tabs[number]['id'];
+const profile = {
+    name: 'Chamika Shashipriya',
+    role: 'Full-Stack Web Developer',
+    location: 'Sri Lanka',
+    education: 'BSc (Hons) in Information Technology, SLIIT — in progress',
+    availability: 'Open to full-time opportunities',
+    background: ['Automobile motor mechanics', 'Full-stack development'],
+    experience: ['Sri Lanka Telecom PLC — full-stack internship', 'DoMedia / DoAcademy — industrial training'],
+    focus: ['Responsive interfaces', 'Full-stack applications', 'Backend APIs'],
+};
+const approach = [
+    { number: '01', title: 'Understand the problem', text: 'Start with the people using the product: what they need, what gets in their way, and what a useful result looks like.' },
+    { number: '02', title: 'Plan the experience', text: 'Map the main user flows, organise the data, and break the work into manageable pieces before building.' },
+    { number: '03', title: 'Build with care', text: 'Connect responsive interfaces to clear backend APIs, keeping the code readable and the experience consistent.' },
+    { number: '04', title: 'Test and refine', text: 'Check the key flows, look for edge cases, and improve the result through feedback and iteration.' },
+];
 
 export default function About() {
-    const [activeTab, setActiveTab] = useState<'bio' | 'logs'>('bio');
+    const [activeTab, setActiveTab] = useState<Tab>('story');
+    const [portraitFailed, setPortraitFailed] = useState(false);
+    const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    const reducedMotion = useReducedMotion();
+    const keyboardTab = (event: React.KeyboardEvent, index: number) => {
+        let next = index;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        setActiveTab(tabs[next].id);
+        tabRefs.current[next]?.focus();
+    };
 
     return (
-        <section id="about" className="py-24 5xl:py-48 relative overflow-hidden bg-black/45">
-            {/* Background elements */}
-            <div className="absolute inset-0 hero-grain pointer-events-none opacity-[0.02]" />
-            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.02] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter font-mono">02</span>
-            
-            <div className="container mx-auto px-6">
-                <div className="mb-16">
-                    <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-tight font-mono">
-                        // About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500">Me</span>
-                    </h2>
-                    <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full mt-2" />
+        <section id="about" aria-labelledby="about-title" className="py-20 sm:py-24 5xl:py-48 relative overflow-hidden bg-black/45">
+            <div aria-hidden="true" className="absolute inset-0 hero-grain pointer-events-none opacity-[0.02]" />
+            <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white/[0.02] text-[10rem] lg:text-[18rem] leading-none tracking-tighter font-mono">02</span>
+            <div className="container mx-auto px-6 relative">
+                <div className="mb-10 sm:mb-14">
+                    <p className="font-mono text-xs uppercase tracking-[0.25em] text-blue-400 mb-3">The person behind the code</p>
+                    <h2 id="about-title" className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-tight">About <span className="text-blue-500">Me</span></h2>
+                    <div className="h-1 w-24 bg-blue-600 rounded-full mt-4" />
                 </div>
 
-                <div className="grid lg:grid-cols-12 gap-12 items-stretch">
-                    {/* DOSSIER CAMERA FEED (Left Column) */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        viewport={{ once: true }}
-                        className="lg:col-span-5 flex flex-col justify-between"
-                    >
-                        <div className="relative group w-full max-w-[280px] sm:max-w-md mx-auto aspect-square rounded-2xl overflow-hidden bg-black/60 p-4 border border-white/5">
-                            {/* HUD brackets */}
-                            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-cyan-500" />
-                            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-cyan-500" />
-                            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-cyan-500" />
-                            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-cyan-500" />
-
-                            {/* Scanline overlay */}
-                            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[size:100%_4px] opacity-20 group-hover:opacity-40 transition-opacity duration-500 z-10" />
-
-                            {/* Blinking ONLINE badge */}
-                            <div className="absolute top-6 left-6 flex items-center gap-2 bg-black/80 px-3 py-1 rounded-full border border-cyan-500/30 z-20">
-                                <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
-                                <span className="w-2 h-2 rounded-full bg-cyan-500 absolute left-3" />
-                                <span className="font-mono text-[10px] tracking-wider text-cyan-400 uppercase font-bold">ONLINE // DOSSIER</span>
+                <div className="grid lg:grid-cols-12 gap-8 xl:gap-12 items-start">
+                    <motion.div initial={reducedMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: reducedMotion ? 0 : 0.6 }} className="lg:col-span-5 min-w-0 w-full max-w-[240px] sm:max-w-xs lg:max-w-[380px] mx-auto">
+                        <div className="relative rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-950/20 to-neutral-950 p-3">
+                            <div className="overflow-hidden rounded-xl bg-neutral-900">
+                                {!portraitFailed ? <Image src="/images/chamika-portrait.webp" width={760} height={912} sizes="(min-width: 1024px) 354px, (min-width: 640px) 294px, 214px" alt="Chamika Shashipriya" onError={() => setPortraitFailed(true)} className="block w-full h-auto" /> : <div className="w-full aspect-[5/6] flex items-center justify-center font-black text-7xl text-blue-400" role="img" aria-label="Chamika Shashipriya initials">CS</div>}
                             </div>
-
-                            {/* Frame overlay grid target */}
-                            <div className="absolute inset-4 border border-dashed border-white/5 rounded-xl flex items-center justify-center pointer-events-none">
-                                <div className="w-8 h-8 border border-white/10 rounded-full flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-white/20 rounded-full" />
-                                </div>
-                            </div>
-
-                            {/* Image with neon glow and glitch layers */}
-                            <div className="w-full h-full rounded-xl overflow-hidden relative">
-                                {/* Base Image */}
-                                <img
-                                    src="https://github.com/ChamikaShashipriya99.png"
-                                    alt="Chamika Shashipriya"
-                                    className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                                />
-                                {/* Glitch Overlay 1 - Stopped on hover */}
-                                <img
-                                    src="https://github.com/ChamikaShashipriya99.png"
-                                    alt="Glitch 1"
-                                    className="absolute inset-0 w-full h-full object-cover grayscale opacity-50 mix-blend-screen pointer-events-none glitch-layer-1 group-hover:opacity-0 transition-opacity duration-300"
-                                />
-                                {/* Glitch Overlay 2 - Stopped on hover */}
-                                <img
-                                    src="https://github.com/ChamikaShashipriya99.png"
-                                    alt="Glitch 2"
-                                    className="absolute inset-0 w-full h-full object-cover grayscale opacity-50 mix-blend-screen pointer-events-none glitch-layer-2 group-hover:opacity-0 transition-opacity duration-300"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-cyan-955/30 via-transparent to-transparent pointer-events-none" />
-                            </div>
+                            <div className="flex items-center gap-2 px-2 pt-4 pb-1 text-xs text-blue-200"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-green-400" /> Open to full-time opportunities</div>
                         </div>
-
-                        {/* Dossier System Diagnostics Panel */}
-                        <div className="mt-8 font-mono text-[11px] text-gray-500 space-y-2 bg-black/40 border border-white/5 rounded-xl p-5 max-w-[280px] sm:max-w-md mx-auto w-full">
-                            <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span className="text-gray-600 font-bold uppercase">SYSTEM INFO</span>
-                                <span className="text-cyan-500/70 animate-pulse">ACTIVE FEED</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-1">
-                                <div className="flex gap-1.5 items-center">
-                                    <Cpu className="w-3.5 h-3.5 text-cyan-500/70" />
-                                    <span>TARGET:</span>
-                                </div>
-                                <span className="text-white text-right">CHAMIKA.Z</span>
-
-                                <div className="flex gap-1.5 items-center">
-                                    <FolderGit className="w-3.5 h-3.5 text-cyan-500/70" />
-                                    <span>ROLE:</span>
-                                </div>
-                                <span className="text-white text-right">FULL_STACK_DEV</span>
-
-                                <div className="flex gap-1.5 items-center">
-                                    <Settings className="w-3.5 h-3.5 text-cyan-500/70" />
-                                    <span>LOC:</span>
-                                </div>
-                                <span className="text-white text-right">COLOMBO, LK</span>
-
-                                <div className="flex gap-1.5 items-center">
-                                    <Wifi className="w-3.5 h-3.5 text-cyan-500/70" />
-                                    <span>NET STATUS:</span>
-                                </div>
-                                <span className="text-emerald-400 text-right">ONLINE [24ms]</span>
-                            </div>
-                        </div>
+                        <p className="mt-4 text-center text-xs sm:text-sm text-gray-400 leading-relaxed">Sri Lanka <span aria-hidden="true" className="mx-2 text-blue-400">·</span> Studying BSc (Hons) IT at SLIIT</p>
                     </motion.div>
 
-                    {/* MOCK IDE CODE EDITOR (Right Column) */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        viewport={{ once: true }}
-                        className="lg:col-span-7 flex flex-col"
-                    >
-                        <div className="flex flex-col h-full bg-[#0d0e12]/80 border border-white/10 rounded-2xl overflow-hidden glassmorphism shadow-2xl shadow-cyan-950/20">
-                            {/* Editor Window Controls Bar */}
-                            <div className="flex justify-between items-center px-4 py-3 bg-[#08090c]/90 border-b border-white/5 select-none">
-                                <div className="flex gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 transition duration-150 cursor-pointer" />
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 transition duration-150 cursor-pointer" />
-                                    <div className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 transition duration-150 cursor-pointer" />
-                                </div>
-                                <div className="font-mono text-xs text-gray-500 tracking-wider">
-                                    {"~/chamikaz/bio.json"}
-                                </div>
-                                <div className="w-12" /> {/* spacer */}
-                            </div>
-
-                            {/* IDE Tabs */}
-                            <div className="flex bg-[#06070a] border-b border-white/5 select-none">
-                                <button
-                                    onClick={() => setActiveTab('bio')}
-                                    className={`flex items-center gap-2 px-4 py-2 font-mono text-xs border-r border-white/5 transition duration-150 ${
-                                        activeTab === 'bio'
-                                            ? 'bg-[#0d0e12] text-cyan-400 border-t-2 border-t-cyan-500 font-bold'
-                                            : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                                    }`}
-                                >
-                                    <FileCode className="w-3.5 h-3.5 text-cyan-500" />
-                                    bio.json
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('logs')}
-                                    className={`flex items-center gap-2 px-4 py-2 font-mono text-xs border-r border-white/5 transition duration-150 ${
-                                        activeTab === 'logs'
-                                            ? 'bg-[#0d0e12] text-cyan-400 border-t-2 border-t-cyan-500 font-bold'
-                                            : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                                    }`}
-                                >
-                                    <Terminal className="w-3.5 h-3.5 text-purple-400" />
-                                    diagnostics.sh
-                                </button>
-                            </div>
-
-                            {/* Code Area */}
-                            <div className="flex-1 p-6 font-mono text-xs sm:text-sm leading-relaxed overflow-y-auto max-h-[420px] min-h-[380px] bg-[#0c0d10]/95 scrollbar-thin text-gray-300 select-text">
-                                {activeTab === 'bio' ? (
-                                    <div className="space-y-1">
-                                        <div className="text-gray-600">// Chamika Shashipriya Biography Data</div>
-                                        <div>
-                                            <span className="text-pink-500">{`{`}</span>
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;name&quot;</span>: <span className="text-emerald-400">&quot;Chamika Shashipriya&quot;</span>,
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;role&quot;</span>: <span className="text-emerald-400">&quot;Full-Stack Software Engineer&quot;</span>,
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;core_stack&quot;</span>: <span className="text-pink-500">[</span>
-                                            <span className="text-emerald-400">&quot;MERN&quot;</span>, <span className="text-emerald-400">&quot;React.js&quot;</span>, <span className="text-emerald-400">&quot;Next.js&quot;</span>, <span className="text-emerald-400">&quot;Node.js&quot;</span>
-                                            <span className="text-pink-500">]</span>,
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;about&quot;</span>: <span className="text-gray-400">&quot;A passionate software developer dedicated to building modern, highly scalable, and user-centric web applications. I turn complex logic into clean, high-performance visual experiences.&quot;</span>,
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;philosophy&quot;</span>: <span className="text-gray-400">&quot;Driven by a strong curiosity for beautiful web layouts and efficient system architectures. I love crafting immersive micro-animations, writing clean code, and optimizing web performance.&quot;</span>,
-                                        </div>
-                                        <div className="pl-6">
-                                            <span className="text-purple-400">&quot;interests&quot;</span>: <span className="text-pink-500">[</span>
-                                            <span className="text-emerald-400">&quot;Cybernetics&quot;</span>, <span className="text-emerald-400">&quot;3D Webs&quot;</span>, <span className="text-emerald-400">&quot;API Design&quot;</span>
-                                            <span className="text-pink-500">]</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-pink-500">{`}`}</span>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2 text-cyan-400/90 font-mono text-[11px] sm:text-xs">
-                                        <div className="text-gray-600"># Run diagnostics check...</div>
-                                        <div>guest@chamikaz:~$ <span className="text-white">./diagnostics.sh</span></div>
-                                        <div className="text-gray-500">&gt; Initializing diagnostics engine...</div>
-                                        <div className="flex gap-2"><span className="text-emerald-400">[ OK ]</span> CPU Core: Stable</div>
-                                        <div className="flex gap-2"><span className="text-emerald-400">[ OK ]</span> Database Connections: Secure</div>
-                                        <div className="flex gap-2"><span className="text-emerald-400">[ OK ]</span> Frontend Renderer: Responsive [Next.js]</div>
-                                        <div className="flex gap-2"><span className="text-emerald-400">[ OK ]</span> Tailwind CSS Config: Loaded</div>
-                                        <div className="flex gap-2"><span className="text-emerald-400">[ OK ]</span> Framer Motion Core: Synchronized</div>
-                                        <div className="pt-2 text-purple-400 font-bold">ALL SYSTEMS FULLY OPERATIONAL</div>
-                                        <div className="text-gray-500">guest@chamikaz:~$ <span className="animate-pulse">_</span></div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Terminal Status Bar */}
-                            <div className="flex justify-between items-center px-4 py-2 bg-[#08090c]/90 border-t border-white/5 text-[10px] font-mono text-gray-500 select-none">
-                                <div className="flex gap-4">
-                                    <span className="text-cyan-400 font-semibold">LN 1, COL 1</span>
-                                    <span>UTF-8</span>
-                                    <span>JSON</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span>Prettier Active</span>
-                                </div>
-                            </div>
+                    <motion.div initial={reducedMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: reducedMotion ? 0 : 0.6, delay: reducedMotion ? 0 : 0.1 }} className="lg:col-span-7 min-w-0 rounded-2xl border border-white/10 bg-[#0b0d12]/90 overflow-hidden">
+                        <div aria-hidden="true" className="flex items-center gap-3 px-5 py-4 bg-white/[0.02] border-b border-white/5"><div className="flex gap-1.5"><span className="h-2 w-2 bg-red-400/60 rounded-full" /><span className="h-2 w-2 bg-amber-400/60 rounded-full" /><span className="h-2 w-2 bg-green-400/60 rounded-full" /></div><span className="text-[10px] font-mono text-gray-500 truncate">~/chamika/about</span></div>
+                        <div role="tablist" aria-label="About Chamika" className="flex border-b border-white/10 px-2 sm:px-4">
+                            {tabs.map((tab, index) => <button key={tab.id} ref={element => { tabRefs.current[index] = element; }} type="button" id={`about-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls={`about-panel-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => setActiveTab(tab.id)} onKeyDown={event => keyboardTab(event, index)} className={`relative px-3 sm:px-5 py-4 font-mono text-[11px] sm:text-xs whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-blue-400 focus-visible:outline-offset-[-4px] ${activeTab === tab.id ? 'text-blue-300 bg-blue-500/5' : 'text-gray-500 hover:text-white'}`}>
+                                {tab.label}{activeTab === tab.id && <span aria-hidden="true" className="absolute bottom-0 left-3 right-3 h-0.5 bg-blue-400" />}
+                            </button>)}
                         </div>
+
+                        {tabs.map(tab => <div key={tab.id} role="tabpanel" id={`about-panel-${tab.id}`} aria-labelledby={`about-tab-${tab.id}`} hidden={activeTab !== tab.id} tabIndex={0} className="h-[480px] sm:h-[500px] lg:h-[520px] overflow-y-auto overscroll-contain p-5 sm:p-8 focus-visible:outline focus-visible:outline-blue-400 focus-visible:outline-offset-[-2px]">
+                            {tab.id === 'story' ? <div className="space-y-5 text-sm sm:text-base leading-relaxed text-gray-400">
+                                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">A practical mindset.<br /><span className="text-blue-400">A new way to build.</span></h3>
+                                <p>I’m Chamika, a Sri Lanka–based full-stack developer studying Information Technology at SLIIT. Before software development, I trained and worked in automobile motor mechanics.</p>
+                                <p>My development experience includes a full-stack internship at <span className="text-gray-200">Sri Lanka Telecom PLC</span> and industrial training at <span className="text-gray-200">DoMedia / DoAcademy</span>. I focus on responsive interfaces, full-stack applications, and backend APIs.</p>
+                                <p>I’m looking for a full-time opportunity to contribute to a team, build useful products, and continue developing my skills.</p>
+                                <a href="#experience" className="inline-flex items-center gap-2 text-blue-300 hover:text-white focus-visible:outline focus-visible:outline-blue-400 rounded">Explore my experience <ArrowUpRight aria-hidden="true" size={16} /></a>
+                            </div> : tab.id === 'approach' ? <div><h3 className="text-2xl font-bold text-white mb-6">How I approach a project</h3><ol className="space-y-6">{approach.map(step => <li key={step.number} className="flex gap-4"><span aria-hidden="true" className="font-mono text-xs text-blue-400 pt-1">{step.number}</span><div><h4 className="text-sm sm:text-base font-semibold text-gray-100">{step.title}</h4><p className="text-sm leading-relaxed text-gray-400 mt-2">{step.text}</p></div></li>)}</ol></div> : <div><h3 className="sr-only">Developer profile in JSON format</h3><pre className="whitespace-pre-wrap break-words font-mono text-[11px] sm:text-xs leading-loose text-blue-200">{JSON.stringify(profile, null, 2)}</pre></div>}
+                        </div>)}
+                        <div aria-hidden="true" className="border-t border-white/5 px-5 py-3 flex items-center justify-between gap-3 font-mono text-[9px] text-gray-500"><span>{activeTab === 'json' ? 'JSON · UTF-8' : 'CHAMIKA / PROFILE'}</span><span className="flex items-center gap-1.5"><Check size={11} className="text-blue-400" /> {activeTab === 'json' ? 'Developer view' : 'Personal perspective'}</span></div>
                     </motion.div>
                 </div>
             </div>
-
-            {/* Custom Styles for Image Glitch Animation */}
-            <style dangerouslySetInnerHTML={{__html: `
-                .glitch-layer-1 {
-                    clip-path: inset(40% 0 61% 0);
-                    filter: hue-rotate(90deg) saturate(3);
-                    animation: cyber-glitch-anim-1 2s infinite linear alternate-reverse;
-                }
-                .glitch-layer-2 {
-                    clip-path: inset(10% 0 80% 0);
-                    filter: hue-rotate(240deg) saturate(3);
-                    animation: cyber-glitch-anim-2 2s infinite linear alternate-reverse;
-                }
-                @keyframes cyber-glitch-anim-1 {
-                    0% {
-                        clip-path: inset(20% 0 60% 0);
-                        transform: translate(-2px, 1px) skew(1deg);
-                    }
-                    20% {
-                        clip-path: inset(60% 0 20% 0);
-                        transform: translate(2px, -1px) skew(-1deg);
-                    }
-                    40% {
-                        clip-path: inset(40% 0 40% 0);
-                        transform: translate(-1px, 2px) skew(2deg);
-                    }
-                    60% {
-                        clip-path: inset(80% 0 5% 0);
-                        transform: translate(1px, -2px) skew(-1deg);
-                    }
-                    80% {
-                        clip-path: inset(10% 0 70% 0);
-                        transform: translate(-2px, 1px) skew(1deg);
-                    }
-                    100% {
-                        clip-path: inset(30% 0 50% 0);
-                        transform: translate(0px, 0px) skew(0deg);
-                    }
-                }
-                @keyframes cyber-glitch-anim-2 {
-                    0% {
-                        clip-path: inset(10% 0 70% 0);
-                        transform: translate(2px, -1px) skew(-2deg);
-                    }
-                    20% {
-                        clip-path: inset(50% 0 30% 0);
-                        transform: translate(-2px, 1px) skew(2deg);
-                    }
-                    40% {
-                        clip-path: inset(30% 0 50% 0);
-                        transform: translate(1px, -1px) skew(-1deg);
-                    }
-                    60% {
-                        clip-path: inset(70% 0 10% 0);
-                        transform: translate(-1px, 1px) skew(1deg);
-                    }
-                    80% {
-                        clip-path: inset(5% 0 80% 0);
-                        transform: translate(2px, -1px) skew(-2deg);
-                    }
-                    100% {
-                        clip-path: inset(40% 0 40% 0);
-                        transform: translate(0px, 0px) skew(0deg);
-                    }
-                }
-            `}} />
         </section>
     );
 }
