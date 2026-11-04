@@ -44,50 +44,16 @@ export default function Projects() {
     useEffect(() => {
         const fetchRepos = async () => {
             try {
-                const response = await fetch('https://api.github.com/users/ChamikaShashipriya99/repos?sort=updated&per_page=100');
+                const response = await fetch('/api/github-projects');
+                if (!response.ok) throw new Error('Projects unavailable');
                 const data = await response.json();
-
-                const projectData = await Promise.all(data.map(async (repo: any) => {
-                    const branches = ['main', 'master'];
-                    let finalImage = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${repo.name}`;
-                    let readmeDesc = repo.description || 'No description provided.';
-
-                    for (const branch of branches) {
-                        const thumbUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${repo.name}/${branch}/thumbnail.png`;
-                        const readmeUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${repo.name}/${branch}/README.md`;
-
-                        try {
-                            if (finalImage.includes('opengraph')) {
-                                const imgCheck = await fetch(thumbUrl, { method: 'HEAD' });
-                                if (imgCheck.ok) finalImage = thumbUrl;
-                            }
-
-                            const readmeRes = await fetch(readmeUrl);
-                            if (readmeRes.ok) {
-                                const text = await readmeRes.text();
-                                const cleanText = text
-                                    .replace(/<[^>]*>?/gm, '')
-                                    .replace(/#.*?\n/g, '')
-                                    .replace(/!\[.*?\]\(.*?\)/g, '')
-                                    .replace(/\[.*?\]\(.*?\)/g, '')
-                                    .replace(/[*_~`]/g, '')
-                                    .trim();
-
-                                if (cleanText.length > 50) {
-                                    readmeDesc = cleanText.substring(0, 180) + '...';
-                                }
-                            }
-                        } catch (e) { }
-                    }
-
-                    return {
-                        title: repo.name.replace(/-/g, ' '),
-                        description: readmeDesc,
-                        tech: repo.language ? [repo.language] : ['Web'],
-                        link: repo.homepage || repo.html_url,
-                        github: repo.html_url,
-                        image: finalImage
-                    };
+                const projectData = data.projects.map((repo: { name: string; description: string | null; language: string | null; homepage: string | null; html_url: string; image: string }) => ({
+                    title: repo.name.replace(/[-_]/g, ' '),
+                    description: repo.description || 'Explore the project details and source code.',
+                    tech: repo.language ? [repo.language] : ['Web'],
+                    link: repo.homepage || repo.html_url,
+                    github: repo.html_url,
+                    image: repo.image
                 }));
 
                 setProjects(projectData);
@@ -247,7 +213,8 @@ export default function Projects() {
                                                 alt={project.title}
                                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
                                                 onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${project.title.replace(/ /g, '-')}`;
+                                                    const image = e.currentTarget;
+                                                    if (!image.src.endsWith('/project-placeholder.svg')) image.src = '/project-placeholder.svg';
                                                 }}
                                             />
                                             <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />

@@ -1,64 +1,23 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, MotionConfig, useReducedMotion } from 'framer-motion';
 import { HiDownload, HiArrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import HeroProjectCarousel from './HeroProjectCarousel';
 import { useTextScramble } from '@/hooks/useTextScramble';
 import StarField from './StarField';
 
-const Typewriter = ({ text, delay = 0 }: { text: string; delay?: number }) => {
-    const [displayText, setDisplayText] = React.useState('');
-    const [isDeleting, setIsDeleting] = React.useState(false);
-    const [loopNum, setLoopNum] = React.useState(0);
-    const [typingSpeed, setTypingSpeed] = React.useState(150);
-
-    React.useEffect(() => {
-        let timer = setTimeout(() => {
-            handleType();
-        }, typingSpeed);
-
-        return () => clearTimeout(timer);
-    }, [displayText, isDeleting, typingSpeed]);
-
-    const handleType = () => {
-        const fullText = text;
-        const updatedText = isDeleting
-            ? fullText.substring(0, displayText.length - 1)
-            : fullText.substring(0, displayText.length + 1);
-
-        setDisplayText(updatedText);
-
-        if (!isDeleting && updatedText === fullText) {
-            setTypingSpeed(2000); // Pause at end
-            setIsDeleting(true);
-        } else if (isDeleting && updatedText === '') {
-            setIsDeleting(false);
-            setLoopNum(loopNum + 1);
-            setTypingSpeed(500);
-        } else {
-            setTypingSpeed(isDeleting ? 100 : 150);
-        }
-    };
-
-    return (
-        <div className="flex justify-center lg:justify-start items-center h-7 sm:h-8 w-full overflow-hidden">
-            <span className="text-blue-500 font-mono text-[10px] sm:text-sm md:text-base uppercase tracking-[0.15em] sm:tracking-[0.25em] font-bold border-r-2 border-blue-500 animate-pulse pr-1 sm:pr-2 whitespace-nowrap">
-                {displayText}
-            </span>
-        </div>
-    );
-};
-
 export default function Hero() {
+    const reducedMotion = useReducedMotion();
     const { displayText: displayName, scramble: scrambleName } = useTextScramble('CHAMIKA');
     const { displayText: displaySurname, scramble: scrambleSurname } = useTextScramble('SHASHIPRIYA');
 
     return (
-        <section id="home" className="relative min-h-[100svh] flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
+        <MotionConfig reducedMotion="user">
+        <section id="home" className="relative min-h-[100svh] motion-reduce:[&_*]:animate-none flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
-            <StarField count={120} />
+            {!reducedMotion && <StarField count={120} />}
 
             {/* Film grain texture — premium editorial feel */}
             <div
@@ -70,7 +29,7 @@ export default function Hero() {
             {/* Radar scan line — sweeps once on page load */}
             <motion.div
                 aria-hidden="true"
-                className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
+                className={`absolute top-0 left-0 right-0 h-[1px] pointer-events-none ${reducedMotion ? 'hidden' : ''}`}
                 style={{
                     zIndex: 4,
                     background: 'linear-gradient(to right, transparent 0%, transparent 15%, rgba(59,130,246,0.9) 45%, rgba(103,232,249,0.6) 55%, transparent 85%, transparent 100%)',
@@ -98,9 +57,10 @@ export default function Hero() {
                         <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.45)]" />
                         Open to full-time opportunities
                     </motion.div>
+                    <h1 aria-label="Chamika Shashipriya" className="w-full flex flex-col">
                     {/* CHAMIKA — letter-by-letter stagger slide-up */}
-                    <h1
-                        onMouseEnter={scrambleName}
+                    <span
+                        onMouseEnter={reducedMotion ? undefined : scrambleName}
                         aria-label="CHAMIKA"
                         className="text-[clamp(2rem,5.8vw,4.5rem)] lg:text-[clamp(2.5rem,4.6vw,4.5rem)] font-black text-white tracking-tighter mb-1 leading-[1.05] w-full cursor-default"
                     >
@@ -124,18 +84,19 @@ export default function Hero() {
                                 </motion.span>
                             </span>
                         ))}
-                    </h1>
+                    </span>
 
                     {/* SHASHIPRIYA — left-to-right clip wipe (preserves animated gradient) */}
-                    <motion.h1
-                        onMouseEnter={scrambleSurname}
-                        initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                    <motion.span
+                        onMouseEnter={reducedMotion ? undefined : scrambleSurname}
+                        initial={reducedMotion ? false : { clipPath: 'inset(0 100% 0 0)' }}
                         animate={{ clipPath: 'inset(0 0% 0 0)' }}
                         transition={{ delay: 0.75, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                         className="text-[clamp(2rem,5.8vw,4.5rem)] lg:text-[clamp(2.5rem,4.6vw,4.5rem)] font-black tracking-tighter mb-1 leading-[1.05] w-full break-words cursor-default text-gradient-animated"
                     >
                         {displaySurname}
-                    </motion.h1>
+                    </motion.span>
+                    </h1>
                 </div>
 
                 <motion.div
@@ -144,7 +105,7 @@ export default function Hero() {
                     transition={{ delay: 0.3, duration: 0.8 }}
                     className="mt-4 mb-5"
                 >
-                    <Typewriter text="Full-Stack Web Developer" delay={0.5} />
+                    <p className="text-blue-400 font-mono text-xs sm:text-sm uppercase tracking-[0.15em]">Full-Stack Web Developer</p>
                 </motion.div>
 
                 <motion.div
@@ -226,11 +187,11 @@ export default function Hero() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.6, duration: 0.8 }}
                 className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 hover:opacity-90 transition-opacity cursor-pointer group"
-                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth' })}
             >
                 <div className="w-6 h-10 border-2 border-white/60 rounded-full flex justify-center pt-1.5 group-hover:border-blue-400/80 transition-colors">
                     <motion.div
-                        animate={{ y: [0, 10, 0] }}
+                        animate={{ y: reducedMotion ? 0 : [0, 10, 0] }}
                         transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
                         className="w-1 h-2.5 bg-white rounded-full group-hover:bg-blue-400 transition-colors"
                     />
@@ -240,5 +201,6 @@ export default function Hero() {
                 </span>
             </motion.button>
         </section>
+        </MotionConfig>
     );
 }

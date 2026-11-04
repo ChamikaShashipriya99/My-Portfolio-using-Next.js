@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Code2, Github, Pause, Play } from 
 import Link from 'next/link';
 
 interface Repository {
+    image: string;
     id: number;
     name: string;
     description: string | null;
@@ -19,10 +20,7 @@ interface Repository {
 
 function Preview({ repo, portrait = false }: { repo: Repository; portrait?: boolean }) {
     const [attempt, setAttempt] = useState(0);
-    const images = [
-        `https://raw.githubusercontent.com/ChamikaShashipriya99/${encodeURIComponent(repo.name)}/${encodeURIComponent(repo.default_branch)}/thumbnail.png`,
-        `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${encodeURIComponent(repo.name)}`
-    ];
+    const images = [repo.image];
     return <div className={`${portrait ? 'h-full w-full' : 'aspect-[16/10]'} overflow-hidden bg-gradient-to-br from-blue-950/50 to-neutral-950`}>
         {attempt < images.length ? <img src={images[attempt]} alt={`${repo.name.replace(/[-_]/g, ' ')} project preview`} className="h-full w-full object-contain object-center" onError={() => setAttempt(value => value + 1)} /> : <div className="h-full flex flex-col items-center justify-center gap-4 text-blue-300"><Code2 size={48} strokeWidth={1} /><span className="font-mono text-xs">{repo.name.replace(/[-_]/g, ' ')}</span></div>}
     </div>;
@@ -49,9 +47,9 @@ export default function HeroProjectCarousel() {
         const controller = new AbortController();
         async function load() {
             try {
-                const response = await fetch('https://api.github.com/users/ChamikaShashipriya99/repos?sort=updated&direction=desc&per_page=6', { signal: controller.signal });
+                const response = await fetch('/api/github-projects', { signal: controller.signal });
                 if (!response.ok) throw new Error('Projects unavailable');
-                const repos: Repository[] = await response.json();
+                const { projects: repos }: { projects: Repository[] } = await response.json();
                 if (!Array.isArray(repos)) throw new Error('Invalid projects');
                 const selected = repos.slice(0, 6);
                 if (!controller.signal.aborted) setProjects(selected);

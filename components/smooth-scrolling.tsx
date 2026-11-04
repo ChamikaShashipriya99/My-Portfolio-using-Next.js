@@ -8,7 +8,7 @@ export default function SmoothScrolling({ children }: { children: ReactNode }) {
         // Register PWA Service Worker
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
-                .then((reg) => console.log('Service Worker registered successfully with scope:', reg.scope))
+                .then(() => {})
                 .catch((err) => console.error('Service Worker registration failed:', err));
         }
 

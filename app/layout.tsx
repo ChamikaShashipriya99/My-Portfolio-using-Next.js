@@ -61,8 +61,8 @@ export default function RootLayout({
             <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${dancingScript.variable} font-sans antialiased overflow-x-hidden w-full`}>
                 <CustomCursor />
                 <ClarityScript />
-                <SpeedInsights />
-                <Analytics />
+                <SpeedInsights debug={false} />
+                <Analytics debug={false} />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"

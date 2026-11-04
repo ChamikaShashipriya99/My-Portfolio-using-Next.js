@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { HiMenuAlt3, HiX, HiTerminal } from 'react-icons/hi';
 import { FaGithub, FaLinkedin, FaWhatsapp, FaDownload } from 'react-icons/fa';
@@ -14,7 +14,7 @@ const navItems = [
     { name: 'Experience', href: '#experience' },
     { name: 'Contact', href: '#contact' },
     { name: 'Arcade', href: '#arcade' },
-    { name: 'Card', href: '#business-card' },
+    { name: 'Connect', href: '#business-card' },
 ];
 
 export default function Navbar() {
@@ -22,12 +22,46 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Home');
     const lenis = useLenis();
+    const reducedMotion = useReducedMotion();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const menuTriggerRef = useRef<HTMLButtonElement>(null);
     const navRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         if (mobileMenuOpen) lenis?.stop();
         else lenis?.start();
     }, [mobileMenuOpen, lenis]);
+
+    useEffect(() => {
+        if (!mobileMenuOpen) return;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        const frame = requestAnimationFrame(() => menuRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus());
+        const handleKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') { event.preventDefault(); setMobileMenuOpen(false); }
+            if (event.key !== 'Tab') return;
+            const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? []);
+            const first = items[0], last = items[items.length - 1];
+            if (!first || !last) return;
+            if (event.shiftKey && (document.activeElement === first || !menuRef.current?.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && (document.activeElement === last || !menuRef.current?.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+        };
+        const onResize = () => { if (window.innerWidth >= 1280) setMobileMenuOpen(false); };
+        const containFocus = (event: FocusEvent) => {
+            if (event.target instanceof Node && !menuRef.current?.contains(event.target)) menuRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus();
+        };
+        document.addEventListener('focusin', containFocus);
+        document.addEventListener('keydown', handleKey);
+        window.addEventListener('resize', onResize);
+        return () => {
+            cancelAnimationFrame(frame);
+            document.body.style.overflow = previousOverflow;
+            document.removeEventListener('focusin', containFocus);
+            document.removeEventListener('keydown', handleKey);
+            window.removeEventListener('resize', onResize);
+            menuTriggerRef.current?.focus();
+        };
+    }, [mobileMenuOpen]);
 
     const syncActiveTab = useCallback(() => {
         setIsScrolled(window.scrollY > 50);
@@ -81,43 +115,44 @@ export default function Navbar() {
             if (lenis) {
                 lenis.scrollTo(href, {
                     offset: -((navRef.current?.getBoundingClientRect().bottom ?? 80) + 16),
-                    duration: 1.5,
+                    duration: reducedMotion ? 0 : 1.5,
+                    immediate: !!reducedMotion,
                 });
             } else {
                 // Fallback to native scroll if lenis is not available
                 const element = document.querySelector(href);
                 if (element) {
-                    window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top - (navRef.current?.getBoundingClientRect().bottom ?? 80) - 16, behavior: 'smooth' });
+                    window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top - (navRef.current?.getBoundingClientRect().bottom ?? 80) - 16, behavior: reducedMotion ? 'instant' : 'smooth' });
                 }
             }
             window.history.replaceState(null, '', href);
             syncActiveTab();
-        }, 300);
+        }, reducedMotion ? 0 : 300);
     };
 
     return (
-        <>
+        <MotionConfig reducedMotion="user">
             <nav ref={navRef} aria-label="Main navigation"
                 className={cn('fixed inset-x-0 z-50 px-4 sm:px-6 lg:px-10 transition-all duration-300', isScrolled ? 'top-3' : 'top-5 sm:top-7')}>
                 <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3 lg:gap-5">
                     <a href="#home" onClick={e => handleNavClick(e, '#home', 'Home')}
-                        className={cn('shrink-0 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-5 text-white font-cursive whitespace-nowrap hover:border-blue-500/40 hover:text-blue-300 transition-all duration-300 shadow-lg shadow-black/15 focus-visible:outline focus-visible:outline-blue-400', isScrolled ? 'py-2.5 text-xl' : 'py-3.5 text-xl xl:text-2xl')}>
+                        className={cn('shrink-0 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-5 text-white font-cursive whitespace-nowrap hover:border-blue-500/40 hover:text-blue-300 transition-all duration-300 shadow-lg shadow-black/15 focus-visible:outline focus-visible:outline-blue-400', isScrolled ? 'py-2.5 text-xl' : 'py-3.5 text-xl')}>
                         Chamika<span className="text-blue-500">.</span>Shashipriya
                     </a>
-                    <div className={cn('hidden 2xl:flex items-center justify-center gap-1 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-4 shadow-lg shadow-black/15 transition-all duration-300', isScrolled ? 'py-1.5' : 'py-2.5')}>
-                        {navItems.map(item => <a key={item.name} href={item.href} aria-current={activeTab === item.name ? 'location' : undefined}
+                    <div className={cn('hidden xl:flex items-center justify-center gap-1 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl px-4 shadow-lg shadow-black/15 transition-all duration-300', isScrolled ? 'py-1.5' : 'py-2.5')}>
+                        {navItems.filter(item => item.href !== '#contact').map(item => <a key={item.name} href={item.href} aria-current={activeTab === item.name ? 'location' : undefined}
                             onClick={e => handleNavClick(e, item.href, item.name)}
-                            className={cn('relative px-3 py-3 text-[11px] font-bold uppercase tracking-[0.12em] transition-colors rounded focus-visible:outline focus-visible:outline-blue-400', activeTab === item.name ? 'text-white' : 'text-gray-400 hover:text-white')}>
+                            className={cn('relative px-2 py-3 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors rounded focus-visible:outline focus-visible:outline-blue-400', activeTab === item.name ? 'text-white' : 'text-gray-400 hover:text-white')}>
                             {item.name}
                             {activeTab === item.name && <motion.span layoutId="nav-underline" className="absolute bottom-1 left-3 right-3 h-[2px] rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]" transition={{ type: 'spring', stiffness: 400, damping: 35 }} />}
                         </a>)}
                     </div>
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))} title="Open Developer Console (or press ~)" aria-label="Open developer console"
-                            className="hidden 2xl:flex p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-gray-400 hover:text-blue-300 hover:border-blue-500/40 transition-colors focus-visible:outline focus-visible:outline-blue-400"><HiTerminal size={18} /></button>
+                            className="hidden xl:flex p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-gray-400 hover:text-blue-300 hover:border-blue-500/40 transition-colors focus-visible:outline focus-visible:outline-blue-400"><HiTerminal size={18} /></button>
                         <a href="#contact" onClick={e => handleNavClick(e, '#contact', 'Contact')}
                             className={cn('hidden sm:inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-600 text-white px-5 text-xs font-semibold hover:bg-blue-500 transition-all duration-300 whitespace-nowrap focus-visible:outline focus-visible:outline-blue-300', isScrolled ? 'py-3' : 'py-4')}>Let’s talk <span aria-hidden="true">↗</span></a>
-                        <button type="button" aria-label="Open navigation menu" aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} className="2xl:hidden p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-white text-xl focus-visible:outline focus-visible:outline-blue-400"><HiMenuAlt3 /></button>
+                        <button ref={menuTriggerRef} type="button" aria-controls="mobile-navigation" aria-label="Open navigation menu" aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} className="xl:hidden p-3 rounded-full border border-white/10 bg-black/70 backdrop-blur-2xl text-white text-xl focus-visible:outline focus-visible:outline-blue-400"><HiMenuAlt3 /></button>
                     </div>
                 </div>
             </nav>
@@ -132,17 +167,17 @@ export default function Navbar() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] 2xl:hidden"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] xl:hidden"
                         />
 
                         {/* Sidebar */}
-                        <motion.div
+                        <motion.div ref={menuRef} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Navigation menu"
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            transition={reducedMotion ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 200 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[340px] bg-[#050505] z-[101] p-8 flex flex-col border-r border-white/10 2xl:hidden shadow-[20px_0_50px_rgba(0,0,0,0.8)] overflow-y-auto"
+                            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[340px] bg-[#050505] z-[101] p-8 flex flex-col border-r border-white/10 xl:hidden shadow-[20px_0_50px_rgba(0,0,0,0.8)] overflow-y-auto"
                         >
                             <div className="flex items-center justify-between mb-10">
                                 <motion.span 
@@ -155,6 +190,7 @@ export default function Navbar() {
                                 </motion.span>
                                 <button 
                                     onClick={() => setMobileMenuOpen(false)}
+                                    aria-label="Close navigation menu"
                                     className="text-white text-2xl hover:text-blue-500 transition-colors p-2"
                                 >
                                     <HiX />
@@ -261,6 +297,6 @@ export default function Navbar() {
                     </>
                 )}
             </AnimatePresence>
-        </>
+        </MotionConfig>
     );
 }

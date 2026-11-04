@@ -138,6 +138,7 @@ export default function Experience() {
                                                         src={exp.logo}
                                                         alt={exp.company}
                                                         fill
+                                                        sizes="48px"
                                                         className="object-cover p-1"
                                                     />
                                                 </div>
@@ -207,6 +208,7 @@ export default function Experience() {
                                                         src={exp.logo}
                                                         alt={exp.company}
                                                         fill
+                                                        sizes="48px"
                                                         className="object-cover p-1"
                                                     />
                                                 </div>
