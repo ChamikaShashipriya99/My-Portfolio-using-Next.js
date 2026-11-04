@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Activity, ArrowUpRight, CalendarDays, Flame, RefreshCw } from 'lucide-react';
 
 interface DayData { date: string; contributionCount: number; color: string }
@@ -23,6 +23,8 @@ export default function ContributionSkyline() {
     const [selected, setSelected] = useState<DayData | null>(null);
     const [replay, setReplay] = useState(0);
     const reducedMotion = useReducedMotion();
+    const sectionRef = useRef<HTMLElement>(null);
+    const isInView = useInView(sectionRef, { amount: 0.2 });
 
     useEffect(() => {
         const controller = new AbortController();
@@ -64,7 +66,7 @@ export default function ContributionSkyline() {
     const last = stats.days[stats.days.length - 1]?.date;
 
     return (
-        <section id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-y border-white/5">
+        <section ref={sectionRef} id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-y border-white/5">
             <span aria-hidden="true" className="pointer-events-none absolute top-8 right-6 text-[10rem] md:text-[18rem] font-black leading-none tracking-tighter text-white/[0.03]">05</span>
             <div className="container mx-auto px-6 relative z-10">
                 <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
@@ -109,8 +111,8 @@ export default function ContributionSkyline() {
                                                 fill={colorFor(day.contributionCount)}
                                                 stroke={selected?.date === day.date ? '#fff' : 'transparent'} strokeWidth="1.5"
                                                 initial={reducedMotion ? false : { opacity: 0 }}
-                                                whileInView={{ opacity: 1 }} viewport={{ once: true }}
-                                                transition={{ duration: 0.35, delay: reducedMotion ? 0 : weekIndex * 0.035 }}
+                                                animate={{ opacity: reducedMotion || isInView ? 1 : 0 }}
+                                                transition={{ duration: reducedMotion || !isInView ? 0 : 0.35, delay: reducedMotion || !isInView ? 0 : weekIndex * 0.035 }}
                                                 className="cursor-pointer outline-none hover:brightness-150 focus:stroke-white"
                                                 tabIndex={0} role="img" aria-label={`${formatDate(day.date)}: ${day.contributionCount} contributions`}
                                                 onMouseEnter={() => setSelected(day)} onMouseLeave={() => setSelected(null)}
