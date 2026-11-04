@@ -1,237 +1,55 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, useAnimationControls, AnimatePresence } from 'framer-motion';
-import {
-    SiJavascript, SiPython, SiC, SiCplusplus, SiSharp, SiPhp,
-    SiKotlin, SiHtml5, SiCss3, SiMongodb, SiMysql,
-    SiXampp, SiGit, SiGithub, SiNpm, SiFigma, SiCanva,
-    SiCisco, SiTrello, SiNodemon, SiApachetomcat, SiReact, SiNodedotjs,
-    SiExpress, SiBootstrap, SiTailwindcss, SiDotnet, SiSpringboot,
-    SiJsonwebtokens, SiCodeigniter, SiWordpress, SiNextdotjs
-} from 'react-icons/si';
-import { FaJava, FaServer, FaDatabase } from 'react-icons/fa';
+import React, { useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useInView, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, Pause, Play, Search, X } from 'lucide-react';
+import { mainStack, skillCategories, skillEvidence, type Skill } from './skills-data';
 
-const Skills3DCloud = dynamic(() => import('./Skills3DCloud'), {
-    ssr: false,
-    loading: () => (
-        <div className="h-[400px] w-full flex items-center justify-center flex-col gap-4 font-mono text-xs text-blue-500/50 uppercase tracking-[0.2em] animate-pulse">
-            Mapping Quantum Orbit...
-        </div>
-    )
-});
-
-export const skillCategories = [
-    {
-        title: "Programming Languages",
-        skills: [
-            { name: "JavaScript", icon: SiJavascript, color: "#F7DF1E" },
-            { name: "Java", icon: FaJava, color: "#007396" },
-            { name: "Python", icon: SiPython, color: "#3776AB" },
-            { name: "C", icon: SiC, color: "#A8B9CC" },
-            { name: "C++", icon: SiCplusplus, color: "#00599C" },
-            { name: "C#", icon: SiSharp, color: "#239120" },
-            { name: "PHP", icon: SiPhp, color: "#777BB4" },
-            { name: "Kotlin", icon: SiKotlin, color: "#7F52FF" },
-            { name: "HTML5", icon: SiHtml5, color: "#E34F26" },
-            { name: "CSS3", icon: SiCss3, color: "#1572B6" },
-        ]
-    },
-    {
-        title: "Databases & Servers",
-        skills: [
-            { name: "MongoDB", icon: SiMongodb, color: "#47A248" },
-            { name: "MySQL", icon: SiMysql, color: "#4479A1" },
-            { name: "MS SQL Server", icon: FaDatabase, color: "#CC2927" },
-            { name: "XAMPP", icon: SiXampp, color: "#FB7A24" },
-            { name: "WAMP", icon: FaServer, color: "#FFFFFF" },
-        ]
-    },
-    {
-        title: "Frameworks & Platforms",
-        skills: [
-            { name: "Next.js",     icon: SiNextdotjs,   color: "#ffffff" },
-            { name: "React",       icon: SiReact,       color: "#61DAFB" },
-            { name: "Node.js",     icon: SiNodedotjs,   color: "#339933" },
-            { name: "Express.js",  icon: SiExpress,     color: "#FFFFFF" },
-            { name: "Bootstrap",   icon: SiBootstrap,   color: "#7952B3" },
-            { name: "Tailwind",    icon: SiTailwindcss, color: "#06B6D4" },
-            { name: ".NET",        icon: SiDotnet,      color: "#512BD4" },
-            { name: "Spring",      icon: SiSpringboot,  color: "#6DB33F" },
-            { name: "JWT",         icon: SiJsonwebtokens, color: "#FFFFFF" },
-            { name: "CodeIgniter", icon: SiCodeigniter, color: "#EE4323" },
-            { name: "WordPress",   icon: SiWordpress,   color: "#21759B" },
-        ]
-    },
-    {
-        title: "Tools & IDE's",
-        skills: [
-            { name: "Git", icon: SiGit, color: "#F05032" },
-            { name: "GitHub", icon: SiGithub, color: "#FFFFFF" },
-            { name: "NPM", icon: SiNpm, color: "#CB3837" },
-            { name: "Figma", icon: SiFigma, color: "#F24E1E" },
-            { name: "Canva", icon: SiCanva, color: "#00C4CC" },
-            { name: "Cisco", icon: SiCisco, color: "#1BA0D7" },
-            { name: "Trello", icon: SiTrello, color: "#0052CC" },
-            { name: "Nodemon", icon: SiNodemon, color: "#76D04B" },
-            { name: "Apache Tomcat", icon: SiApachetomcat, color: "#F8DC75" },
-        ]
-    }
-];
-
-const MarqueeRow = ({ skills, direction = 1 }: { skills: any[], direction?: number }) => {
-    const controls = useAnimationControls();
-
-    const xStart = direction > 0 ? 0 : -((skills.length * 2) * 200); // approximate
-    const target = direction > 0 ? [0, '-50%'] : ['-50%', 0];
-
-    useEffect(() => {
-        controls.start({
-            x: target,
-            transition: {
-                x: {
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    duration: 50,
-                    ease: 'linear',
-                },
-            },
-        });
-    }, []);
-
-    return (
-        <div
-            className="flex overflow-hidden py-4 md:py-8 select-none"
-            onMouseEnter={() => controls.stop()}
-            onMouseLeave={() =>
-                controls.start({
-                    x: target,
-                    transition: {
-                        x: {
-                            repeat: Infinity,
-                            repeatType: 'loop',
-                            duration: 50,
-                            ease: 'linear',
-                        },
-                    },
-                })
-            }
-        >
-            <motion.div
-                animate={controls}
-                className="flex flex-none gap-6 md:gap-12 pr-6 md:pr-12"
-            >
-                {[...skills, ...skills, ...skills, ...skills].map((skill, i) => (
-                    <div
-                        key={i}
-                        className="flex items-center gap-3 md:gap-5 glassmorphism px-5 py-3 md:px-8 md:py-4 rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300 cursor-default"
-                    >
-                        <skill.icon className="text-xl md:text-3xl 3xl:text-4xl" style={{ color: skill.color }} />
-                        <span className="text-white font-mono text-xs md:text-sm 3xl:text-lg uppercase tracking-widest whitespace-nowrap">
-                            {skill.name}
-                        </span>
-                    </div>
-                ))}
-            </motion.div>
-        </div>
-    );
-};
+const Orbit = dynamic(() => import('./Skills3DCloud'), { ssr: false, loading: () => <div className="h-80 flex items-center justify-center text-sm text-gray-500" role="status">Loading orbit view…</div> });
 
 export default function SkillsMarquee() {
-    const [viewMode, setViewMode] = useState<'marquee' | 'orbit'>('orbit');
+    const [category, setCategory] = useState('All');
+    const [query, setQuery] = useState('');
+    const [paused, setPaused] = useState(false);
+    const [selected, setSelected] = useState<Skill | null>(null);
+    const reducedMotion = useReducedMotion();
+    const section = useRef<HTMLElement>(null);
+    const evidenceRef = useRef<HTMLDivElement>(null);
+    const visible = useInView(section, { amount: 0.1 });
+    const groups = useMemo(() => skillCategories.filter(group => category === 'All' || category === group.title).map(group => ({ ...group, skills: group.skills.filter(skill => skill.name.toLowerCase().includes(query.trim().toLowerCase())) })).filter(group => group.skills.length), [category, query]);
+    const skills = useMemo(() => groups.flatMap(group => group.skills), [groups]);
+    const selectSkill = (skill: Skill) => { setSelected(skill); requestAnimationFrame(() => { evidenceRef.current?.focus({ preventScroll: true }); evidenceRef.current?.scrollIntoView({ block: 'nearest', behavior: reducedMotion ? 'instant' : 'smooth' }); }); };
+    const card = (skill: Skill) => <button type="button" key={skill.name} onClick={() => selectSkill(skill)} aria-label={`View project evidence for ${skill.name}`} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.025] hover:border-blue-400/50 hover:bg-blue-500/5 transition-colors text-left focus-visible:outline focus-visible:outline-blue-400">
+        <skill.icon aria-hidden="true" className="text-xl shrink-0" style={{ color: skill.color }} /><span className="text-sm text-gray-200">{skill.name}</span><ArrowUpRight aria-hidden="true" size={12} className="ml-auto text-gray-600" />
+    </button>;
+    const stopMotion = paused || !!reducedMotion || !visible;
 
-    return (
-        <section id="skills" className="pt-24 pb-12 5xl:pt-48 5xl:pb-24 relative overflow-hidden bg-black/50">
-            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">03</span>
-            <div className="container mx-auto px-6 mb-8 relative z-10">
-                <div className="space-y-4 text-center">
-                    <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase">
-                        Technical <span className="text-blue-500">Arsenal</span>
-                    </h2>
-                    <div className="h-1.5 w-24 bg-blue-600 rounded-full mx-auto" />
-                    <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">Advanced Skillset Matrix</p>
-                    
-                    {/* View Mode Toggle */}
-                    <div className="flex items-center justify-center pt-6 select-none">
-                        <div className="inline-flex bg-white/5 border border-white/10 p-1 rounded-full relative">
-                            <button
-                                onClick={() => setViewMode('orbit')}
-                                className={`relative px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 z-10 ${
-                                    viewMode === 'orbit' ? 'text-white' : 'text-gray-400 hover:text-white'
-                                }`}
-                            >
-                                {viewMode === 'orbit' && (
-                                    <motion.div
-                                        layoutId="activeSkillsView"
-                                        className="absolute inset-0 bg-blue-600 rounded-full -z-10"
-                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                                    />
-                                )}
-                                Quantum Orbit
-                            </button>
-                            <button
-                                onClick={() => setViewMode('marquee')}
-                                className={`relative px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 z-10 ${
-                                    viewMode === 'marquee' ? 'text-white' : 'text-gray-400 hover:text-white'
-                                }`}
-                            >
-                                {viewMode === 'marquee' && (
-                                    <motion.div
-                                        layoutId="activeSkillsView"
-                                        className="absolute inset-0 bg-blue-600 rounded-full -z-10"
-                                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                                    />
-                                )}
-                                System Stream
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    return <section id="skills" ref={section} aria-labelledby="skills-title" className="py-20 sm:py-24 relative overflow-hidden bg-black/50">
+        <span aria-hidden="true" className="absolute top-8 right-6 font-black text-white/[0.03] text-[10rem] lg:text-[18rem] leading-none pointer-events-none">03</span>
+        <div className="container mx-auto px-6 relative z-10">
+            <p className="font-mono text-xs tracking-[0.25em] uppercase text-blue-400 mb-3">The tools behind my work</p>
+            <h2 id="skills-title" className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase">Skills &amp; <span className="text-blue-500">Technologies</span></h2>
+            <div className="w-24 h-1 rounded-full bg-blue-600 mt-4" />
+            <p className="text-sm sm:text-base text-gray-400 mt-5 max-w-xl leading-relaxed">From responsive interfaces to backend APIs. Explore my toolkit and select a technology to see mapped project evidence.</p>
+
+            <div className="mt-9 mb-8 rounded-2xl border border-blue-500/20 bg-blue-950/10 p-5 sm:p-6">
+                <div className="flex flex-wrap items-baseline gap-3 mb-4"><h3 className="text-sm font-semibold text-white">Main stack</h3><span className="text-xs font-mono text-blue-400">MERN · full-stack web development</span></div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{mainStack.map(card)}</div>
             </div>
-
-            <AnimatePresence mode="wait">
-                {viewMode === 'marquee' ? (
-                    <motion.div
-                        key="marquee-view"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.4 }}
-                        className="flex flex-col gap-2 md:gap-6 pt-8"
-                    >
-                        {skillCategories.map((category, idx) => (
-                            <div key={idx} className="relative">
-                                <div className="container mx-auto px-6 mb-2">
-                                    <span className="text-[10px] md:text-xs text-gray-600 uppercase tracking-[0.5em] font-bold opacity-50">
-                                        {category.title}
-                                    </span>
-                                </div>
-
-                                <MarqueeRow
-                                    skills={category.skills}
-                                    direction={idx % 2 === 0 ? 1 : -1}
-                                />
-                            </div>
-                        ))}
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key="orbit-view"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.4 }}
-                        className="w-full flex justify-center items-center pb-10 pt-2"
-                    >
-                        <Skills3DCloud />
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Background Glows */}
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.1)_0%,_transparent_70%)] rounded-full pointer-events-none" />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,_rgba(147,51,234,0.1)_0%,_transparent_70%)] rounded-full pointer-events-none" />
-        </section>
-    );
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+                <button type="button" disabled={!!reducedMotion} onClick={() => setPaused(value => !value)} aria-pressed={paused} className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-xs text-gray-300 focus-visible:outline focus-visible:outline-blue-400 disabled:opacity-60">{stopMotion ? <Play size={13} /> : <Pause size={13} />}{reducedMotion ? 'Reduced motion enabled' : paused ? 'Resume motion' : 'Pause motion'}</button>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+                <label className="flex items-center gap-2 border border-white/10 bg-black/30 rounded-xl px-3 py-2.5 sm:w-64"><Search aria-hidden="true" size={15} className="text-gray-500" /><span className="sr-only">Search technologies</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search technologies" className="min-w-0 w-full bg-transparent text-sm text-gray-200 outline-none focus-visible:underline" /></label>
+                <div role="group" aria-label="Skill categories" className="flex flex-wrap gap-2">{['All', ...skillCategories.map(group => group.title)].map(name => <button type="button" key={name} aria-pressed={category === name} onClick={() => setCategory(name)} className={`px-3 py-2 rounded-full text-[11px] border focus-visible:outline focus-visible:outline-blue-400 ${category === name ? 'text-blue-300 border-blue-400/40 bg-blue-500/10' : 'text-gray-500 border-white/10 hover:text-white'}`}>{name}</button>)}</div>
+            </div>
+            {!skills.length ? <p role="status" className="py-12 text-center text-gray-500">No technologies match your search. Try another name or category.</p> : <Orbit skills={skills} paused={stopMotion} onSelect={selectSkill} />}
+            <div ref={evidenceRef} tabIndex={-1} role="region" aria-label="Project evidence" className="mt-8 rounded-2xl border border-blue-500/20 bg-blue-950/10 p-5 sm:p-6 focus-visible:outline focus-visible:outline-blue-400">
+                {selected ? <><div className="flex items-center justify-between gap-3"><h3 className="text-base font-semibold text-white">{selected.name} · project evidence</h3><button type="button" aria-label="Close project evidence" className="text-gray-400 hover:text-white p-2" onClick={() => setSelected(null)}><X size={16} /></button></div>
+                    {skillEvidence[selected.name]?.length ? <ul className="mt-4 space-y-3">{skillEvidence[selected.name].map(project => <li key={project.slug}><Link href={`/project/${encodeURIComponent(project.slug)}`} className="inline-flex items-center gap-2 text-sm text-blue-300 hover:text-white focus-visible:outline focus-visible:outline-blue-400">{project.title}<ArrowUpRight aria-hidden="true" size={14} /></Link></li>)}</ul> : <p className="mt-3 text-sm text-gray-400">No verified project mapping is listed for this technology yet.</p>}</> : <p className="text-sm text-gray-400">Select a technology to see its mapped projects. Project links describe usage rather than proficiency scores.</p>}
+            </div>
+        </div>
+    </section>;
 }

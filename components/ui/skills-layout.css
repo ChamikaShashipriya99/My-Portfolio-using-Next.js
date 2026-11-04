@@ -1,0 +1,10 @@
+@keyframes skills-stream { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.skills-stream-track { animation: skills-stream 45s linear infinite; }
+.skills-stream[data-paused] .skills-stream-track,
+.skills-stream:hover .skills-stream-track,
+.skills-stream:focus-within .skills-stream-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .skills-stream-track { animation: none; width: 100%; }
+  .skills-stream-track > div:first-child { flex-wrap: wrap; }
+  .skills-stream-track > div[aria-hidden] { display: none; }
+}
