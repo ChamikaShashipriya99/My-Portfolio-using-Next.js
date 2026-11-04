@@ -16,6 +16,7 @@ import Footer from '@/components/ui/Footer';
 import BusinessCard from '@/components/ui/BusinessCard';
 import SkillsMarquee from '@/components/ui/SkillsMarquee';
 import Background from '@/components/ui/Background';
+import SectionReveals from '@/components/ui/SectionReveals';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import AIChatbot from '@/components/ui/AIChatbot';
@@ -46,6 +47,7 @@ export default function Home() {
                 >
                     <a href="#main-content" className="fixed left-4 top-4 z-[200] -translate-y-24 focus:translate-y-0 rounded-lg bg-blue-600 px-4 py-3 text-white focus:outline focus:outline-white" onClick={event => { event.preventDefault(); const target = document.getElementById('main-content'); target?.focus({ preventScroll: true }); target?.scrollIntoView({ behavior: 'instant', block: 'start' }); }}>Skip to content</a>
                     <Background />
+                    <SectionReveals />
                     <ScrollToTop />
                     <Navbar />
 
