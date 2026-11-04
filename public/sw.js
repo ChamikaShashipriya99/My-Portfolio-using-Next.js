@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chamik-dev-portfolio-cache-v1';
+const CACHE_NAME = 'chamik-dev-portfolio-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -41,6 +41,21 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) {
     return;
   }
+
+  // Keep navigations current; retain an offline fallback.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request).then(async (response) => {
+      if (response.ok) {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(event.request, response.clone());
+      }
+      return response;
+    }).catch(async () => (await caches.match(event.request)) || (await caches.match('/')) || Response.error()));
+    return;
+  }
+
+  // Development bundles and API data must always come from the server.
+  if (url.pathname.startsWith('/_next/') || url.pathname.startsWith('/api/')) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {

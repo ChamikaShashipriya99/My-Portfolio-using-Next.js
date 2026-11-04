@@ -1,390 +1,154 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
-import { motion, AnimatePresence } from 'framer-motion';
-import { GitCommit, ZoomIn, RotateCcw, Activity } from 'lucide-react';
-import GlassCard from './GlassCard';
+import React, { useEffect, useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Activity, ArrowUpRight, CalendarDays, Flame, RefreshCw } from 'lucide-react';
 
-interface DayData {
-    date: string;
-    contributionCount: number;
-    color: string;
+interface DayData { date: string; contributionCount: number; color: string }
+interface CalendarData { totalContributions: number; weeks: { contributionDays: DayData[] }[] }
+const palette = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+const point = (radius: number, angle: number) => `${(260 + radius * Math.sin(angle)).toFixed(3)},${(260 - radius * Math.cos(angle)).toFixed(3)}`;
+function segment(inner: number, outer: number, start: number, end: number) {
+    return `M ${point(inner, start)} L ${point(outer, start)} A ${outer} ${outer} 0 0 1 ${point(outer, end)} L ${point(inner, end)} A ${inner} ${inner} 0 0 0 ${point(inner, start)} Z`;
 }
-
-interface CalendarData {
-    totalContributions: number;
-    weeks: {
-        contributionDays: DayData[];
-    }[];
-}
-
-// Flat list of days helper
-function getFlattenedDays(calendarData: CalendarData | null): DayData[] {
-    if (!calendarData) return [];
-    const days: DayData[] = [];
-    calendarData.weeks.forEach(week => {
-        week.contributionDays.forEach(day => {
-            days.push(day);
-        });
-    });
-    return days;
-}
-
-// 3D City mesh rendering component
-interface CityMeshProps {
-    days: DayData[];
-    onHoverDay: (day: DayData | null, clientX?: number, clientY?: number) => void;
-    animationProgress: number;
-}
-
-function DevCity({ days, onHoverDay, animationProgress }: CityMeshProps) {
-    const meshRef = useRef<THREE.InstancedMesh>(null);
-    const { raycaster, camera, mouse } = useThree();
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-    const dummy = useMemo(() => new THREE.Object3D(), []);
-    const tempColor = useMemo(() => new THREE.Color(), []);
-
-    const countX = 52; // Weeks
-    const countZ = 7;   // Days
-    const spacingX = 0.28;
-    const spacingZ = 0.28;
-    const size = 0.2;
-
-    // Set initial position, scale and color for all instances
-    useEffect(() => {
-        if (!meshRef.current) return;
-
-        days.forEach((day, index) => {
-            const w = Math.floor(index / 7);
-            const d = index % 7;
-
-            // Center the grid around origin
-            const x = (w - countX / 2) * spacingX;
-            const z = (d - countZ / 2) * spacingZ;
-
-            // Height is based on commits, scaled down slightly
-            // We multiply height by the entrance animation progress
-            const height = Math.max(0.05, day.contributionCount * 0.25) * animationProgress;
-
-            dummy.position.set(x, height / 2, z);
-            dummy.scale.set(size, height, size);
-            dummy.updateMatrix();
-
-            meshRef.current!.setMatrixAt(index, dummy.matrix);
-
-            // Set normal color
-            tempColor.set(day.color);
-            meshRef.current!.setColorAt(index, tempColor);
-        });
-
-        meshRef.current.instanceMatrix.needsUpdate = true;
-        if (meshRef.current.instanceColor) {
-            meshRef.current.instanceColor.needsUpdate = true;
-        }
-    }, [days, animationProgress, dummy, tempColor]);
-
-    return (
-        <instancedMesh 
-            ref={meshRef} 
-            args={[undefined, undefined, days.length]} 
-            castShadow 
-            receiveShadow
-            onPointerMove={(e) => {
-                e.stopPropagation();
-                const instanceId = e.instanceId;
-                if (instanceId !== undefined && instanceId < days.length) {
-                    if (instanceId !== hoveredIndex) {
-                        // Restore old color of previously hovered block
-                        if (hoveredIndex !== null && days[hoveredIndex]) {
-                            tempColor.set(days[hoveredIndex].color);
-                            meshRef.current!.setColorAt(hoveredIndex, tempColor);
-                        }
-
-                        setHoveredIndex(instanceId);
-
-                        // Highlight color of new block
-                        tempColor.set('#60a5fa'); // Glow blue on hover
-                        meshRef.current!.setColorAt(instanceId, tempColor);
-                        meshRef.current!.instanceColor!.needsUpdate = true;
-                    }
-                    
-                    // Continually pass correct screen client coordinates to the tooltip
-                    onHoverDay(days[instanceId], e.clientX, e.clientY);
-                }
-            }}
-            onPointerOut={(e) => {
-                if (hoveredIndex !== null && days[hoveredIndex]) {
-                    // Restore original color
-                    tempColor.set(days[hoveredIndex].color);
-                    meshRef.current!.setColorAt(hoveredIndex, tempColor);
-                    meshRef.current!.instanceColor!.needsUpdate = true;
-                }
-                setHoveredIndex(null);
-                onHoverDay(null);
-            }}
-        >
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial roughness={0.1} metalness={0.7} />
-        </instancedMesh>
-    );
-}
-
-// Scene setup with camera rotation
-function CityScene({ days, onHoverDay, autoRotate, animationProgress }: { 
-    days: DayData[]; 
-    onHoverDay: (day: DayData | null, cx?: number, cy?: number) => void;
-    autoRotate: boolean;
-    animationProgress: number;
-}) {
-    const groupRef = useRef<THREE.Group>(null);
-    const controlsRef = useRef<any>(null);
-
-    useFrame((state) => {
-        if (autoRotate && groupRef.current) {
-            groupRef.current.rotation.y += 0.0025;
-        }
-    });
-
-    return (
-        <>
-            <ambientLight intensity={0.6} />
-            <directionalLight 
-                position={[10, 20, 15]} 
-                intensity={1.2} 
-                castShadow 
-                shadow-mapSize-width={1024} 
-                shadow-mapSize-height={1024} 
-            />
-            <pointLight position={[-10, 10, -10]} intensity={0.5} />
-
-            <group ref={groupRef}>
-                <DevCity days={days} onHoverDay={onHoverDay} animationProgress={animationProgress} />
-                
-                {/* City Grid Plate */}
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-                    <planeGeometry args={[16, 3]} />
-                    <meshStandardMaterial color="#0c0f17" roughness={0.9} metalness={0.1} />
-                </mesh>
-            </group>
-
-            <OrbitControls 
-                ref={controlsRef}
-                enableZoom={true} 
-                maxPolarAngle={Math.PI / 2 - 0.05} // don't go below ground
-                minDistance={5}
-                maxDistance={15}
-                makeDefault
-            />
-        </>
-    );
-}
+const formatDate = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 export default function ContributionSkyline() {
-    const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
+    const currentYear = new Date().getFullYear();
+    const [year, setYear] = useState(currentYear);
+    const [data, setData] = useState<CalendarData | null>(null);
+    const [source, setSource] = useState('');
     const [loading, setLoading] = useState(true);
-    const [hoveredDay, setHoveredDay] = useState<DayData | null>(null);
-    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-    const [autoRotate, setAutoRotate] = useState(true);
-    const [animationProgress, setAnimationProgress] = useState(0);
-    const [isClient, setIsClient] = useState(false);
+    const [error, setError] = useState(false);
+    const [selected, setSelected] = useState<DayData | null>(null);
+    const [replay, setReplay] = useState(0);
+    const reducedMotion = useReducedMotion();
 
-    // Track client mounting
     useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    // Fetch contribution data
-    useEffect(() => {
-        const fetchContributions = async () => {
+        const controller = new AbortController();
+        setLoading(true);
+        setError(false);
+        setSelected(null);
+        setData(null);
+        async function load() {
             try {
-                const res = await fetch('/api/github-contributions');
-                const result = await res.json();
-                setCalendarData(result.data);
-            } catch (error) {
-                console.error('Failed to load contributions:', error);
+                const response = await fetch(`/api/github-contributions?year=${year}`, { signal: controller.signal });
+                if (!response.ok) throw new Error('Contribution request failed');
+                const result = await response.json();
+                if (!result.data?.weeks?.length) throw new Error('No contribution calendar');
+                if (controller.signal.aborted) return;
+                setData(result.data);
+                setSource(result.source);
+            } catch {
+                if (!controller.signal.aborted) setError(true);
             } finally {
-                setLoading(false);
+                if (!controller.signal.aborted) setLoading(false);
             }
-        };
-        fetchContributions();
-    }, []);
-
-    // Entrance height animation loop
-    useEffect(() => {
-        if (loading || !calendarData) return;
-
-        let frameId: number;
-        let startTimestamp: number | null = null;
-        const duration = 1800; // 1.8 seconds
-
-        const animate = (timestamp: number) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const elapsed = timestamp - startTimestamp;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Ease out cubic
-            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-            setAnimationProgress(easeOutCubic);
-
-            if (progress < 1) {
-                frameId = requestAnimationFrame(animate);
-            }
-        };
-
-        frameId = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(frameId);
-    }, [loading, calendarData]);
-
-    const days = useMemo(() => getFlattenedDays(calendarData), [calendarData]);
-
-    const handleHoverDay = (day: DayData | null, clientX?: number, clientY?: number) => {
-        setHoveredDay(day);
-        if (clientX !== undefined && clientY !== undefined) {
-            setTooltipPos({ x: clientX, y: clientY });
         }
-    };
+        load();
+        return () => controller.abort();
+    }, [year]);
 
-    const handleResetCamera = () => {
-        // Simple turntable switch
-        setAutoRotate(prev => !prev);
-    };
+    const stats = useMemo(() => {
+        const days = data?.weeks.flatMap(week => week.contributionDays) ?? [];
+        let streak = 0, longest = 0;
+        for (const day of days) {
+            streak = day.contributionCount > 0 ? streak + 1 : 0;
+            longest = Math.max(longest, streak);
+        }
+        return { days, active: days.filter(day => day.contributionCount > 0).length, longest, peak: Math.max(0, ...days.map(day => day.contributionCount)) };
+    }, [data]);
+    const maxCount = Math.max(1, stats.peak);
+    const colorFor = (count: number) => palette[count === 0 ? 0 : Math.min(4, Math.ceil(count / maxCount * 4))];
+    const first = stats.days[0]?.date;
+    const last = stats.days[stats.days.length - 1]?.date;
 
     return (
-        <section id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-t border-b border-white/5">
-            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">05</span>
+        <section id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-y border-white/5">
+            <span aria-hidden="true" className="pointer-events-none absolute top-8 right-6 text-[10rem] md:text-[18rem] font-black leading-none tracking-tighter text-white/[0.03]">05</span>
             <div className="container mx-auto px-6 relative z-10">
-                
-                {/* Section Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+                <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
                     <div className="space-y-4">
-                        <h2 className="text-3xl sm:text-5xl lg:text-6xl 3xl:text-7xl font-black text-white tracking-tighter uppercase leading-tight">
-                            Dev <span className="text-blue-500">Skyline</span>
-                        </h2>
-                        <div className="h-1.5 w-24 bg-blue-600 rounded-full" />
-                        <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-base uppercase tracking-[0.4em]">
-                            Interactive 3D GitHub Contribution City
-                        </p>
+                        <p className="font-mono text-xs uppercase tracking-[0.3em] text-blue-400">Consistency, one day at a time</p>
+                        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tighter uppercase text-white">Contribution <span className="text-blue-500">Orbit</span></h2>
+                        <div className="w-24 h-1.5 rounded-full bg-blue-600" />
+                        <p className="font-mono text-xs text-gray-500 uppercase tracking-[0.2em]">A year of GitHub activity, in a new perspective</p>
                     </div>
-
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleResetCamera}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-wider border font-bold transition-all ${
-                                autoRotate 
-                                    ? 'bg-blue-600/10 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]' 
-                                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
-                            }`}
-                        >
-                            <RotateCcw size={12} className={autoRotate ? 'animate-spin' : ''} /> 
-                            {autoRotate ? "Auto-Rotate [ON]" : "Auto-Rotate [OFF]"}
-                        </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <label htmlFor="contribution-year" className="flex items-center gap-3 font-mono text-xs text-gray-400">
+                            Year
+                            <select id="contribution-year" value={year} onChange={event => setYear(Number(event.target.value))} className="rounded-full border border-blue-500/30 bg-neutral-950 px-4 py-2 text-blue-300 focus-visible:outline focus-visible:outline-blue-400">
+                                {Array.from({ length: currentYear - 2022 }, (_, index) => currentYear - index).map(option => <option key={option} value={option}>{option}</option>)}
+                            </select>
+                        </label>
+                    {data && <span className={`rounded-full border px-4 py-2 font-mono text-[10px] uppercase tracking-widest ${source === 'github' ? 'border-blue-500/30 text-blue-300 bg-blue-500/10' : 'border-amber-500/30 text-amber-300 bg-amber-500/10'}`}>{source === 'github' ? 'GitHub data · cached up to 24h' : 'Preview · sample data'}</span>}
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-4 gap-8 xl:gap-12 items-stretch">
-                    {/* Left Stats Display Panel */}
-                    <div className="lg:col-span-1 flex flex-col justify-between gap-6">
-                        <GlassCard className="flex-1 flex flex-col justify-between p-6 md:p-8 bg-blue-950/5 border-white/5" hoverScale={false}>
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3 text-blue-500">
-                                    <Activity className="w-5 h-5" />
-                                    <h3 className="font-mono text-xs uppercase tracking-widest font-bold text-white">Grid Telemetry</h3>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">Total Commits (Last 365 Days)</div>
-                                    <div className="text-4xl md:text-5xl font-black text-white tracking-tight flex items-baseline gap-2">
-                                        {loading ? "..." : calendarData?.totalContributions}
-                                        <span className="text-xs font-mono font-bold text-green-500 uppercase tracking-widest">+Sync</span>
-                                    </div>
-                                </div>
-
-                                <p className="text-gray-400 text-xs md:text-sm leading-relaxed opacity-80">
-                                    This visualizer maps Chamika's version control telemetry. Every box represents a day, and its height models daily commits. Zoom, spin, or hover over buildings to read records.
-                                </p>
-                            </div>
-
-                            {/* Color Legend */}
-                            <div className="pt-6 border-t border-white/5 space-y-3">
-                                <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">Density scale</div>
-                                <div className="flex items-center gap-1.5 font-mono text-[9px] text-gray-400">
-                                    <span>Low</span>
-                                    <span className="w-3.5 h-3.5 rounded bg-[#161b22] border border-white/5" title="0 commits" />
-                                    <span className="w-3.5 h-3.5 rounded bg-[#0e4429]" title="1-2 commits" />
-                                    <span className="w-3.5 h-3.5 rounded bg-[#006d32]" title="3-4 commits" />
-                                    <span className="w-3.5 h-3.5 rounded bg-[#26a641]" title="5-6 commits" />
-                                    <span className="w-3.5 h-3.5 rounded bg-[#39d353]" title="7+ commits" />
-                                    <span>High</span>
-                                </div>
-                            </div>
-                        </GlassCard>
-                    </div>
-
-                    {/* Right Interactive 3D WebGL Canvas Panel */}
-                    <div className="lg:col-span-3 h-[450px] lg:h-[500px] xl:h-[550px] rounded-[2rem] overflow-hidden border border-white/10 relative bg-neutral-950/80">
-                        {loading && (
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex flex-col items-center justify-center gap-4">
-                                <div className="w-10 h-10 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-                                <span className="font-mono text-xs text-blue-400 uppercase tracking-widest animate-pulse">Syncing City Matrix...</span>
-                            </div>
-                        )}
-
-                        {isClient && !loading && days.length > 0 && (
-                            <Canvas 
-                                camera={{ position: [0, 6, 8], fov: 32 }}
-                                shadows
-                                className="w-full h-full relative cursor-grab active:cursor-grabbing"
-                            >
-                                <CityScene 
-                                    days={days} 
-                                    onHoverDay={handleHoverDay} 
-                                    autoRotate={autoRotate}
-                                    animationProgress={animationProgress}
-                                />
-                            </Canvas>
-                        )}
-
-                        {/* Interactive HUD guidelines */}
-                        <div className="absolute bottom-4 left-6 pointer-events-none font-mono text-[9px] text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                            <ZoomIn className="w-3.5 h-3.5 text-blue-400" /> Click + Drag: Rotate | Scroll: Zoom | Right-Click: Pan
+                <div className="relative rounded-[2rem] border border-white/10 bg-gradient-to-br from-blue-950/20 via-neutral-950 to-neutral-950 overflow-hidden">
+                    {loading || error ? (
+                        <div className="min-h-[440px] flex items-center justify-center gap-3 text-blue-300 font-mono text-sm" role="status">
+                            {loading && <RefreshCw size={18} className="animate-spin motion-reduce:animate-none" />}
+                            {error ? 'Contribution data is unavailable. Please refresh to try again.' : 'Mapping your contribution orbit…'}
                         </div>
+                    ) : data && (
+                        <div className="grid lg:grid-cols-[1.2fr_1fr] items-center gap-4 lg:gap-12 p-5 sm:p-10 lg:p-12">
+                            <div className="relative w-full max-w-[580px] mx-auto">
+                                <div aria-hidden="true" className="absolute inset-[18%] rounded-full bg-green-600/10 blur-3xl pointer-events-none" />
+                                <svg viewBox="0 0 520 520" className="relative w-full overflow-visible" role="group" aria-label="Circular GitHub contribution calendar. Each segment is one day, weeks run clockwise from the right, Sunday is the innermost ring.">
+                                    <circle cx="260" cy="260" r="109" fill="none" stroke="#22c55e" strokeOpacity="0.15" />
+                                    <circle cx="260" cy="260" r="231" fill="none" stroke="#22c55e" strokeOpacity="0.12" strokeDasharray="2 6" />
+                                    <motion.g key={`${year}-${replay}`} >
+                                        {data.weeks.flatMap((week, weekIndex) => week.contributionDays.map(day => {
+                                            const weekday = new Date(`${day.date}T12:00:00Z`).getUTCDay();
+                                            const step = Math.PI * 2 / data.weeks.length;
+                                            const inner = 119 + weekday * 14;
+                                            return <motion.path
+                                                key={day.date}
+                                                d={segment(inner, inner + 11, Math.PI / 2 + weekIndex * step + 0.008, Math.PI / 2 + (weekIndex + 1) * step - 0.008)}
+                                                fill={colorFor(day.contributionCount)}
+                                                stroke={selected?.date === day.date ? '#fff' : 'transparent'} strokeWidth="1.5"
+                                                initial={reducedMotion ? false : { opacity: 0 }}
+                                                whileInView={{ opacity: 1 }} viewport={{ once: true }}
+                                                transition={{ duration: 0.35, delay: reducedMotion ? 0 : weekIndex * 0.035 }}
+                                                className="cursor-pointer outline-none hover:brightness-150 focus:stroke-white"
+                                                tabIndex={0} role="img" aria-label={`${formatDate(day.date)}: ${day.contributionCount} contributions`}
+                                                onMouseEnter={() => setSelected(day)} onMouseLeave={() => setSelected(null)}
+                                                onFocus={() => setSelected(day)} onBlur={() => setSelected(null)} onClick={() => setSelected(day)}
+                                            ><title>{formatDate(day.date)}: {day.contributionCount} contributions</title></motion.path>;
+                                        }))}
+                                    </motion.g>
+                                    <text x="260" y="246" textAnchor="middle" fill="#fff" fontSize="37" fontWeight="800" letterSpacing="-2">{(selected ? selected.contributionCount : data.totalContributions).toLocaleString()}</text>
+                                    <text x="260" y="270" textAnchor="middle" fill="#86efac" fontSize="9" fontFamily="monospace" letterSpacing="1.5">{selected ? 'CONTRIBUTIONS' : `${year} CONTRIBUTIONS`}</text>
+                                    <text x="260" y="292" textAnchor="middle" fill="#6b7280" fontSize="10" fontFamily="monospace">{selected ? formatDate(selected.date) : 'Every day leaves a mark'}</text>
+                                    <text x="503" y="263" textAnchor="middle" fill="#4ade80" fontSize="9" fontFamily="monospace" letterSpacing="2">↓</text>
+                                </svg>
+                                <div className="flex justify-center items-center gap-2 text-[10px] text-gray-500 font-mono mt-2">
+                                    <span>Less</span>{palette.map(color => <span key={color} className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />)}<span>More</span>
+                                </div>
+                                <button type="button" onClick={() => { setSelected(null); setReplay(value => value + 1); }} className="flex items-center gap-2 mx-auto mt-6 text-xs text-gray-400 hover:text-blue-300 transition-colors focus-visible:outline focus-visible:outline-blue-400 rounded px-3 py-2"><RefreshCw size={13} /> Replay animation</button>
+                            </div>
 
-                        {/* Floating Tooltip HTML Overlay */}
-                        <AnimatePresence>
-                            {hoveredDay && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    style={{ 
-                                        position: 'fixed', 
-                                        left: tooltipPos.x + 15, 
-                                        top: tooltipPos.y - 65, 
-                                        pointerEvents: 'none' 
-                                    }}
-                                    className="z-50 min-w-[120px] bg-black/90 border border-blue-500/30 rounded-xl px-3 py-2 shadow-2xl backdrop-blur-md font-mono"
-                                >
-                                    <div className="text-[8px] text-gray-500 uppercase tracking-wider mb-0.5">
-                                        {new Date(hoveredDay.date).toLocaleDateString([], { 
-                                            month: 'short', 
-                                            day: 'numeric', 
-                                            year: 'numeric' 
-                                        })}
-                                    </div>
-                                    <div className="text-white text-xs font-bold flex items-center gap-1.5">
-                                        <GitCommit className="w-3.5 h-3.5 text-blue-500" />
-                                        <span>{hoveredDay.contributionCount} commits</span>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+                            <div className="space-y-8 pb-4 lg:pb-0">
+                                <div>
+                                    <div className="flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-blue-400"><Activity size={16} /> The activity behind the work</div>
+                                    <p className="text-6xl sm:text-7xl font-black tracking-tighter text-white mt-5">{data.totalContributions.toLocaleString()}<span className="text-blue-500">.</span></p>
+                                    <p className="text-gray-400 mt-2">contributions in {year}{year === currentYear ? ' · year to date' : ''}</p>
+                                    {first && last && <p className="font-mono text-[10px] text-gray-500 mt-3">{formatDate(first)} — {formatDate(last)}</p>}
+                                </div>
+                                <div className="grid grid-cols-3 gap-3 border-y border-white/10 py-6">
+                                    {[{ icon: CalendarDays, value: stats.active, label: 'Active days' }, { icon: Flame, value: stats.longest, label: 'Day streak', detail: 'Longest consecutive streak' }, { icon: Activity, value: stats.peak, label: 'Best day', detail: 'Most contributions in a day' }].map(stat => <div key={stat.label} title={stat.detail}>
+                                        <stat.icon size={16} className="text-blue-400 mb-3" />
+                                        <div className="text-2xl sm:text-3xl text-white font-bold">{stat.value}</div>
+                                        <div className="text-[10px] sm:text-xs text-gray-500 mt-1">{stat.label}</div>
+                                    </div>)}
+                                </div>
+                                <p className="text-sm leading-relaxed text-gray-400 max-w-sm">Each tile is a day. Follow the weeks clockwise from the right; the seven rings run from Sunday inside to Saturday outside. Brighter greens mark busier days. Hover, focus, or tap a tile to explore.</p>
+                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-200 transition-colors">Explore my GitHub <ArrowUpRight size={16} /></a>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
             </div>
         </section>
     );

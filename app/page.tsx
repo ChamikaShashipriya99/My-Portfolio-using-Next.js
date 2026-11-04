@@ -24,7 +24,7 @@ const ContributionSkyline = dynamic(() => import('@/components/ui/ContributionSk
     ssr: false,
     loading: () => (
         <div className="py-24 flex items-center justify-center flex-col gap-4 font-mono text-xs text-blue-500/50 uppercase tracking-[0.2em] animate-pulse">
-            Initializing 3D Skyline Core...
+            Loading Contribution Orbit...
         </div>
     )
 });

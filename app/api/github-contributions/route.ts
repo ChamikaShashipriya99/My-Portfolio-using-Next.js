@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
 const GITHUB_QUERY = `
-  query($username: String!) {
+  query($username: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $username) {
-      contributionsCollection {
+      contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           totalContributions
           weeks {
@@ -22,22 +22,16 @@ const GITHUB_QUERY = `
 `;
 
 // Helper to generate realistic mock contributions when GITHUB_PAT is missing
-function generateMockContributions() {
+function generateMockContributions(year: number, endDate: Date) {
     const weeks = [];
     let totalContributions = 0;
-    const endDate = new Date();
-    // Start date is 364 days ago (52 weeks)
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 364);
-
-    const current = new Date(startDate);
-
-    for (let w = 0; w < 52; w++) {
+    const current = new Date(Date.UTC(year, 0, 1));
+    let w = 0;
+    while (current <= endDate) {
         const contributionDays = [];
-        for (let d = 0; d < 7; d++) {
+        do {
             const dateStr = current.toISOString().split('T')[0];
-            const isWeekend = current.getDay() === 0 || current.getDay() === 6;
-            
+            const isWeekend = current.getUTCDay() === 0 || current.getUTCDay() === 6;
             // Generate counts with weight distributions:
             // - Weekends: 60% chance of 0, 30% chance of 1, 10% chance of 2-3
             // - Weekdays: 20% chance of 0, 40% chance of 1-3, 30% chance of 4-6, 10% chance of 7-10 (high productivity days)
@@ -79,9 +73,10 @@ function generateMockContributions() {
             });
 
             // Move to next day
-            current.setDate(current.getDate() + 1);
-        }
+            current.setUTCDate(current.getUTCDate() + 1);
+        } while (current <= endDate && current.getUTCDay() !== 0);
         weeks.push({ contributionDays });
+        w++;
     }
 
     return {
@@ -90,16 +85,24 @@ function generateMockContributions() {
     };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
+    const year = Number(request.nextUrl.searchParams.get('year') ?? currentYear);
+    if (!Number.isInteger(year) || year < 2023 || year > currentYear) {
+        return NextResponse.json({ error: 'Invalid contribution year' }, { status: 400 });
+    }
+    const from = new Date(Date.UTC(year, 0, 1));
+    const to = year === currentYear ? now : new Date(Date.UTC(year, 11, 31, 23, 59, 59));
     const username = 'ChamikaShashipriya99';
     const token = process.env.GITHUB_PAT;
 
     if (!token) {
         // Fallback to high-quality mock data so the portfolio works zero-setup
         console.log('GITHUB_PAT not configured. Serving simulated contribution skyline.');
-        return NextResponse.json({ 
-            source: 'mocked', 
-            data: generateMockContributions() 
+        return NextResponse.json({
+            source: 'mocked',
+            data: generateMockContributions(year, to)
         });
     }
 
@@ -112,7 +115,7 @@ export async function GET() {
             },
             body: JSON.stringify({
                 query: GITHUB_QUERY,
-                variables: { username }
+                variables: { username, from: from.toISOString(), to: to.toISOString() }
             }),
             next: { revalidate: 86400 } // Cache response for 24 hours
         });
@@ -129,21 +132,28 @@ export async function GET() {
         }
 
         const calendar = json.data?.user?.contributionsCollection?.contributionCalendar;
-        
+
         if (!calendar) {
             throw new Error('Failed to parse contribution calendar from GitHub API response');
         }
 
         return NextResponse.json({
             source: 'github',
-            data: calendar
+            data: (() => {
+                const first = from.toISOString().slice(0, 10);
+                const last = to.toISOString().slice(0, 10);
+                const weeks = calendar.weeks.map((week: { contributionDays: { date: string; contributionCount: number; color: string }[] }) => ({
+                    contributionDays: week.contributionDays.filter(day => day.date >= first && day.date <= last)
+                })).filter((week: { contributionDays: unknown[] }) => week.contributionDays.length > 0);
+                return { weeks, totalContributions: weeks.reduce((sum: number, week: { contributionDays: { contributionCount: number }[] }) => sum + week.contributionDays.reduce((total, day) => total + day.contributionCount, 0), 0) };
+            })()
         });
 
     } catch (err: any) {
         console.error('Error fetching real GitHub contributions:', err);
-        return NextResponse.json({ 
-            source: 'mocked_fallback', 
-            data: generateMockContributions() 
+        return NextResponse.json({
+            source: 'mocked_fallback',
+            data: generateMockContributions(year, to)
         });
     }
 }
