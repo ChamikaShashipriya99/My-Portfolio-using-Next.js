@@ -22,7 +22,7 @@ export default function BusinessCard() {
     }, [automatic, hovered, focused, visible, reducedMotion]);
     const chooseSide = (value: boolean) => { setAutomatic(false); setBack(value); };
     const focusClass = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-4';
-    return <section ref={section} id="business-card" aria-labelledby="business-card-title" className="py-20 sm:py-24 relative overflow-hidden">
+    return <section ref={section} id="business-card" aria-labelledby="business-card-title" className="py-12 sm:py-16 relative overflow-hidden">
         <span aria-hidden="true" className="absolute bottom-8 right-6 text-[10rem] lg:text-[18rem] font-black leading-none text-white/[0.03] pointer-events-none">09</span>
         <div className="container mx-auto px-6 relative max-w-6xl">
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-blue-400 mb-3">Keep in touch</p>

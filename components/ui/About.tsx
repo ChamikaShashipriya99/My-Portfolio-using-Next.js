@@ -46,11 +46,11 @@ export default function About() {
     };
 
     return (
-        <section id="about" aria-labelledby="about-title" className="py-20 sm:py-24 5xl:py-48 relative overflow-hidden bg-black/45">
+        <section id="about" aria-labelledby="about-title" className="py-12 sm:py-16 5xl:py-20 relative overflow-hidden bg-black/45">
             <div aria-hidden="true" className="absolute inset-0 hero-grain pointer-events-none opacity-[0.02]" />
             <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white/[0.02] text-[10rem] lg:text-[18rem] leading-none tracking-tighter font-mono">02</span>
             <div className="container mx-auto px-6 relative">
-                <div className="mb-10 sm:mb-14">
+                <div className="mb-8 sm:mb-10">
                     <p className="font-mono text-xs uppercase tracking-[0.25em] text-blue-400 mb-3">The person behind the code</p>
                     <h2 id="about-title" className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-tight">About <span className="text-blue-500">Me</span></h2>
                     <div className="h-1 w-24 bg-blue-600 rounded-full mt-4" />

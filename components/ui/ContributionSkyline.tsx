@@ -121,7 +121,7 @@ export default function ContributionSkyline() {
     const percent = difference !== null && previousTotal ? Math.abs(difference / previousTotal * 100).toFixed(1) : null;
 
     return (
-        <section ref={sectionRef} id="skyline" className="py-24 5xl:py-48 relative overflow-hidden bg-black/30 border-y border-white/5">
+        <section ref={sectionRef} id="skyline" className="py-12 sm:py-16 5xl:py-20 relative overflow-hidden bg-black/30 border-y border-white/5">
             <span aria-hidden="true" className="pointer-events-none absolute top-8 right-6 text-[10rem] md:text-[18rem] font-black leading-none tracking-tighter text-white/[0.03]">05</span>
             <div className="container mx-auto px-6 relative z-10">
                 <div className="flex flex-wrap justify-between items-end gap-6 mb-12">

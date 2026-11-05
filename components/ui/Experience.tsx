@@ -99,10 +99,10 @@ function Timeline({ entries, label }: { entries: TimelineEntry[]; label: string 
 }
 
 export default function Experience() {
-    return <section id="experience" aria-labelledby="experience-title" className="py-20 sm:py-24 relative overflow-hidden">
+    return <section id="experience" aria-labelledby="experience-title" className="py-12 sm:py-16 relative overflow-hidden">
         <span aria-hidden="true" className="absolute bottom-8 right-6 font-black text-white/[0.03] text-[10rem] lg:text-[18rem] leading-none pointer-events-none">06</span>
         <div className="container mx-auto px-6 relative">
-            <div className="mb-10 sm:mb-14">
+            <div className="mb-8 sm:mb-10">
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-blue-400 mb-3">Learning through hands-on work</p>
                 <h2 id="experience-title" className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-tight">Experience &amp; <span className="text-blue-500">Education</span></h2>
                 <div className="h-1 w-24 rounded-full bg-blue-600 mt-4" />

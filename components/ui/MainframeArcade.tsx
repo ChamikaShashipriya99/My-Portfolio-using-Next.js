@@ -17,10 +17,10 @@ export default function MainframeArcade() {
         if (!active && wasActive.current) playButton.current?.focus({ preventScroll: true });
         wasActive.current = active;
     }, [active]);
-    return <section id="arcade" aria-labelledby="arcade-title" className="py-20 sm:py-24 relative overflow-hidden bg-black/35">
+    return <section id="arcade" aria-labelledby="arcade-title" className="py-12 sm:py-16 relative overflow-hidden bg-black/35">
         <span aria-hidden="true" className="absolute bottom-8 right-6 text-[10rem] lg:text-[18rem] text-white/[0.03] font-black leading-none pointer-events-none">08</span>
         <div className="container mx-auto px-6 max-w-5xl relative">
-            <div className="mb-10 sm:mb-12">
+            <div className="mb-8 sm:mb-10">
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-blue-400 mb-3">A small break from the serious stuff</p>
                 <h2 id="arcade-title" className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tighter">Mainframe <span className="text-blue-500">Arcade</span></h2>
                 <div className="w-24 h-1 rounded-full bg-blue-600 mt-4" />

@@ -79,7 +79,7 @@ export default function Contact() {
     const fieldClass = 'w-full rounded-xl border bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline focus:outline-2 focus:outline-blue-400 focus:outline-offset-2 disabled:opacity-60';
     const buttonFocus = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-2';
 
-    return <section id="contact" aria-labelledby="contact-title" className="py-20 sm:py-24 relative">
+    return <section id="contact" aria-labelledby="contact-title" className="py-12 sm:py-16 relative">
         <span aria-hidden="true" className="absolute top-8 right-6 text-[10rem] lg:text-[18rem] font-black leading-none text-white/[0.03] pointer-events-none">07</span>
         <div className="container mx-auto px-6 max-w-6xl relative">
             <div className="grid lg:grid-cols-2 gap-10 xl:gap-16 items-start">

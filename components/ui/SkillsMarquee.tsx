@@ -26,7 +26,7 @@ export default function SkillsMarquee() {
     </button>;
     const stopMotion = paused || !!reducedMotion || !visible;
 
-    return <section id="skills" ref={section} aria-labelledby="skills-title" className="py-20 sm:py-24 relative overflow-hidden bg-black/50">
+    return <section id="skills" ref={section} aria-labelledby="skills-title" className="py-12 sm:py-16 relative overflow-hidden bg-black/50">
         <span aria-hidden="true" className="absolute top-8 right-6 font-black text-white/[0.03] text-[10rem] lg:text-[18rem] leading-none pointer-events-none">03</span>
         <div className="container mx-auto px-6 relative z-10">
             <p className="font-mono text-xs tracking-[0.25em] uppercase text-blue-400 mb-3">The tools behind my work</p>

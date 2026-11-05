@@ -1,273 +1,103 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import { HiCheck, HiDuplicate } from 'react-icons/hi';
-import {
-    SiNextdotjs,
-    SiReact,
-    SiTypescript,
-    SiTailwindcss,
-    SiThreedotjs,
-    SiFramer,
-    SiVercel,
-} from 'react-icons/si';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { ArrowUp, ArrowUpRight, Check, Copy, Download, Github, Linkedin, UserRoundPlus } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { SiNextdotjs, SiReact, SiTypescript, SiTailwindcss, SiThreedotjs, SiFramer, SiVercel } from 'react-icons/si';
 
-const EMAIL = 'chamikashashipriya3@gmail.com';
-
-const builtWith = [
-    { icon: SiNextdotjs,   label: 'Next.js',       color: '#ffffff' },
-    { icon: SiReact,       label: 'React',          color: '#61DAFB' },
-    { icon: SiTypescript,  label: 'TypeScript',     color: '#3178C6' },
-    { icon: SiTailwindcss, label: 'Tailwind CSS',   color: '#06B6D4' },
-    { icon: SiThreedotjs,  label: 'Three.js',       color: '#ffffff' },
-    { icon: SiFramer,      label: 'Framer Motion',  color: '#BB4B96' },
-    { icon: SiVercel,      label: 'Vercel',         color: '#ffffff' },
+const email = 'chamikashashipriya3@gmail.com';
+const links = [
+    { name: 'Home', href: '#home' }, { name: 'About', href: '#about' },
+    { name: 'Skills', href: '#skills' }, { name: 'Projects', href: '#projects' },
+    { name: 'Activity', href: '#skyline' }, { name: 'Experience', href: '#experience' },
+    { name: 'Contact', href: '#contact' }, { name: 'Arcade', href: '#arcade' },
+    { name: 'Business Card', href: '#business-card' },
+];
+const technologies = [
+    { icon: SiNextdotjs, label: 'Next.js' }, { icon: SiReact, label: 'React' },
+    { icon: SiTypescript, label: 'TypeScript' }, { icon: SiTailwindcss, label: 'Tailwind CSS' },
+    { icon: SiThreedotjs, label: 'Three.js' }, { icon: SiFramer, label: 'Framer Motion' },
+    { icon: SiVercel, label: 'Vercel' },
 ];
 
-// ── Stagger variants ───────────────────────────────────────────
-const gridVariants = {
-    hidden: {},
-    show: {
-        transition: { staggerChildren: 0.13, delayChildren: 0.05 },
-    },
-};
-
-const colVariants = {
-    hidden: { opacity: 0, y: 36 },
-    show:   {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] as const },
-    },
-};
-
-// ── Live IST Clock ─────────────────────────────────────────────
-function ISTClock() {
+function LocalTime() {
     const [time, setTime] = useState('');
-    const [isWorkHours, setIsWorkHours] = useState(false);
-
     useEffect(() => {
-        const update = () => {
-            const now  = new Date();
-            const ist  = now.toLocaleTimeString('en-US', {
-                timeZone: 'Asia/Colombo',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true,
-            });
-            const hour = Number(
-                now.toLocaleString('en-US', { timeZone: 'Asia/Colombo', hour: 'numeric', hour12: false })
-            );
-            setTime(ist);
-            setIsWorkHours(hour >= 8 && hour < 23);
-        };
+        const update = () => setTime(new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Colombo', hour: '2-digit', minute: '2-digit', hour12: true }));
         update();
-        const id = setInterval(update, 1000);
-        return () => clearInterval(id);
+        const timer = window.setInterval(update, 60000);
+        return () => window.clearInterval(timer);
     }, []);
-
-    if (!time) return null;
-
-    return (
-        <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-gray-600 uppercase">
-            <span
-                className={`w-1.5 h-1.5 rounded-full ${isWorkHours ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`}
-                title={isWorkHours ? 'Likely online' : 'Likely offline'}
-            />
-            <span>IST · UTC+5:30</span>
-            <span className="text-gray-500 tabular-nums">{time}</span>
-        </div>
-    );
+    return <p className="text-xs text-gray-400 leading-relaxed">Sri Lanka · UTC+5:30{time && <span className="text-gray-500 ml-2 tabular-nums">{time}</span>}</p>;
 }
 
-// ── Email Copy Button ──────────────────────────────────────────
-function CopyEmailButton() {
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(EMAIL);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2500);
-        } catch {
-            window.location.href = `mailto:${EMAIL}`;
-        }
-    };
-
-    return (
-        <div className="space-y-2">
-            <button
-                onClick={handleCopy}
-                className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors font-medium text-sm 3xl:text-xl break-all text-left"
-                title="Click to copy email"
-            >
-                <span>{EMAIL}</span>
-                <span className="shrink-0 opacity-0 group-hover:opacity-60 transition-opacity">
-                    {copied ? <HiCheck className="text-green-400" /> : <HiDuplicate />}
-                </span>
-            </button>
-
-            <AnimatePresence>
-                {copied && (
-                    <motion.span
-                        initial={{ opacity: 0, y: -4, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0,  scale: 1   }}
-                        exit={{    opacity: 0, y:  4, scale: 0.9 }}
-                        transition={{ duration: 0.2 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 text-[9px] font-bold uppercase tracking-widest"
-                    >
-                        <HiCheck className="text-sm" /> Copied!
-                    </motion.span>
-                )}
-            </AnimatePresence>
-
-            <div className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-gray-600">
-                <span>⚡</span>
-                <span>Replies within 24h</span>
-            </div>
-        </div>
-    );
-}
-
-// ── Footer ─────────────────────────────────────────────────────
 export default function Footer() {
-    return (
-        <footer className="py-24 5xl:py-48 relative overflow-hidden">
+    const reducedMotion = useReducedMotion();
+    const [copyStatus, setCopyStatus] = useState('');
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+    const copyEmail = async () => {
+        try {
+            await navigator.clipboard.writeText(email);
+            setCopyStatus('Email address copied.');
+            if (timer.current) clearTimeout(timer.current);
+            timer.current = setTimeout(() => setCopyStatus(''), 3000);
+        } catch { setCopyStatus('Copy unavailable. Select the address or open your email app.'); }
+    };
+    const navigate = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        const target = document.querySelector<HTMLElement>(href);
+        if (!target) return;
+        event.preventDefault();
+        const header = document.querySelector('nav[aria-label="Main navigation"]');
+        const offset = (header?.getBoundingClientRect().bottom ?? 80) + 16;
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+        window.scrollTo({ top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset), behavior: reducedMotion ? 'instant' : 'smooth' });
+        window.history.replaceState(null, '', href);
+    };
+    const focus = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-4 rounded';
+    const linkClass = `text-sm text-gray-300 hover:text-blue-300 transition-colors ${focus}`;
 
-            {/* ── Background: multi-orb glows ── */}
-            {/* Blue orb — bottom-right (original) */}
-            <div className="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] bg-blue-600/6 rounded-full blur-[130px] pointer-events-none" />
-            {/* Violet orb — top-left (new) */}
-            <div className="absolute -top-24 -left-24 w-[24rem] h-[24rem] bg-violet-600/6 rounded-full blur-[130px] pointer-events-none" />
-            {/* Cyan accent — bottom-left, subtle */}
-            <div className="absolute bottom-0 left-1/3 w-[20rem] h-[20rem] bg-cyan-600/4 rounded-full blur-[100px] pointer-events-none" />
-
-            {/* ── Background: CSS dot grid ── */}
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage: 'radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px)',
-                    backgroundSize: '28px 28px',
-                    maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
-                    WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
-                }}
-            />
-
-            {/* ── Animated top border ── */}
-            <div className="gradient-divider absolute top-0 left-0 right-0 z-10" />
-            <div className="absolute top-0 left-0 right-0 h-[6px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent blur-md pointer-events-none z-10" />
-
-            <div className="container mx-auto px-6 relative z-10">
-
-                {/* ── Staggered grid columns ── */}
-                <motion.div
-                    variants={gridVariants}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: '-80px' }}
-                    className="grid grid-cols-1 md:grid-cols-4 gap-12 xl:gap-24 3xl:gap-32 mb-24"
-                >
-                    {/* Brand & Bio */}
-                    <motion.div variants={colVariants} className="col-span-1 md:col-span-2 space-y-8">
-                        <div
-                            data-text="CHAMIKA.DEV"
-                            className="brand-glitch text-white font-black text-2xl md:text-3xl 3xl:text-5xl 5k:text-7xl tracking-tighter uppercase select-none"
-                        >
-                            CHAMIKA<span className="text-blue-500">.</span>DEV
-                        </div>
-
-                        <p className="text-gray-500 max-w-sm 3xl:max-w-xl leading-relaxed text-sm md:text-base 3xl:text-2xl opacity-70">
-                            Designing and building immersive digital experiences that merge futuristic aesthetics with high-performance code.
-                            Always pushing the boundaries of what&apos;s possible on the web.
-                        </p>
-
-                        <ISTClock />
-
-                        <div className="flex items-center gap-6 md:gap-8 pt-2 flex-wrap">
-                            <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 -ml-2 md:p-0 md:ml-0 md:text-2xl">
-                                <FaGithub />
-                            </a>
-                            <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 md:p-0 md:text-2xl">
-                                <FaLinkedin />
-                            </a>
-                            <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-all transform hover:scale-125 text-3xl 3xl:text-4xl p-2 md:p-0 md:text-2xl">
-                                <FaWhatsapp />
-                            </a>
-                        </div>
-                    </motion.div>
-
-                    {/* Quick Links */}
-                    <motion.div variants={colVariants} className="space-y-8">
-                        <h4 className="text-white font-black uppercase tracking-[0.3em] text-xs 3xl:text-lg opacity-50">Navigation</h4>
-                        <ul className="space-y-4">
-                            {['Home', 'About', 'Skills', 'Projects', 'Experience', 'Contact'].map((item) => (
-                                <li key={item}>
-                                    <a href={`#${item.toLowerCase()}`} className="text-gray-500 hover:text-blue-400 transition-colors text-sm 3xl:text-xl font-medium">
-                                        {item}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </motion.div>
-
-                    {/* Contact Details */}
-                    <motion.div variants={colVariants} className="space-y-8">
-                        <h4 className="text-white font-black uppercase tracking-[0.3em] text-xs 3xl:text-lg opacity-50">Contact</h4>
-                        <ul className="space-y-6">
-                            <li className="text-sm 3xl:text-xl">
-                                <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Email</span>
-                                <CopyEmailButton />
-                            </li>
-                            <li className="text-sm 3xl:text-xl">
-                                <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Phone</span>
-                                <a href="tel:0704120358" className="text-gray-400 hover:text-white transition-colors font-medium">0704120358</a>
-                            </li>
-                            <li className="text-sm 3xl:text-xl">
-                                <span className="text-gray-600 block mb-2 uppercase text-[10px] 3xl:text-xs tracking-[0.4em] font-bold">Location</span>
-                                <span className="text-gray-400 font-medium">Ambalangoda &amp; Malabe, Sri Lanka</span>
-                            </li>
-                        </ul>
-                    </motion.div>
-                </motion.div>
-
-                {/* Animated bottom-bar divider */}
-                <div className="mt-12 mb-12">
-                    <div className="gradient-divider" />
-                    <div className="h-[6px] bg-gradient-to-r from-transparent via-violet-500/10 to-transparent blur-md mt-[-1px]" />
+    return <footer aria-label="Site footer" className="relative border-t border-white/10 bg-black/40 pt-10 sm:pt-12 pb-8 overflow-hidden">
+        <div aria-hidden="true" className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
+        <div className="container mx-auto px-6 relative">
+            <div className="grid gap-9 md:grid-cols-2 xl:grid-cols-[1.15fr_0.9fr_1fr] xl:gap-12">
+                <div className="min-w-0 space-y-5">
+                    <a href="#home" onClick={event => navigate(event, '#home')} aria-label="Chamika.dev — Home" className={`inline-block text-2xl font-black tracking-tight text-white ${focus}`}>CHAMIKA<span className="text-blue-500">.</span>DEV</a>
+                    <p className="text-sm text-gray-400 leading-relaxed max-w-sm">Full-stack web developer building responsive interfaces and reliable applications.</p>
+                    <LocalTime />
+                    <div className="flex items-center gap-3">{[
+                        { href: 'https://github.com/ChamikaShashipriya99', name: 'GitHub', icon: Github },
+                        { href: 'https://www.linkedin.com/in/chamika-shashipriya-722366321', name: 'LinkedIn', icon: Linkedin },
+                        { href: 'https://wa.me/94750471511', name: 'WhatsApp', icon: FaWhatsapp },
+                    ].map(social => <a key={social.name} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={`${social.name} (opens in a new tab)`} className={`p-3 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-blue-400/40 transition-colors ${focus}`}><social.icon size={18} aria-hidden="true" /></a>)}</div>
+                    <div className="flex flex-wrap gap-4">
+                        <a href="/resume.pdf" download="Chamika_Shashipriya_CV.pdf" className={`inline-flex items-center gap-1.5 text-xs text-blue-300 hover:text-white ${focus}`}><Download size={14} aria-hidden="true" />Download CV</a>
+                        <a href="/contact/chamika-shashipriya.vcf" download="Chamika-Shashipriya.vcf" className={`inline-flex items-center gap-1.5 text-xs text-blue-300 hover:text-white ${focus}`}><UserRoundPlus size={14} aria-hidden="true" />Save contact (.vcf)</a>
+                    </div>
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col md:flex-row items-center justify-between gap-6"
-                >
-                    <div className="text-gray-600 text-[10px] md:text-xs 3xl:text-lg font-mono tracking-[0.3em] uppercase">
-                        &copy; {new Date().getFullYear()} Chamika.portfolio &bull; all rights reserved
-                    </div>
-
-                    {/* Built With */}
-                    <div className="flex items-center gap-3 flex-wrap justify-center md:justify-end">
-                        <span className="text-gray-700 text-[9px] uppercase tracking-[0.35em] font-mono font-bold">
-                            Built with
-                        </span>
-                        <div className="flex items-center gap-3">
-                            {builtWith.map(({ icon: Icon, label, color }) => (
-                                <span
-                                    key={label}
-                                    title={label}
-                                    className="opacity-30 hover:opacity-100 hover:scale-125 transition-all duration-200 cursor-default block"
-                                    style={{ color }}
-                                >
-                                    <Icon className="text-base 3xl:text-xl" />
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                </motion.div>
+                <nav aria-label="Footer navigation" className="min-w-0">
+                    <h2 className="text-xs font-semibold text-white uppercase tracking-widest mb-5">Explore</h2>
+                    <ul className="grid grid-cols-2 gap-x-5 gap-y-3">{links.map(link => <li key={link.href}><a href={link.href} onClick={event => navigate(event, link.href)} className={linkClass}>{link.name}</a></li>)}</ul>
+                </nav>
+                <div className="min-w-0 md:col-span-2 xl:col-span-1">
+                    <h2 className="text-xs font-semibold text-white uppercase tracking-widest mb-5">Get in touch</h2>
+                    <dl className="space-y-4">
+                        <div><dt className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Email</dt><dd className="mt-1.5"><a href={`mailto:${email}`} className={`${linkClass} break-all`}>{email}</a><div className="flex flex-wrap gap-4 mt-2"><button type="button" onClick={copyEmail} className={`inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white ${focus}`}>{copyStatus === 'Email address copied.' ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}Copy email</button><a href={`mailto:${email}`} className={`inline-flex items-center gap-1 text-xs text-blue-300 hover:text-white ${focus}`}>Open email app <ArrowUpRight size={13} aria-hidden="true" /></a></div><p role="status" aria-live="polite" className="text-xs text-gray-400 mt-2">{copyStatus}</p></dd></div>
+                        <div className="flex flex-wrap gap-x-8 gap-y-4"><div><dt className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Calls</dt><dd className="mt-1.5"><a href="tel:+94704120358" className={linkClass}>+94 70 412 0358</a></dd></div><div><dt className="text-[10px] font-mono uppercase tracking-widest text-gray-500">WhatsApp · separate number</dt><dd className="mt-1.5"><a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className={linkClass}>+94 75 047 1511<span className="sr-only"> (opens in a new tab)</span></a></dd></div></div>
+                        <div><dt className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Location</dt><dd className="text-sm text-gray-300 leading-relaxed mt-1.5">Ambalangoda &amp; Malabe, Sri Lanka</dd></div>
+                    </dl>
+                </div>
             </div>
-        </footer>
-    );
+            <div className="mt-9 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                <p className="text-xs text-gray-400">© {new Date().getFullYear()} Chamika Shashipriya. All rights reserved.</p>
+                <a href="#home" onClick={event => navigate(event, '#home')} className={`inline-flex items-center gap-2 text-xs text-gray-300 hover:text-white ${focus}`}>Back to top <ArrowUp size={14} aria-hidden="true" /></a>
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+                <span className="text-[10px] uppercase tracking-widest text-gray-500">Built with</span>
+                <ul aria-label="Website technologies" className="flex flex-wrap items-center gap-3">{technologies.map(technology => <li key={technology.label} className="text-gray-400" title={technology.label}><technology.icon size={16} aria-hidden="true" /><span className="sr-only">{technology.label}</span></li>)}</ul>
+            </div>
+        </div>
+    </footer>;
 }
