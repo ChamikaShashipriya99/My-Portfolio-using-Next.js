@@ -1,109 +1,76 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
+import './custom-cursor.css';
+
+const nativeTargets = 'input, textarea, select, [role="textbox"], [contenteditable]:not([contenteditable="false"]), canvas, video, iframe, [draggable="true"], [data-native-cursor]';
+const interactiveTargets = 'a[href], button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary, [data-cursor="pointer"]';
 
 export default function CustomCursor() {
-    const [isVisible, setIsVisible] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
-    
-    const cursorX = useMotionValue(-100);
-    const cursorY = useMotionValue(-100);
-
-    // Fast spring for the tiny center dot
-    const springConfig = { damping: 25, stiffness: 400 };
-    // Slower spring for the trailing outer ring
-    const springConfigOuter = { damping: 20, stiffness: 150 }; 
-
-    const cursorXSpring = useSpring(cursorX, springConfig);
-    const cursorYSpring = useSpring(cursorY, springConfig);
-    
-    const cursorXOuterSpring = useSpring(cursorX, springConfigOuter);
-    const cursorYOuterSpring = useSpring(cursorY, springConfigOuter);
+    const [appearance, setAppearance] = useState({ visible: false, interactive: false });
+    const visible = useRef(false);
+    const position = useRef({ x: -100, y: -100 });
+    const x = useMotionValue(-100), y = useMotionValue(-100);
+    const ringX = useSpring(x, { stiffness: 350, damping: 32, mass: 0.4 });
+    const ringY = useSpring(y, { stiffness: 350, damping: 32, mass: 0.4 });
+    const reducedMotion = useReducedMotion();
 
     useEffect(() => {
-        const moveCursor = (e: MouseEvent) => {
-            cursorX.set(e.clientX);
-            cursorY.set(e.clientY);
-            if (!isVisible) setIsVisible(true);
+        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine) and (forced-colors: none)');
+        const root = document.documentElement;
+        const hide = () => {
+            visible.current = false;
+            root.removeAttribute('data-custom-cursor');
+            setAppearance(previous => previous.visible ? { ...previous, visible: false } : previous);
         };
-
-        const handleMouseLeave = () => setIsVisible(false);
-        const handleMouseEnter = () => setIsVisible(true);
-
-        const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            // Check if hovering over clickable elements (links, buttons, or elements with pointer cursor)
-            const clickable = 
-                target.closest('a') || 
-                target.closest('button') || 
-                window.getComputedStyle(target).cursor === 'pointer';
-            
-            setIsHovering(!!clickable);
+        const classify = (target: Element | null) => {
+            if (!finePointer.matches || !target || target.closest(nativeTargets)) { hide(); return; }
+            const interactive = !!target.closest(interactiveTargets);
+            const first = !visible.current;
+            if (first) { ringX.jump(position.current.x); ringY.jump(position.current.y); }
+            visible.current = true;
+            root.setAttribute('data-custom-cursor', 'active');
+            setAppearance(previous => previous.visible && previous.interactive === interactive ? previous : { visible: true, interactive });
         };
-
-        window.addEventListener('mousemove', moveCursor);
-        window.addEventListener('mouseover', handleMouseOver);
-        document.body.addEventListener('mouseleave', handleMouseLeave);
-        document.body.addEventListener('mouseenter', handleMouseEnter);
-
+        const move = (event: PointerEvent) => {
+            if (event.pointerType !== 'mouse' || !finePointer.matches) { hide(); return; }
+            position.current = { x: event.clientX, y: event.clientY };
+            x.set(event.clientX); y.set(event.clientY);
+            classify(event.target instanceof Element ? event.target : null);
+        };
+        const keyboard = (event: KeyboardEvent) => { if (['Tab', 'Escape', 'Enter', ' '].includes(event.key)) hide(); };
+        const changed = () => hide();
+        let frame = 0;
+        const scroll = () => {
+            if (!visible.current) return;
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => classify(document.elementFromPoint(position.current.x, position.current.y)));
+        };
+        window.addEventListener('pointermove', move, { passive: true });
+        document.documentElement.addEventListener('pointerleave', hide);
+        window.addEventListener('blur', hide);
+        window.addEventListener('keydown', keyboard);
+        window.addEventListener('scroll', scroll, { passive: true });
+        document.addEventListener('visibilitychange', hide);
+        finePointer.addEventListener('change', changed);
         return () => {
-            window.removeEventListener('mousemove', moveCursor);
-            window.removeEventListener('mouseover', handleMouseOver);
-            document.body.removeEventListener('mouseleave', handleMouseLeave);
-            document.body.removeEventListener('mouseenter', handleMouseEnter);
+            cancelAnimationFrame(frame);
+            root.removeAttribute('data-custom-cursor');
+            window.removeEventListener('pointermove', move);
+            document.documentElement.removeEventListener('pointerleave', hide);
+            window.removeEventListener('blur', hide);
+            window.removeEventListener('keydown', keyboard);
+            window.removeEventListener('scroll', scroll);
+            document.removeEventListener('visibilitychange', hide);
+            finePointer.removeEventListener('change', changed);
         };
-    }, [cursorX, cursorY, isVisible]);
+    }, [x, y, ringX, ringY]);
 
-    return (
-        <div className="fixed inset-0 z-[10000] pointer-events-none mix-blend-difference hidden md:block">
-            {/* Main Cursor Dot - Sticks exactly to cursor */}
-            <motion.div
-                style={{
-                    left: cursorXSpring,
-                    top: cursorYSpring,
-                    translateX: '-50%',
-                    translateY: '-50%',
-                }}
-                animate={{
-                    scale: isVisible ? (isHovering ? 0 : 1) : 0,
-                    opacity: isVisible ? (isHovering ? 0 : 1) : 0,
-                }}
-                className="w-3 h-3 bg-white rounded-full fixed"
-            />
-            
-            {/* Magnetic/Expanding Outer Ring - Trails slightly */}
-            <motion.div
-                style={{
-                    left: cursorXOuterSpring,
-                    top: cursorYOuterSpring,
-                    translateX: '-50%',
-                    translateY: '-50%',
-                }}
-                animate={{
-                    scale: isVisible ? (isHovering ? 1.8 : 1) : 0,
-                    backgroundColor: isHovering ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0)',
-                    borderColor: isHovering ? 'rgba(255, 255, 255, 0)' : 'rgba(59, 130, 246, 0.8)',
-                    opacity: isVisible ? 1 : 0,
-                }}
-                transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-                className="w-10 h-10 border-2 rounded-full fixed"
-            />
-
-            {/* Subtle Blue Inner Glow - disappears on hover */}
-            <motion.div
-                style={{
-                    left: cursorXOuterSpring,
-                    top: cursorYOuterSpring,
-                    translateX: '-50%',
-                    translateY: '-50%',
-                }}
-                animate={{
-                    scale: isVisible ? (isHovering ? 0 : 1) : 0,
-                    opacity: isVisible ? (isHovering ? 0 : 0.5) : 0,
-                }}
-                className="w-24 h-24 bg-blue-600/30 rounded-full fixed blur-xl"
-            />
-        </div>
-    );
+    return <div aria-hidden="true" className="custom-cursor-layer fixed inset-0 pointer-events-none z-[10000]" style={{ visibility: appearance.visible ? 'visible' : 'hidden' }}>
+        <motion.div className="fixed left-0 top-0 w-1.5 h-1.5 rounded-full bg-blue-200" style={{ x, y, translateX: '-50%', translateY: '-50%' }} />
+        <motion.div className="fixed left-0 top-0 w-7 h-7 rounded-full border border-blue-400/65" style={{ x: reducedMotion ? x : ringX, y: reducedMotion ? y : ringY, translateX: '-50%', translateY: '-50%' }}
+            animate={{ scale: appearance.interactive ? 1.45 : 1, backgroundColor: appearance.interactive ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0)' }}
+            transition={reducedMotion ? { duration: 0 } : { duration: 0.18, ease: 'easeOut' }} />
+    </div>;
 }

@@ -1,0 +1,7 @@
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  html[data-custom-cursor="active"],
+  html[data-custom-cursor="active"] * { cursor: none !important; }
+}
+@media (hover: none), (pointer: coarse), (forced-colors: active) {
+  .custom-cursor-layer { display: none !important; }
+}
