@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Loader from '@/components/ui/Loader';
 import Navbar from '@/components/ui/Navbar';
@@ -32,18 +32,25 @@ const ContributionSkyline = dynamic(() => import('@/components/ui/ContributionSk
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
+    const finishIntro = useCallback(() => {
+        setLoading(false);
+        requestAnimationFrame(() => {
+            const target = document.getElementById(window.location.hash.slice(1)) || document.getElementById('home');
+            if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
+        });
+    }, []);
 
     return (
         <main className="relative min-h-screen">
             <AnimatePresence>
-                {loading && <Loader onComplete={() => setLoading(false)} />}
+                {loading && <Loader onComplete={finishIntro} />}
             </AnimatePresence>
 
             {!loading && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
+                    transition={{ duration: 0.45 }}
                 >
                     <a href="#main-content" className="fixed left-4 top-4 z-[200] -translate-y-24 focus:translate-y-0 rounded-lg bg-blue-600 px-4 py-3 text-white focus:outline focus:outline-white" onClick={event => { event.preventDefault(); const target = document.getElementById('main-content'); target?.focus({ preventScroll: true }); target?.scrollIntoView({ behavior: 'instant', block: 'start' }); }}>Skip to content</a>
                     <Background />
