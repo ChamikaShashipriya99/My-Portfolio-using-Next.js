@@ -1,325 +1,118 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import GlassCard from './GlassCard';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
-import { HiMail, HiUser, HiChatAlt2, HiPaperAirplane, HiPhone, HiCheckCircle, HiExclamationCircle, HiDuplicate } from 'react-icons/hi';
-import { FaWhatsapp, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, MapPin, Phone, Send, X } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { contactLimits, validateContact, type ContactErrors, type ContactFields } from '@/lib/contact-validation';
+
+const emailAddress = 'chamikashashipriya3@gmail.com';
+const initialFields: ContactFields = { user_name: '', user_email: '', message: '' };
+type Feedback = { kind: 'success' | 'error' | 'validation' | 'info'; text: string } | null;
 
 export default function Contact() {
-    const formRef = useRef<HTMLFormElement>(null);
+    const [fields, setFields] = useState<ContactFields>(initialFields);
+    const [errors, setErrors] = useState<ContactErrors>({});
+    const [feedback, setFeedback] = useState<Feedback>(null);
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState<null | 'success' | 'error'>(null);
     const [copied, setCopied] = useState(false);
-
+    const [copyFailed, setCopyFailed] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
+    const honeyRef = useRef<HTMLInputElement>(null);
+    const sending = useRef(false);
+    const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const reducedMotion = useReducedMotion();
+    useEffect(() => () => { if (copyTimer.current) clearTimeout(copyTimer.current); }, []);
     const copyEmail = async () => {
         try {
-            await navigator.clipboard.writeText('chamikashashipriya3@gmail.com');
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2500);
-        } catch {
-            window.location.href = 'mailto:chamikashashipriya3@gmail.com';
-        }
+            await navigator.clipboard.writeText(emailAddress);
+            setCopyFailed(false); setCopied(true);
+            if (copyTimer.current) clearTimeout(copyTimer.current);
+            copyTimer.current = setTimeout(() => setCopied(false), 3000);
+        } catch { setCopyFailed(true); }
     };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const formData = new FormData(formRef.current!);
-        const email = formData.get('user_email') as string;
-
-        // Enhanced Validation for email format
-        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            setStatus('error');
-            setTimeout(() => setStatus(null), 5000);
-            return;
+    const change = (name: keyof ContactFields, value: string) => {
+        setFields(previous => ({ ...previous, [name]: value }));
+        setErrors(previous => ({ ...previous, [name]: undefined }));
+    };
+    const validated = () => {
+        const next = validateContact(fields);
+        setErrors(next);
+        if (Object.keys(next).length) {
+            setFeedback({ kind: 'validation', text: 'Please correct the highlighted fields before continuing.' });
+            formRef.current?.querySelector<HTMLElement>(`[name="${Object.keys(next)[0]}"]`)?.focus();
+            return null;
         }
-
-        setLoading(true);
-
+        if (honeyRef.current?.value) {
+            setFeedback({ kind: 'error', text: 'Unable to submit this form. Please use the email link instead.' });
+            return null;
+        }
+        return { user_name: fields.user_name.trim(), user_email: fields.user_email.trim(), message: fields.message.trim() };
+    };
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (sending.current) return;
+        const values = validated();
+        if (!values) return;
+        sending.current = true; setLoading(true); setFeedback(null);
         try {
-            await emailjs.sendForm(
-                'service_mz488cd',
-                'template_j1ia91i',
-                formRef.current!,
-                'PNeYKrOGJd3zQ3U-U'
-            );
-
-            setStatus('success');
-            formRef.current?.reset();
-        } catch (error) {
-            console.error('EmailJS Error:', error);
-            setStatus('error');
-        } finally {
-            setLoading(false);
-            setTimeout(() => setStatus(null), 6000);
-        }
+            await emailjs.send('service_mz488cd', 'template_j1ia91i', values, {
+                publicKey: 'PNeYKrOGJd3zQ3U-U',
+                limitRate: { id: 'portfolio-contact', throttle: 15000 },
+            });
+            setFeedback({ kind: 'success', text: 'Message sent successfully. Thank you for getting in touch.' });
+            setFields(initialFields);
+        } catch (error: unknown) {
+            const status = error && typeof error === 'object' && 'status' in error ? Number(error.status) : 0;
+            setFeedback({ kind: 'error', text: status === 429 ? 'Please wait at least 15 seconds before trying again. Your message is still here.' : 'Your message could not be sent. Your text has been kept—retry below or use your email app.' });
+        } finally { sending.current = false; setLoading(false); }
     };
-
-    const handleWhatsAppSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-
-        if (!formRef.current) return;
-
-        // Custom validation check using reportValidity on the fields
-        const nameInput = formRef.current.querySelector('#user_name') as HTMLInputElement;
-        const emailInput = formRef.current.querySelector('#user_email') as HTMLInputElement;
-        const messageInput = formRef.current.querySelector('#message') as HTMLTextAreaElement;
-
-        if (!nameInput.value || !emailInput.value || !messageInput.value) {
-            formRef.current.reportValidity();
-            return;
-        }
-
-        const email = emailInput.value;
-        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            setStatus('error');
-            setTimeout(() => setStatus(null), 5000);
-            return;
-        }
-
-        const name = nameInput.value;
-        const message = messageInput.value;
-
-        // Format the message nicely for WhatsApp with emojis and bolding
-        const formattedMessage = `Hello Chamika! 👋\n\nI filled out your website contact form:\n\n👤 *Name:* ${name}\n📧 *Email:* ${email}\n\n💬 *Message:*\n${message}`;
-        const encodedText = encodeURIComponent(formattedMessage);
-        
-        // Open WhatsApp in a new tab
-        window.open(`https://wa.me/94750471511?text=${encodedText}`, '_blank', 'noopener,noreferrer');
+    const continueWhatsApp = () => {
+        if (sending.current) return;
+        const values = validated();
+        if (!values) return;
+        const text = `Hello Chamika!\n\nName: ${values.user_name}\nEmail: ${values.user_email}\n\n${values.message}`;
+        window.open(`https://wa.me/94750471511?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        setFeedback({ kind: 'info', text: 'Continue in WhatsApp to review and send your prefilled message. If it did not open, check your browser’s popup settings.' });
     };
+    const fieldClass = 'w-full rounded-xl border bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline focus:outline-2 focus:outline-blue-400 focus:outline-offset-2 disabled:opacity-60';
+    const buttonFocus = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-2';
 
-    return (
-        <section id="contact" className="py-24 5xl:py-48 relative">
-            <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">07</span>
-            <div className="container mx-auto px-6 max-w-5xl 3xl:max-w-7xl">
-                <div className="grid md:grid-cols-2 gap-16 xl:gap-24">
-                    <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        className="space-y-12"
-                    >
-                        <div className="space-y-6">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[10px] 3xl:text-xs font-mono uppercase tracking-widest"
-                            >
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                                Open to Work
-                            </motion.div>
-                            <h2 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 5xl:text-8xl 2k:text-9xl 5k:text-[12rem] font-black text-white tracking-tighter uppercase leading-tight">
-                                Let&apos;s Build <br />
-                                <span className="text-blue-500">Something New</span>
-                            </h2>
-                            <div className="h-1.5 w-24 bg-blue-600 rounded-full" />
-                            <p className="text-gray-500 font-mono text-xs md:text-sm 3xl:text-lg uppercase tracking-[0.4em] mt-6">Get in touch for collaborations</p>
-                        </div>
+    return <section id="contact" aria-labelledby="contact-title" className="py-20 sm:py-24 relative">
+        <span aria-hidden="true" className="absolute top-8 right-6 text-[10rem] lg:text-[18rem] font-black leading-none text-white/[0.03] pointer-events-none">07</span>
+        <div className="container mx-auto px-6 max-w-6xl relative">
+            <div className="grid lg:grid-cols-2 gap-10 xl:gap-16 items-start">
+                <motion.div initial={reducedMotion ? false : { opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reducedMotion ? 0 : 0.5 }} className="min-w-0 space-y-8">
+                    <div>
+                        <p className="text-xs font-mono uppercase tracking-[0.2em] text-blue-400 mb-4">Open to full-time opportunities</p>
+                        <h2 id="contact-title" className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white uppercase leading-tight">Let’s build<br /><span className="text-blue-500">something useful.</span></h2>
+                        <div className="h-1 w-24 bg-blue-600 rounded-full mt-4" />
+                        <p className="text-sm sm:text-base text-gray-400 leading-relaxed mt-5 max-w-md">Have a role, a project, or a question in mind? Send a message or reach me directly.</p>
+                    </div>
+                    <div className="space-y-6">
+                        <div className="flex items-start gap-4"><Mail aria-hidden="true" size={20} className="text-blue-400 shrink-0 mt-1" /><div className="min-w-0"><h3 className="font-mono text-[10px] uppercase tracking-widest text-gray-500">Email</h3><a href={`mailto:${emailAddress}`} className={`block mt-1 text-sm sm:text-base text-gray-100 break-all hover:text-blue-300 rounded ${buttonFocus}`}>{emailAddress}</a><div className="flex flex-wrap gap-4 mt-3 text-xs"><button type="button" onClick={copyEmail} className={`inline-flex items-center gap-1.5 text-gray-400 hover:text-white rounded ${buttonFocus}`}>{copied ? <Check size={13} /> : <Copy size={13} />}{copied ? 'Copied' : 'Copy email'}</button><a href={`mailto:${emailAddress}`} className={`inline-flex items-center gap-1 text-blue-300 hover:text-white rounded ${buttonFocus}`}>Open email app <ArrowUpRight size={13} aria-hidden="true" /></a></div><p role="status" className="text-xs text-gray-500 mt-2">{copied ? 'Email address copied.' : copyFailed ? 'Copy unavailable. Select the address or open your email app.' : ''}</p></div></div>
+                        <div className="flex items-start gap-4"><Phone size={20} aria-hidden="true" className="text-blue-400 shrink-0 mt-1" /><div><h3 className="font-mono text-[10px] uppercase tracking-widest text-gray-500">Calls</h3><a href="tel:+94704120358" className={`inline-block text-sm text-gray-200 hover:text-blue-300 mt-1 rounded ${buttonFocus}`}>+94 70 412 0358</a></div></div>
+                        <div className="flex items-start gap-4"><FaWhatsapp size={20} aria-hidden="true" className="text-green-400 shrink-0 mt-1" /><div><h3 className="font-mono text-[10px] uppercase tracking-widest text-gray-500">WhatsApp · separate number</h3><a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className={`inline-block text-sm text-gray-200 hover:text-green-300 mt-1 rounded ${buttonFocus}`}>+94 75 047 1511<span className="sr-only"> (opens in a new tab)</span></a></div></div>
+                        <div className="flex items-start gap-4"><MapPin size={20} aria-hidden="true" className="text-blue-400 shrink-0 mt-1" /><div><h3 className="font-mono text-[10px] uppercase tracking-widest text-gray-500">Location</h3><p className="text-sm text-gray-300 mt-1">Ambalangoda &amp; Malabe, Sri Lanka</p></div></div>
+                    </div>
+                    <div className="flex gap-3">{[{ href: 'https://github.com/ChamikaShashipriya99', label: 'GitHub', icon: Github }, { href: 'https://www.linkedin.com/in/chamika-shashipriya-722366321', label: 'LinkedIn', icon: Linkedin }].map(link => <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" aria-label={`${link.label} (opens in a new tab)`} className={`p-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-blue-400/40 ${buttonFocus}`}><link.icon size={18} aria-hidden="true" /></a>)}</div>
+                </motion.div>
 
-                        <div className="space-y-8">
-                            <div className="flex items-center gap-6 group">
-                                <div className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
-                                    <HiMail className="text-2xl 3xl:text-4xl" />
-                                </div>
-                                <div>
-                                    <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Email Me</div>
-                                    <button
-                                        onClick={copyEmail}
-                                        title="Click to copy email"
-                                        className="group/email flex items-center gap-2 text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors break-all text-left"
-                                    >
-                                        <span>chamikashashipriya3@gmail.com</span>
-                                        <span className="shrink-0 opacity-0 group-hover/email:opacity-60 transition-opacity">
-                                            {copied
-                                                ? <HiCheckCircle className="text-green-400" />
-                                                : <HiDuplicate />}
-                                        </span>
-                                    </button>
-                                    <AnimatePresence>
-                                        {copied && (
-                                            <motion.span
-                                                initial={{ opacity: 0, y: -4, scale: 0.9 }}
-                                                animate={{ opacity: 1, y: 0,  scale: 1   }}
-                                                exit={{    opacity: 0, y:  4, scale: 0.9 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mt-2 rounded-full
-                                                           bg-green-500/15 border border-green-500/30
-                                                           text-green-400 text-[9px] font-bold uppercase tracking-widest"
-                                            >
-                                                <HiCheckCircle className="text-sm" /> Copied!
-                                            </motion.span>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-6 group">
-                                <div className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
-                                    <HiPhone className="text-2xl 3xl:text-4xl" />
-                                </div>
-                                <div>
-                                    <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Call Me</div>
-                                    <a href="tel:0704120358" className="text-white font-medium md:text-lg 3xl:text-2xl hover:text-blue-400 transition-colors">0704120358</a>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-6 group">
-                                <div className="w-14 h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
-                                    <HiChatAlt2 className="text-2xl 3xl:text-4xl" />
-                                </div>
-                                <div>
-                                    <div className="text-[10px] 3xl:text-xs text-gray-500 uppercase tracking-[0.3em] mb-1 font-bold">Location</div>
-                                    <div className="text-white font-medium md:text-lg 3xl:text-2xl">Ambalangoda & Malabe, Sri Lanka</div>
-                                </div>
-                            </div>
-
-                            {/* Social Icons Row */}
-                            <div className="flex items-center flex-wrap gap-4 pt-4">
-                                <a href="https://wa.me/94750471511" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-green-500 hover:scale-110 hover:bg-green-500/10 transition-all duration-500" title="WhatsApp">
-                                    <FaWhatsapp className="text-2xl 3xl:text-4xl" />
-                                </a>
-                                <a href="https://www.linkedin.com/in/chamika-shashipriya-722366321" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-blue-400 hover:scale-110 hover:bg-blue-400/10 transition-all duration-500" title="LinkedIn">
-                                    <FaLinkedin className="text-xl md:text-2xl 3xl:text-4xl" />
-                                </a>
-                                <a href="https://github.com/ChamikaShashipriya99" target="_blank" rel="noopener noreferrer" className="w-12 h-12 md:w-14 md:h-14 3xl:w-20 3xl:h-20 rounded-2xl glassmorphism flex items-center justify-center text-gray-400 hover:scale-110 hover:bg-white/10 transition-all duration-500" title="GitHub">
-                                    <FaGithub className="text-xl md:text-2xl 3xl:text-4xl" />
-                                </a>
-                            </div>
-                        </div>
-
-                        <GlassCard className="!p-8 3xl:!p-12 bg-blue-600/5 group hover:bg-blue-600/10 border-blue-500/10" hoverScale={false}>
-                            <p className="text-gray-400 text-sm md:text-base 3xl:text-xl leading-relaxed opacity-80">
-                                Currently looking for new opportunities and interesting projects. If you have a project that needs a futuristic touch, reach out!
-                            </p>
-                        </GlassCard>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                            <div className="flex flex-col gap-2 group">
-                                <label
-                                    htmlFor="user_name"
-                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
-                                >
-                                    Your Name
-                                </label>
-                                <div className="relative">
-                                    <HiUser className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
-                                    <input
-                                        required
-                                        id="user_name"
-                                        type="text"
-                                        name="user_name"
-                                        placeholder="e.g. John Smith"
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-2 group">
-                                <label
-                                    htmlFor="user_email"
-                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
-                                >
-                                    Email Address
-                                </label>
-                                <div className="relative">
-                                    <HiMail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors text-lg" />
-                                    <input
-                                        required
-                                        id="user_email"
-                                        type="email"
-                                        name="user_email"
-                                        placeholder="e.g. john@example.com"
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 pl-14 pr-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 3xl:text-xl 3xl:py-8"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-2 group">
-                                <label
-                                    htmlFor="message"
-                                    className="text-[10px] 3xl:text-xs font-bold uppercase tracking-[0.25em] text-gray-500 group-focus-within:text-blue-400 transition-colors pl-1"
-                                >
-                                    Message
-                                </label>
-                                <textarea
-                                    required
-                                    id="message"
-                                    name="message"
-                                    rows={5}
-                                    placeholder="Tell me about your project or idea..."
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 md:py-5 px-6 text-white focus:outline-none focus:border-blue-500 focus:bg-white/[0.07] transition-all placeholder:text-gray-600 resize-none 3xl:text-xl 3xl:py-8"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button
-                                    disabled={loading}
-                                    type="submit"
-                                    className="w-full group relative py-4 md:py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-blue-700 transition-all disabled:opacity-50 shadow-xl shadow-blue-600/20 active:scale-[0.98]"
-                                >
-                                    {loading ? (
-                                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            Transmit Email <HiPaperAirplane className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-lg" />
-                                        </>
-                                    )}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={handleWhatsAppSubmit}
-                                    className="w-full group relative py-4 md:py-6 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm 3xl:text-xl flex items-center justify-center gap-3 overflow-hidden hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-[0.98]"
-                                >
-                                    WhatsApp Message <FaWhatsapp className="group-hover:scale-110 transition-transform text-lg" />
-                                </button>
-                            </div>
-
-                            {status === 'success' && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 flex items-center gap-4 mt-4"
-                                >
-                                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 shrink-0">
-                                        <HiCheckCircle className="text-2xl" />
-                                    </div>
-                                    <div>
-                                        <h5 className="text-white font-bold uppercase tracking-wider text-sm mb-1">Transmission Successful!</h5>
-                                        <p className="text-gray-400 text-xs 3xl:text-sm leading-relaxed">The mainframe has received your message. I&apos;ll get back to you soon!</p>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {status === 'error' && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 flex items-center gap-4 mt-4"
-                                >
-                                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
-                                        <HiExclamationCircle className="text-2xl" />
-                                    </div>
-                                    <div>
-                                        <h5 className="text-white font-bold uppercase tracking-wider text-sm mb-1">Transmission Warning</h5>
-                                        <p className="text-gray-400 text-xs 3xl:text-sm leading-relaxed">Please verify your email format or check your connection and try again.</p>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </form>
-                    </motion.div>
-                </div>
+                <form ref={formRef} onSubmit={handleSubmit} noValidate aria-busy={loading} className="min-w-0 rounded-2xl border border-white/10 bg-neutral-950/70 p-5 sm:p-7 space-y-5">
+                    <div><h3 className="text-xl text-white font-semibold">Send a message</h3><p className="text-xs text-gray-500 mt-2">All fields are required. Your details are used to respond to your message.</p></div>
+                    <div aria-hidden="true" className="absolute -left-[10000px] w-px h-px overflow-hidden"><label htmlFor="contact-website">Leave this field empty</label><input ref={honeyRef} id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" /></div>
+                    {(['user_name', 'user_email', 'message'] as const).map(name => {
+                        const label = name === 'user_name' ? 'Your name' : name === 'user_email' ? 'Email address' : 'Message';
+                        const errorId = `${name}-error`;
+                        const common = { id: name, name, required: true, disabled: loading, maxLength: contactLimits[name], value: fields[name], onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => change(name, event.target.value), 'aria-invalid': !!errors[name], 'aria-describedby': [errors[name] ? errorId : '', name === 'message' ? 'message-count' : ''].filter(Boolean).join(' ') || undefined, className: `${fieldClass} ${errors[name] ? 'border-red-400/70' : 'border-white/10'}` };
+                        return <div key={name}><label htmlFor={name} className="block text-xs font-medium text-gray-300 mb-2">{label}</label>{name === 'message' ? <textarea {...common} rows={6} placeholder="Tell me about the opportunity, project, or question…" className={`${common.className} resize-y min-h-36`} /> : <input {...common} type={name === 'user_email' ? 'email' : 'text'} autoComplete={name === 'user_email' ? 'email' : 'name'} placeholder={name === 'user_email' ? 'name@example.com' : 'Your name'} />}{errors[name] && <p id={errorId} className="text-xs text-red-300 mt-2">{errors[name]}</p>}{name === 'message' && <p id="message-count" className="mt-2 text-[11px] text-gray-500 text-right">{fields.message.length.toLocaleString()} / 2,000 characters</p>}</div>;
+                    })}
+                    <div className="space-y-3"><button type="submit" disabled={loading} className={`w-full rounded-xl bg-blue-600 px-4 py-3.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60 flex justify-center items-center gap-2 ${buttonFocus}`}><Send size={15} aria-hidden="true" />{loading ? 'Sending…' : feedback?.kind === 'error' ? 'Retry sending' : 'Send message'}</button><button type="button" disabled={loading} onClick={continueWhatsApp} aria-describedby="whatsapp-help" className={`w-full rounded-xl border border-green-500/30 bg-green-500/5 px-4 py-3.5 text-sm font-medium text-green-300 hover:bg-green-500/10 disabled:opacity-60 flex justify-center items-center gap-2 ${buttonFocus}`}><FaWhatsapp size={17} aria-hidden="true" />Continue in WhatsApp</button><p id="whatsapp-help" className="text-[11px] text-gray-500 leading-relaxed">WhatsApp opens in a new tab with your name, email, and message prefilled. Review it and choose Send there; opening it does not send automatically.</p></div>
+                    <div role="status" aria-live="polite" aria-atomic="true" className="text-sm text-blue-200">{loading ? 'Sending your message. Please wait.' : ''}</div>
+                    <div aria-live="polite" aria-atomic="true">{feedback && <div className={`rounded-xl border p-4 ${feedback.kind === 'success' ? 'border-green-500/30 bg-green-500/5 text-green-200' : feedback.kind === 'error' || feedback.kind === 'validation' ? 'border-red-500/30 bg-red-500/5 text-red-200' : 'border-blue-500/20 text-blue-200'}`}><div className="flex items-start gap-3"><p className="text-sm leading-relaxed flex-1">{feedback.text}</p><button type="button" aria-label="Dismiss message status" onClick={() => setFeedback(null)} className={`shrink-0 rounded p-1 ${buttonFocus}`}><X size={14} aria-hidden="true" /></button></div>{feedback.kind === 'error' && <a href={`mailto:${emailAddress}`} className={`inline-block mt-3 text-xs underline rounded ${buttonFocus}`}>Open email app instead</a>}</div>}</div>
+                </form>
             </div>
-        </section>
-    );
+        </div>
+    </section>;
 }
