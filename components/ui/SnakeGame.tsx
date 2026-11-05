@@ -1,557 +1,139 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { Pause, Play, RotateCcw, Volume2, VolumeX, X } from 'lucide-react';
+import { columns, rows, newFood, nextSnake, opposite, type Cell, type Direction } from '@/lib/snake-game';
 
-interface Position {
-    x: number;
-    y: number;
-}
-
-const GRID_SIZE = 20; // Size of each square cell in pixels
-const CELL_COUNT_X = 40; // Number of columns
-const CELL_COUNT_Y = 22; // Number of rows
-
-const BUG_EMOJIS = ['🐞', '🐛', '👾', '🐜', '🕷️'];
+type Status = 'ready' | 'running' | 'paused' | 'over' | 'won';
+interface Board { snake: Cell[]; food: Cell | null; direction: Direction; score: number; status: Status }
+const initialBoard = (): Board => ({ snake: [{ x: 6, y: 8 }, { x: 5, y: 8 }, { x: 4, y: 8 }], food: { x: 15, y: 8 }, direction: 'RIGHT', score: 0, status: 'ready' });
+const highScoreKey = 'portfolio-snake-best-v1';
 
 export default function SnakeGame({ onExit }: { onExit: () => void }) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [score, setScore] = useState(0);
-    const [highScore, setHighScore] = useState(0);
-    const [gameOver, setGameOver] = useState(false);
-    const [speed, setSpeed] = useState(90); // speed in ms (lower is faster)
-    const [isStarted, setIsStarted] = useState(false);
-
-    // Keep state values in refs to access them inside the canvas loop without closures stale states
-    const snakeRef = useRef<Position[]>([
-        { x: 10, y: 9 },
-        { x: 9, y: 9 },
-        { x: 8, y: 9 }
-    ]);
-    const directionRef = useRef<string>('RIGHT');
-    const foodRef = useRef<Position>({ x: 22, y: 9 });
-    const foodEmojiRef = useRef<string>('🐞');
-    const [isPaused, setIsPaused] = useState(false);
-    const isPausedRef = useRef<boolean>(false);
-
-    const togglePause = () => {
-        const newVal = !isPausedRef.current;
-        isPausedRef.current = newVal;
-        setIsPaused(newVal);
-    };
-
-    // Play retro beeps and buzzes natively using Web Audio API
-    const playSynthesizerSound = (type: 'eat' | 'crash') => {
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const [board, setBoard] = useState<Board>(initialBoard);
+    const current = useRef(board);
+    const nextDirection = useRef<Direction>('RIGHT');
+    const queuedTurn = useRef(false);
+    const [speed, setSpeed] = useState(130);
+    const [muted, setMuted] = useState(true);
+    const mutedRef = useRef(true);
+    const audio = useRef<AudioContext | null>(null);
+    const [best, setBest] = useState(0);
+    const [storageAvailable, setStorageAvailable] = useState(true);
+    const reducedMotion = useReducedMotion();
+    const commit = useCallback((next: Board) => { current.current = next; setBoard(next); }, []);
+    const focusBoard = () => canvas.current?.focus({ preventScroll: true });
+    useEffect(() => {
+        const frame = requestAnimationFrame(focusBoard);
+        try { const value = Number(localStorage.getItem(highScoreKey)); if (Number.isSafeInteger(value) && value >= 0) setBest(value); }
+        catch { setStorageAvailable(false); }
+        return () => { cancelAnimationFrame(frame); void audio.current?.close().catch(() => {}); };
+    }, []);
+    useEffect(() => {
+        if (board.score <= best) return;
+        setBest(board.score);
+        try { localStorage.setItem(highScoreKey, String(board.score)); } catch { setStorageAvailable(false); }
+    }, [board.score, best]);
+    const pause = useCallback(() => { if (current.current.status === 'running') commit({ ...current.current, status: 'paused' }); }, [commit]);
+    useEffect(() => {
+        const hidden = () => { if (document.hidden) pause(); };
+        document.addEventListener('visibilitychange', hidden);
+        window.addEventListener('blur', pause);
+        return () => { document.removeEventListener('visibilitychange', hidden); window.removeEventListener('blur', pause); };
+    }, [pause]);
+    const sound = useCallback((crash: boolean) => {
+        if (mutedRef.current || !audio.current) return;
         try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            if (!AudioContextClass) return;
-            const audioCtx = new AudioContextClass();
-
-            if (type === 'eat') {
-                // Short retro synth beep
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1300, audioCtx.currentTime + 0.08);
-                
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-            } else if (type === 'crash') {
-                // Deep retro slide buzz
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.3);
-                
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.35);
-            }
-        } catch (e) {
-            console.error('Synthesizer sound play error:', e);
-        }
-    };
-
-    const spawnFood = () => {
-        const snake = snakeRef.current;
-        let newFood: Position;
-        let isOccupied: boolean;
-
-        do {
-            isOccupied = false;
-            newFood = {
-                x: Math.floor(Math.random() * CELL_COUNT_X),
-                y: Math.floor(Math.random() * CELL_COUNT_Y)
-            };
-
-            // Check if food coordinates land on the snake body
-            for (const cell of snake) {
-                if (cell.x === newFood.x && cell.y === newFood.y) {
-                    isOccupied = true;
-                    break;
-                }
-            }
-        } while (isOccupied);
-
-        foodRef.current = newFood;
-        foodEmojiRef.current = BUG_EMOJIS[Math.floor(Math.random() * BUG_EMOJIS.length)];
-    };
-
-    const resetGame = () => {
-        snakeRef.current = [
-            { x: 10, y: 9 },
-            { x: 9, y: 9 },
-            { x: 8, y: 9 }
-        ];
-        directionRef.current = 'RIGHT';
-        spawnFood();
-        setScore(0);
-        setGameOver(false);
-        isPausedRef.current = false;
-        setIsPaused(false);
-        setIsStarted(false);
-    };
-
-    // Keyboard handlers
+            const context = audio.current;
+            const oscillator = context.createOscillator(), gain = context.createGain();
+            oscillator.type = crash ? 'triangle' : 'sine';
+            oscillator.frequency.setValueAtTime(crash ? 160 : 650, context.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(crash ? 50 : 1000, context.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.07, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.18);
+            oscillator.connect(gain); gain.connect(context.destination);
+            oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+            oscillator.start(); oscillator.stop(context.currentTime + 0.2);
+        } catch { /* Audio is optional; the game remains playable. */ }
+    }, []);
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const currentDir = directionRef.current;
-
-            // Suppress default window scrolls for standard gaming keys
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', ' '].includes(e.key)) {
-                e.preventDefault();
-            }
-
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    if (currentDir !== 'DOWN') directionRef.current = 'UP';
-                    if (!isStarted) setIsStarted(true);
-                    break;
-                case 'ArrowDown':
-                case 's':
-                case 'S':
-                    if (currentDir !== 'UP') directionRef.current = 'DOWN';
-                    if (!isStarted) setIsStarted(true);
-                    break;
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    if (currentDir !== 'RIGHT') directionRef.current = 'LEFT';
-                    if (!isStarted) setIsStarted(true);
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    if (currentDir !== 'LEFT') directionRef.current = 'RIGHT';
-                    if (!isStarted) setIsStarted(true);
-                    break;
-                case 'Enter':
-                    if (gameOver) {
-                        resetGame();
-                    }
-                    break;
-                case 'Escape':
-                    onExit();
-                    break;
-                case ' ':
-                case 'Spacebar':
-                    if (!gameOver) {
-                        if (!isStarted) {
-                            setIsStarted(true);
-                        } else {
-                            togglePause();
-                        }
-                    }
-                    break;
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameOver, isStarted, onExit]);
-
-    // Main Game Loop
+        const timer = window.setInterval(() => {
+            const previous = current.current;
+            if (previous.status !== 'running' || !previous.food) return;
+            const result = nextSnake(previous.snake, nextDirection.current, previous.food);
+            queuedTurn.current = false;
+            if (result.crashed) { sound(true); commit({ ...previous, status: 'over' }); return; }
+            const food = result.ate ? newFood(result.snake) : previous.food;
+            if (result.ate) sound(false);
+            commit({ snake: result.snake, direction: nextDirection.current, food, score: previous.score + (result.ate ? 10 : 0), status: food ? 'running' : 'won' });
+        }, speed);
+        return () => window.clearInterval(timer);
+    }, [speed, sound, commit]);
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        let intervalId: NodeJS.Timeout;
-
-        const loop = () => {
-            if (!isStarted || gameOver || isPausedRef.current) return;
-
-            const snake = [...snakeRef.current];
-            const direction = directionRef.current;
-            const head = { ...snake[0] };
-
-            // 1. Move Snake Head
-            switch (direction) {
-                case 'UP': head.y -= 1; break;
-                case 'DOWN': head.y += 1; break;
-                case 'LEFT': head.x -= 1; break;
-                case 'RIGHT': head.x += 1; break;
-            }
-
-            // 2. Wall Collisions
-            if (head.x < 0 || head.x >= CELL_COUNT_X || head.y < 0 || head.y >= CELL_COUNT_Y) {
-                playSynthesizerSound('crash');
-                setGameOver(true);
-                return;
-            }
-
-            // 3. Self Collisions
-            for (const cell of snake) {
-                if (head.x === cell.x && head.y === cell.y) {
-                    playSynthesizerSound('crash');
-                    setGameOver(true);
-                    return;
-                }
-            }
-
-            // 4. Move Snake Body & Check Food Eat
-            snake.unshift(head); // prepend new head
-
-            const food = foodRef.current;
-            if (head.x === food.x && head.y === food.y) {
-                playSynthesizerSound('eat');
-                setScore(prev => {
-                    const newScore = prev + 10;
-                    if (newScore > highScore) setHighScore(newScore);
-                    return newScore;
-                });
-                spawnFood();
-            } else {
-                snake.pop(); // remove tail if food not eaten
-            }
-
-            snakeRef.current = snake;
-        };
-
-        intervalId = setInterval(loop, speed);
-        return () => clearInterval(intervalId);
-    }, [gameOver, highScore, speed, isStarted]);
-
-    // Canvas Render Loop (Render separately for smooth graphics matching monitor updates)
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        let animationFrameId: number;
-
-        const render = () => {
-            // Clear board
-            ctx.fillStyle = '#050505';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw bounding border
-            ctx.strokeStyle = '#10b98120';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-            const snake = snakeRef.current;
-            const food = foodRef.current;
-
-            // Draw Bug Food (emoji)
-            ctx.font = `${GRID_SIZE - 2}px serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(
-                foodEmojiRef.current,
-                food.x * GRID_SIZE + GRID_SIZE / 2,
-                food.y * GRID_SIZE + GRID_SIZE / 2
-            );
-
-            // Draw Snake Body
-            snake.forEach((cell, index) => {
-                const isHead = index === 0;
-                
-                // Outer glow shadow
-                ctx.shadowColor = '#10b981';
-                ctx.shadowBlur = isHead ? 6 : 2;
-
-                ctx.fillStyle = isHead ? '#34d399' : '#047857'; // bright head, darker tail
-                ctx.fillRect(
-                    cell.x * GRID_SIZE + 1,
-                    cell.y * GRID_SIZE + 1,
-                    GRID_SIZE - 2,
-                    GRID_SIZE - 2
-                );
-
-                // Reset shadow values for next draw pass
-                ctx.shadowBlur = 0;
-            });
-
-            // Start screen layout overlay
-            if (!isStarted && !gameOver) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#10b981';
-                ctx.font = '14px monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('SYSTEM READY: CORE OFFLINE', canvas.width / 2, canvas.height / 2 - 15);
-                ctx.font = '9px monospace';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText('SELECT CORE SPEED ON THE RIGHT', canvas.width / 2, canvas.height / 2 + 15);
-                ctx.fillStyle = '#6b7280';
-                ctx.fillText('Press SPACE, Arrow keys or click START ENGINE', canvas.width / 2, canvas.height / 2 + 45);
-            }
-
-            // Pause screen layout overlay
-            if (isStarted && isPausedRef.current && !gameOver) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#10b981';
-                ctx.font = '16px monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2);
-                ctx.font = '9px monospace';
-                ctx.fillText('Press SPACE to Resume', canvas.width / 2, canvas.height / 2 + 25);
-            }
-
-            // Game over screen layout overlay
-            if (gameOver) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.shadowColor = '#ef4444';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = '#ef4444';
-                ctx.font = '22px monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('DEBUG FAILURE: SYSTEM CRASHED', canvas.width / 2, canvas.height / 2 - 30);
-                
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#10b981';
-                ctx.font = '13px monospace';
-                ctx.fillText(`Eradicated Bugs: ${score / 10}`, canvas.width / 2, canvas.height / 2 + 10);
-                ctx.fillText(`Mainframe Score: ${score}`, canvas.width / 2, canvas.height / 2 + 30);
-                
-                ctx.fillStyle = '#6b7280';
-                ctx.font = '10px monospace';
-                ctx.fillText('Press ENTER to compile & restart', canvas.width / 2, canvas.height / 2 + 65);
-                ctx.fillText('Press ESC to exit mainframe shell', canvas.width / 2, canvas.height / 2 + 85);
-            }
-
-            animationFrameId = requestAnimationFrame(render);
-        };
-
-        animationFrameId = requestAnimationFrame(render);
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [gameOver, score, isStarted]);
-
-    const handleDirectionChange = (newDir: string) => {
-        const currentDir = directionRef.current;
-        if (!isStarted) {
-            setIsStarted(true);
+        const context = canvas.current?.getContext('2d');
+        if (!context) return;
+        const cellSize = 20;
+        context.fillStyle = '#050b09'; context.fillRect(0, 0, columns * cellSize, rows * cellSize);
+        context.strokeStyle = '#103327'; context.lineWidth = 0.5;
+        for (let x = 0; x <= columns; x++) { context.beginPath(); context.moveTo(x * cellSize, 0); context.lineTo(x * cellSize, rows * cellSize); context.stroke(); }
+        for (let y = 0; y <= rows; y++) { context.beginPath(); context.moveTo(0, y * cellSize); context.lineTo(columns * cellSize, y * cellSize); context.stroke(); }
+        if (board.food) {
+            context.fillStyle = '#fb7185'; context.beginPath(); context.arc(board.food.x * cellSize + 10, board.food.y * cellSize + 10, 6, 0, Math.PI * 2); context.fill();
         }
-
-        switch (newDir) {
-            case 'UP':
-                if (currentDir !== 'DOWN') directionRef.current = 'UP';
-                break;
-            case 'DOWN':
-                if (currentDir !== 'UP') directionRef.current = 'DOWN';
-                break;
-            case 'LEFT':
-                if (currentDir !== 'RIGHT') directionRef.current = 'LEFT';
-                break;
-            case 'RIGHT':
-                if (currentDir !== 'LEFT') directionRef.current = 'RIGHT';
-                break;
-        }
+        board.snake.forEach((cell, index) => { context.shadowBlur = reducedMotion ? 0 : index === 0 ? 4 : 0; context.shadowColor = '#34d399'; context.fillStyle = index === 0 ? '#6ee7b7' : '#059669'; context.fillRect(cell.x * cellSize + 1, cell.y * cellSize + 1, 18, 18); });
+        context.shadowBlur = 0;
+    }, [board, reducedMotion]);
+    const startOrPause = () => {
+        const status = current.current.status;
+        if (status === 'over' || status === 'won') return;
+        commit({ ...current.current, status: status === 'running' ? 'paused' : 'running' }); focusBoard();
     };
-
-    const handlePauseToggle = () => {
-        if (!isStarted) {
-            setIsStarted(true);
-        } else {
-            togglePause();
-        }
+    const restart = () => { nextDirection.current = 'RIGHT'; queuedTurn.current = false; commit({ ...initialBoard(), status: 'running' }); focusBoard(); };
+    const turn = (direction: Direction) => {
+        const previous = current.current;
+        if (previous.status === 'over' || previous.status === 'won' || previous.status === 'paused') return;
+        if (!queuedTurn.current && direction !== opposite[previous.direction]) { nextDirection.current = direction; queuedTurn.current = true; }
+        if (previous.status === 'ready') commit({ ...previous, status: 'running' });
     };
-
-    return (
-        <div className="w-full flex flex-col items-center gap-6 select-none relative z-50">
-            {/* Header Score Display Dashboard */}
-            <div className="w-full max-w-[1010px] flex justify-between px-6 py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-xl font-mono text-[10px] md:text-xs text-emerald-400">
-                <div>SCORE: <span className="text-white font-bold">{score}</span></div>
-                <div className="text-emerald-500/60 font-semibold animate-pulse">TERMINAL ARCADE // DE-BUGGER RUN</div>
-                <div>HIGH SCORE: <span className="text-white font-bold">{highScore}</span></div>
-            </div>
-
-            {/* Game Canvas and Side Panel Wrapper */}
-            <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-[1010px]">
-                {/* Left Side: Game Canvas & Key Hints */}
-                <div className="flex flex-col items-center gap-4 flex-grow max-w-[800px] w-full">
-                    {/* Game Canvas Box */}
-                    <div className="relative w-full border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(16,185,129,0.1)] bg-[#050505] p-[1px]">
-                        <canvas
-                            ref={canvasRef}
-                            width={CELL_COUNT_X * GRID_SIZE}
-                            height={CELL_COUNT_Y * GRID_SIZE}
-                            className="block w-full aspect-[20/11]"
-                        />
-                    </div>
-
-                    {/* Bottom Instructions Panel */}
-                    <div className="font-mono text-[9px] text-gray-500 flex flex-wrap justify-center gap-x-6 gap-y-1 tracking-wider uppercase select-none pointer-events-none">
-                        <span>W, A, S, D or ARROWS to Navigate</span>
-                        <span>•</span>
-                        <span>SPACE to Pause</span>
-                        <span>•</span>
-                        <span>ESC to Quit</span>
-                    </div>
-
-                    {/* On-Screen D-Pad (visible on mobile only) */}
-                    <div className="flex flex-col items-center gap-4 mt-2 md:hidden w-full max-w-[280px]">
-                        {/* Grid layout for classic arcade D-pad */}
-                        <div className="grid grid-cols-3 gap-2 w-full aspect-square max-w-[160px]">
-                            {/* Row 1 */}
-                            <div />
-                            <button
-                                onClick={() => handleDirectionChange('UP')}
-                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
-                            >
-                                ▲
-                            </button>
-                            <div />
-
-                            {/* Row 2 */}
-                            <button
-                                onClick={() => handleDirectionChange('LEFT')}
-                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
-                            >
-                                ◀
-                            </button>
-                            <button
-                                onClick={handlePauseToggle}
-                                className="flex items-center justify-center border border-emerald-500/25 bg-black/60 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 text-[9px] font-mono font-bold cursor-pointer select-none leading-none"
-                            >
-                                {isPaused ? 'PLAY' : 'PAUS'}
-                            </button>
-                            <button
-                                onClick={() => handleDirectionChange('RIGHT')}
-                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
-                            >
-                                ▶
-                            </button>
-
-                            {/* Row 3 */}
-                            <div />
-                            <button
-                                onClick={() => handleDirectionChange('DOWN')}
-                                className="flex items-center justify-center border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 active:scale-90 rounded-xl h-11 w-11 font-bold cursor-pointer select-none"
-                            >
-                                ▼
-                            </button>
-                            <div />
-                        </div>
-
-                        {/* Reset / Action triggers on crash */}
-                        {gameOver && (
-                            <button
-                                onClick={resetGame}
-                                className="w-full py-2.5 px-4 bg-red-600/80 hover:bg-red-600 text-white font-bold rounded-xl cursor-pointer text-[10px] uppercase tracking-widest transition-all duration-300 text-center active:scale-95 shadow-md shadow-red-600/20"
-                            >
-                                Compile & Restart
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Right Side: Speed Controller Side Panel */}
-                <div className="flex flex-col justify-between p-5 border border-emerald-500/20 bg-black/40 backdrop-blur-md rounded-2xl w-full md:w-[180px] text-emerald-400 font-mono text-xs gap-5">
-                    <div>
-                        <div className="text-[10px] text-emerald-500/60 uppercase tracking-widest mb-3 font-bold">
-                            // Core Freq
-                        </div>
-                        <div className="space-y-4">
-                            <div>
-                                <div className="text-[10px] text-gray-500 uppercase">SYS_CLOCK</div>
-                                <div className="text-xl font-bold text-white tracking-tight">
-                                    {speed === 130 && '1.2 GHz'}
-                                    {speed === 90 && '2.4 GHz'}
-                                    {speed === 60 && '4.8 GHz'}
-                                    {speed === 40 && '8.0 GHz'}
-                                </div>
-                            </div>
-                            
-                            {/* Visual clock bar representation */}
-                            <div className="flex gap-1 items-end h-5 w-full bg-emerald-950/20 rounded p-1">
-                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 130 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
-                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 90 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
-                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 60 ? 'bg-emerald-500' : 'bg-emerald-950/30'}`} />
-                                <div className={`h-full w-[22%] rounded-sm transition-all duration-300 ${speed <= 40 ? 'bg-red-500 animate-pulse' : 'bg-emerald-950/30'}`} />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="text-[10px] text-emerald-500/60 uppercase tracking-widest mb-3 font-bold">
-                            // Core Speed
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            {[
-                                { label: 'SLOW', val: 130, freq: '1.2 GHz' },
-                                { label: 'STABLE', val: 90, freq: '2.4 GHz' },
-                                { label: 'TURBO', val: 60, freq: '4.8 GHz' },
-                                { label: 'HACKER', val: 40, freq: '8.0 GHz' }
-                            ].map((opt) => {
-                                const isActive = speed === opt.val;
-                                return (
-                                    <button
-                                        key={opt.val}
-                                        onClick={() => setSpeed(opt.val)}
-                                        className={`w-full py-2 px-3 border rounded-xl text-left transition-all duration-300 cursor-pointer text-[10px] uppercase font-bold flex flex-col ${
-                                            isActive
-                                                ? 'bg-emerald-500/20 border-emerald-400 text-white shadow-[0_0_12px_rgba(16,185,129,0.25)]'
-                                                : 'bg-transparent border-emerald-500/15 text-emerald-500/60 hover:border-emerald-500/40 hover:text-emerald-400'
-                                        }`}
-                                    >
-                                        <span>{opt.label}</span>
-                                        <span className="text-[8px] opacity-60 font-medium">{opt.freq}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {!isStarted && !gameOver && (
-                        <div className="mt-2">
-                            <button
-                                onClick={() => setIsStarted(true)}
-                                className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl cursor-pointer text-[10px] uppercase text-center tracking-widest transition-all duration-300 shadow-md shadow-emerald-600/30 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-                            >
-                                Start Engine
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
+    const keyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+        const keys: Record<string, Direction> = { ArrowUp: 'UP', w: 'UP', ArrowDown: 'DOWN', s: 'DOWN', ArrowLeft: 'LEFT', a: 'LEFT', ArrowRight: 'RIGHT', d: 'RIGHT' };
+        const direction = keys[event.key] || keys[event.key.toLowerCase()];
+        if (direction) { event.preventDefault(); turn(direction); }
+        else if (event.key === ' ' || event.key.toLowerCase() === 'p') { event.preventDefault(); if (!event.repeat) startOrPause(); }
+        else if (event.key.toLowerCase() === 'r') { event.preventDefault(); if (!event.repeat) restart(); }
+    };
+    const toggleSound = async () => {
+        const nextMuted = !mutedRef.current; mutedRef.current = nextMuted; setMuted(nextMuted);
+        if (!nextMuted) {
+            try { audio.current ??= new AudioContext(); await audio.current.resume(); }
+            catch { mutedRef.current = true; setMuted(true); }
+        } else if (audio.current?.state === 'running') await audio.current.suspend().catch(() => {});
+    };
+    const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 px-3 py-2.5 text-xs sm:text-sm text-gray-200 hover:border-emerald-400/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 focus-visible:outline-offset-2 disabled:opacity-40';
+    const finished = board.status === 'over' || board.status === 'won';
+    const announcement = board.status === 'over' ? `Game over. Final score: ${board.score}. Choose Restart to try again.` : board.status === 'won' ? `Board complete! Final score: ${board.score}.` : board.status === 'paused' ? 'Game paused. Choose Resume when ready.' : board.status === 'ready' ? 'Ready to play. Choose Start or use an arrow key on the board.' : 'Game running.';
+    return <div className="w-full max-w-4xl mx-auto space-y-4" onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) pause(); }} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onExit(); } }}>
+        <div className="flex flex-wrap justify-between gap-3 text-xs sm:text-sm"><p className="text-gray-400">Score <strong className="text-white ml-2">{board.score}</strong></p><p className="text-gray-400">{storageAvailable ? 'Best on this device' : 'Best this session'} <strong className="text-emerald-300 ml-2">{best}</strong></p></div>
+        <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={startOrPause} disabled={finished} className={buttonClass}>{board.status === 'running' ? <Pause size={15} /> : <Play size={15} />}{board.status === 'running' ? 'Pause' : board.status === 'ready' ? 'Start' : 'Resume'}</button>
+            <button type="button" onClick={restart} className={buttonClass}><RotateCcw size={15} />Restart</button>
+            <button type="button" onClick={toggleSound} aria-pressed={!muted} className={buttonClass}>{muted ? <VolumeX size={15} /> : <Volume2 size={15} />}{muted ? 'Unmute sound' : 'Mute sound'}</button>
+            <button type="button" onClick={onExit} className={buttonClass}><X size={15} />Exit game</button>
         </div>
-    );
+        <p id="arcade-keyboard-help" className="text-xs text-gray-500 leading-relaxed">Focus the board to use arrows or WASD. Space / P: pause or resume. R: restart. Escape: exit. Moving focus outside the game pauses it.</p>
+        <div className="relative rounded-xl border border-emerald-500/30 overflow-hidden bg-[#050b09]">
+            <canvas ref={canvas} width={columns * 20} height={rows * 20} tabIndex={0} aria-label="Snake game board. Collect pink bugs and avoid walls and your tail." aria-describedby="arcade-keyboard-help" onKeyDown={keyDown} className="block w-full aspect-[4/3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 focus-visible:outline-offset-[-3px]" style={{ touchAction: 'pan-y' }}>Use the on-screen controls or arrow keys on this canvas to steer the snake.</canvas>
+            {board.status !== 'running' && <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-black/65 pointer-events-none p-4"><span className="text-center text-base sm:text-2xl font-semibold text-white">{finished ? board.status === 'won' ? 'Board complete!' : 'Game over' : board.status === 'paused' ? 'Paused' : 'Ready to play'}</span></div>}
+        </div>
+        <p role="status" aria-live="polite" aria-atomic="true" className="text-xs text-gray-400 leading-relaxed">{announcement}</p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+            <div role="group" aria-label="Direction controls" className="grid grid-cols-3 gap-2">
+                {(['UP', 'LEFT', 'DOWN', 'RIGHT'] as Direction[]).map((direction, index) => <button key={direction} type="button" aria-label={`Move ${direction.toLowerCase()}`} disabled={finished || board.status === 'paused'} onClick={() => turn(direction)} className={`${buttonClass} w-12 h-12 ${index === 0 ? 'col-start-2' : index === 1 ? 'col-start-1 row-start-2' : 'row-start-2'}`}>{direction === 'UP' ? '↑' : direction === 'LEFT' ? '←' : direction === 'DOWN' ? '↓' : '→'}</button>)}
+            </div>
+            <label className="text-xs text-gray-400 flex items-center gap-3">Difficulty<select value={speed} onChange={event => { setSpeed(Number(event.target.value)); pause(); }} className="rounded-xl border border-white/15 bg-neutral-950 px-3 py-2.5 text-gray-200 focus-visible:outline focus-visible:outline-emerald-300"><option value={130}>Easy</option><option value={90}>Normal</option><option value={60}>Fast</option><option value={40}>Expert</option></select></label>
+        </div>
+    </div>;
 }
