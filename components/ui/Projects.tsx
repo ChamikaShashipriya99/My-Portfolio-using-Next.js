@@ -216,6 +216,7 @@ export default function Projects() {
                                     <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
                                         <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
                                             <Image
+                                                unoptimized={/^https?:/.test(project.image)}
                                                 src={project.image}
                                                 fill
                                                 sizes="(max-width: 639px) calc(100vw - 80px), (max-width: 1023px) 45vw, 30vw"
