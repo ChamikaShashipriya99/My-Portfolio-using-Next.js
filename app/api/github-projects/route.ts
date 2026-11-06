@@ -40,7 +40,9 @@ export async function GET(request: NextRequest) {
                     if (contents.ok) {
                         const entries: Entry[] = await contents.json();
                         if (Array.isArray(entries)) {
-                            const thumbnail = entries.find(entry => entry.type === 'file' && entry.name.toLowerCase() === 'thumbnail.png');
+                            const thumbnail = ['thumbnail.webp', 'thumbnail.png']
+                                .map(name => entries.find(entry => entry.type === 'file' && entry.name.toLowerCase() === name && entry.download_url))
+                                .find(Boolean);
                             if (thumbnail?.download_url) image = thumbnail.download_url;
 
                         }

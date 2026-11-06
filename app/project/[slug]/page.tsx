@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { siteUrl } from '@/lib/site';
+import { getProjectThumbnail } from '@/lib/project-thumbnail';
 import ProjectPageClient from './ProjectPageClient';
 
 interface ProjectDetails {
@@ -42,7 +43,7 @@ async function getProjectData(slug: string): Promise<ProjectDetails | null> {
             tech: repoData.language ? [repoData.language] : ['Web'],
             github: repoData.html_url,
             live: repoData.homepage || repoData.html_url,
-            image: `https://opengraph.githubassets.com/1/ChamikaShashipriya99/${slug}`
+            image: await getProjectThumbnail(repoData.name, repoData.default_branch)
         };
     } catch (error) {
         console.error('Error fetching project:', error);
@@ -62,8 +63,7 @@ async function getRelatedProjects(excludeSlug: string): Promise<ProjectDetails[]
 
         const enhancedProjects = await Promise.all(filteredRepos.map(async (repo: any) => {
             const slug = repo.name;
-            // Try to find if thumbnail exists, otherwise fallback to OG
-            const thumbnailUrl = `https://raw.githubusercontent.com/ChamikaShashipriya99/${slug}/main/thumbnail.png`;
+            const thumbnailUrl = await getProjectThumbnail(slug, repo.default_branch);
 
             // Fetch readme for description snippet
             const readmeRes = await fetch(`https://raw.githubusercontent.com/ChamikaShashipriya99/${slug}/main/README.md`);
