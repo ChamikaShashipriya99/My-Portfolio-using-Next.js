@@ -18,7 +18,7 @@ export default function Hero() {
         <MotionConfig reducedMotion="user">
         <section id="home" className="hero-section relative min-h-[100svh] motion-reduce:[&_*]:animate-none flex items-center justify-center pt-36 sm:pt-40 pb-28 overflow-hidden">
             <span aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">01</span>
-            {!reducedMotion && <StarField count={120} />}
+            {!reducedMotion && <StarField count={60} />}
 
             {/* Film grain texture — premium editorial feel */}
             <div
@@ -73,7 +73,7 @@ export default function Hero() {
                             >
                                 <motion.span
                                     className="inline-block"
-                                    initial={{ y: '110%', opacity: 0 }}
+                                    initial={false}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{
                                         delay: 0.15 + i * 0.07,
@@ -90,7 +90,7 @@ export default function Hero() {
                     {/* SHASHIPRIYA — left-to-right clip wipe (preserves animated gradient) */}
                     <motion.span
                         onMouseEnter={reducedMotion ? undefined : scrambleSurname}
-                        initial={reducedMotion ? false : { clipPath: 'inset(0 100% 0 0)' }}
+                        initial={false}
                         animate={{ clipPath: 'inset(0 0% 0 0)' }}
                         transition={{ delay: 0.75, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                         className="text-[clamp(2rem,5.8vw,4.5rem)] lg:text-[clamp(2.5rem,4.6vw,4.5rem)] font-black tracking-tighter mb-1 leading-[1.05] w-full break-words cursor-default text-gradient-animated"

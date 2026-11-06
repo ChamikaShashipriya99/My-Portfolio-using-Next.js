@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { useInView } from 'framer-motion';
 
 interface Particle {
     x: number;
@@ -40,7 +41,9 @@ function makeParticles(count: number, w: number, h: number): Particle[] {
 export default function StarField({ count = 120 }: { count?: number }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    const visible = useInView(canvasRef, { margin: '100px' });
     useEffect(() => {
+        if (!visible) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -55,7 +58,10 @@ export default function StarField({ count = 120 }: { count?: number }) {
             particles = makeParticles(count, canvas.width, canvas.height);
         };
 
+        let lastFrame = 0;
         const draw = (ts: number) => {
+            if (document.hidden || ts - lastFrame < 33) { raf = requestAnimationFrame(draw); return; }
+            lastFrame = ts;
             const t = ts / 1000;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -90,7 +96,7 @@ export default function StarField({ count = 120 }: { count?: number }) {
             cancelAnimationFrame(raf);
             ro.disconnect();
         };
-    }, [count]);
+    }, [count, visible]);
 
     return (
         <canvas

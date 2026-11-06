@@ -24,6 +24,7 @@ export default function Skills3DCloud({ skills, paused, onSelect }: { skills: Sk
             return { x: Math.cos(theta) * ring, y, z: Math.sin(theta) * ring };
         });
         const draw = (time: number) => {
+            if ((stopped.current || document.hidden) && previous) { previous = time; frame = requestAnimationFrame(draw); return; }
             const elapsed = previous ? Math.min(time - previous, 40) : 0;
             previous = time;
             if (!stopped.current) angle += elapsed * 0.00012;

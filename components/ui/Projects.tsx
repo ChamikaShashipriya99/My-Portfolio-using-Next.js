@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import GlassCard from './GlassCard';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import ProjectInspectorModal from './ProjectInspectorModal';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+const ProjectInspectorModal = dynamic(() => import('./ProjectInspectorModal'), { ssr: false });
 
 interface Project {
+    slug: string;
     title: string;
     description: string;
     tech: string[];
@@ -35,6 +38,8 @@ const ProjectSkeleton = () => (
 );
 
 export default function Projects() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const near = useInView(sectionRef, { once: true, margin: '600px' });
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [displayCount, setDisplayCount] = useState(12);
@@ -42,12 +47,14 @@ export default function Projects() {
     const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!near) return;
         const fetchRepos = async () => {
             try {
                 const response = await fetch('/api/github-projects');
                 if (!response.ok) throw new Error('Projects unavailable');
                 const data = await response.json();
                 const projectData = data.projects.map((repo: { name: string; description: string | null; language: string | null; homepage: string | null; html_url: string; image: string }) => ({
+                    slug: repo.name,
                     title: repo.name.replace(/[-_]/g, ' '),
                     description: repo.description || 'Explore the project details and source code.',
                     tech: repo.language ? [repo.language] : ['Web'],
@@ -65,7 +72,7 @@ export default function Projects() {
         };
 
         fetchRepos();
-    }, []);
+    }, [near]);
 
     const { languages, counts } = React.useMemo(() => {
         if (projects.length === 0) return { languages: ['All'], counts: { All: 0 } as Record<string, number> };
@@ -128,7 +135,7 @@ export default function Projects() {
             : `Showing ${visibleProjects.length} of ${filteredProjects.length} Repositories (${selectedLanguage})`;
 
     return (
-        <section id="projects" className="py-12 sm:py-16 5xl:py-20 relative">
+        <section ref={sectionRef} id="projects" className="py-12 sm:py-16 5xl:py-20 relative">
             <span aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-6 font-black text-white opacity-[0.03] text-[8rem] sm:text-[10rem] md:text-[14rem] lg:text-[18rem] leading-none tracking-tighter">04</span>
             <div className="container mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
@@ -199,7 +206,7 @@ export default function Projects() {
                             // Render Actual Projects
                             visibleProjects.map((project) => (
                                 <motion.div
-                                    key={project.title}
+                                    key={project.slug}
                                     layout
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -208,13 +215,17 @@ export default function Projects() {
                                 >
                                     <GlassCard className="h-full flex flex-col group p-4 3xl:p-8">
                                         <div className="aspect-video mb-6 rounded-2xl overflow-hidden bg-neutral-900 border border-white/5 relative">
-                                            <img
+                                            <Image
                                                 src={project.image}
+                                                fill
+                                                sizes="(max-width: 639px) calc(100vw - 80px), (max-width: 1023px) 45vw, 30vw"
                                                 alt={project.title}
                                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100"
                                                 onError={(e) => {
                                                     const image = e.currentTarget;
-                                                    if (!image.src.endsWith('/project-placeholder.svg')) image.src = '/project-placeholder.svg';
+                                                    if (image.dataset.fallback) return;
+                                                    image.dataset.fallback = 'true'; image.removeAttribute('srcset');
+                                                    image.src = '/project-placeholder.svg';
                                                 }}
                                             />
                                             <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors" />
@@ -243,7 +254,7 @@ export default function Projects() {
                                                 )}
                                             </div>
                                             <button
-                                                onClick={() => setSelectedSlug(project.title.toLowerCase().replace(/ /g, '-'))}
+                                                onClick={() => setSelectedSlug(project.slug)}
                                                 className="w-full py-3 px-2 bg-blue-600/10 border border-blue-600/20 text-blue-500 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center hover:bg-blue-600 hover:text-white transition-all break-words cursor-pointer"
                                             >
                                                 View Project Intel

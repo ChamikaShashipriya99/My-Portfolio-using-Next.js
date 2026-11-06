@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import emailjs from '@emailjs/browser';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, MapPin, Phone, Send, X } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { contactLimits, validateContact, type ContactErrors, type ContactFields } from '@/lib/contact-validation';
@@ -57,6 +56,7 @@ export default function Contact() {
         if (!values) return;
         sending.current = true; setLoading(true); setFeedback(null);
         try {
+            const { default: emailjs } = await import('@emailjs/browser');
             await emailjs.send('service_mz488cd', 'template_j1ia91i', values, {
                 publicKey: 'PNeYKrOGJd3zQ3U-U',
                 limitRate: { id: 'portfolio-contact', throttle: 15000 },

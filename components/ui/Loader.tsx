@@ -20,7 +20,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
         document.body.style.overflow = 'hidden';
         const timer = window.setTimeout(() => {
             if (!finished.current) { finished.current = true; complete.current(); }
-        }, reducedMotion ? 150 : 1700);
+        }, reducedMotion ? 150 : 900);
         const keyboard = (event: KeyboardEvent) => {
             if (event.key === 'Escape') { event.preventDefault(); if (!finished.current) { finished.current = true; complete.current(); } }
             if (event.key === 'Tab') { event.preventDefault(); skip.current?.focus(); }
@@ -28,7 +28,7 @@ export default function Loader({ onComplete }: { onComplete: () => void }) {
         document.addEventListener('keydown', keyboard);
         return () => { window.clearTimeout(timer); document.body.style.overflow = previous; document.removeEventListener('keydown', keyboard); };
     }, [reducedMotion]);
-    return <motion.div role="dialog" aria-modal="true" aria-label="Portfolio introduction" className="fixed inset-0 z-[100] overflow-hidden" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0.15 : 0.65 }}>
+    return <motion.div role="dialog" aria-modal="true" aria-label="Portfolio introduction" className="fixed inset-0 z-[100] overflow-hidden" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0.15 : 0.45 }}>
         <motion.div className="absolute inset-0 bg-[#03060d]" exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0.15 : 0.35 }} />
         {!reducedMotion && <>
             <motion.svg aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="none" className="absolute inset-0 h-full w-full pointer-events-none" initial={{ x: '-8%', opacity: 0 }} animate={{ x: '0%', opacity: 1 }} exit={{ x: '110%', opacity: 0 }} transition={{ duration: 0.65, ease: [0.76, 0, 0.24, 1] }}>

@@ -29,8 +29,10 @@ export default function ContributionSkyline() {
     const reducedMotion = useReducedMotion();
     const sectionRef = useRef<HTMLElement>(null);
     const isInView = useInView(sectionRef, { amount: 0.2 });
+    const near = useInView(sectionRef, { once: true, margin: '600px' });
 
     useEffect(() => {
+        if (!near) return;
         const controller = new AbortController();
         setLoading(true);
         setError(false);
@@ -54,7 +56,7 @@ export default function ContributionSkyline() {
         }
         load();
         return () => controller.abort();
-    }, [year]);
+    }, [year, near]);
 
     useEffect(() => {
         const controller = new AbortController();

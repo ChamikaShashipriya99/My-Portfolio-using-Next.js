@@ -5,11 +5,21 @@ import { ReactNode, useEffect } from 'react';
 
 export default function SmoothScrolling({ children }: { children: ReactNode }) {
     useEffect(() => {
-        // Register PWA Service Worker
-        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => {})
-                .catch((err) => console.error('Service Worker registration failed:', err));
+        let idle: number | undefined;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const register = () => { void navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(() => {}); };
+        if ('serviceWorker' in navigator) {
+            if (process.env.NODE_ENV === 'production') {
+                if ('requestIdleCallback' in window) idle = window.requestIdleCallback(register, { timeout: 4000 });
+                else timer = setTimeout(register, 3000);
+            } else {
+                void navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        const script = registration.active?.scriptURL || registration.waiting?.scriptURL;
+                        if (script && new URL(script).pathname === '/sw.js') void registration.unregister();
+                    });
+                }).catch(() => {});
+            }
         }
 
         const handleContextMenu = (e: MouseEvent) => {
@@ -20,6 +30,8 @@ export default function SmoothScrolling({ children }: { children: ReactNode }) {
 
         return () => {
             document.removeEventListener('contextmenu', handleContextMenu);
+            if (idle !== undefined) window.cancelIdleCallback(idle);
+            if (timer) clearTimeout(timer);
         };
     }, []);
 

@@ -1,93 +1,33 @@
-const CACHE_NAME = 'chamik-dev-portfolio-cache-v2';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/manifest.json',
-  '/favicon.png',
-  '/noise.svg',
-  '/portfolio-preview.png',
-  '/resume.pdf'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
+const CACHE_NAME = 'chamik-dev-portfolio-cache-v3';
+const PREFIX = 'chamik-dev-portfolio-cache-';
+const STATIC_ASSETS = new Set(['/manifest.json', '/favicon.png', '/noise.svg', '/icon-192.png', '/icon-512.png', '/social-preview.jpg']);
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['/manifest.json', '/favicon.png', '/noise.svg'])));
   self.skipWaiting();
 });
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name)))).then(() => self.clients.claim()));
 });
-
-self.addEventListener('fetch', (event) => {
-  // Only cache GET requests
-  if (event.request.method !== 'GET') return;
-
-  // Avoid caching third-party APIs or analytics
+self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) {
-    return;
-  }
-
-  // Keep navigations current; retain an offline fallback.
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/')) return;
   if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request).then(async (response) => {
+    event.respondWith(fetch(event.request).then(response => {
       if (response.ok) {
-        const cache = await caches.open(CACHE_NAME);
-        await cache.put(event.request, response.clone());
+        const copy = response.clone();
+        event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)));
       }
       return response;
     }).catch(async () => (await caches.match(event.request)) || (await caches.match('/')) || Response.error()));
     return;
   }
-
-  // Development bundles and API data must always come from the server.
-  if (url.pathname.startsWith('/_next/') || url.pathname.startsWith('/api/')) return;
-
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch in background to update cache (Stale-While-Revalidate)
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse);
-            });
-          }
-        }).catch(() => {/* Ignore network errors offline */});
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return networkResponse;
-      }).catch(() => {
-        // Return cached page shell if navigation request fails offline
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/');
-        }
-      });
-    })
-  );
+  if (!STATIC_ASSETS.has(url.pathname)) return;
+  event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+    const cached = await cache.match(event.request);
+    if (cached) return cached;
+    const response = await fetch(event.request);
+    if (response.ok) event.waitUntil(cache.put(event.request, response.clone()));
+    return response;
+  }));
 });

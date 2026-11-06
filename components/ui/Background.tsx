@@ -27,6 +27,12 @@ const sections = [
 export default function Background() {
     const [active, setActive] = useState(0);
     const reducedMotion = useReducedMotion();
+    const [pageVisible, setPageVisible] = useState(true);
+    useEffect(() => {
+        const update = () => setPageVisible(!document.hidden);
+        document.addEventListener('visibilitychange', update);
+        return () => document.removeEventListener('visibilitychange', update);
+    }, []);
     useEffect(() => {
         if (reducedMotion) return;
         let frame = 0;
@@ -62,10 +68,11 @@ export default function Background() {
         <motion.div key={ribbonIndex} initial={false} animate={{ left: current.x, top: current.y, rotate: ribbonIndex === 0 ? current.rotate : -18 }} transition={transition}
             className="absolute w-[125vw] h-[clamp(300px,65vh,760px)] -translate-x-1/2 -translate-y-1/2">
             <motion.div
-                animate={reducedMotion ? { y: 0, rotate: 0, scaleY: 1 } : { y: ribbonIndex === 0 ? [0, -12, 0, 12, 0] : [0, 12, 0, -12, 0], rotate: [0, 1.2, 0, -1.2, 0], scaleY: [1, 1.06, 1, 0.95, 1] }}
+                animate={reducedMotion || !pageVisible ? { y: 0, rotate: 0, scaleY: 1 } : { y: ribbonIndex === 0 ? [0, -12, 0, 12, 0] : [0, 12, 0, -12, 0], rotate: [0, 1.2, 0, -1.2, 0], scaleY: [1, 1.06, 1, 0.95, 1] }}
                 transition={reducedMotion ? { duration: 0 } : { duration: ribbonIndex === 0 ? 10 : 12, repeat: Infinity, ease: 'easeInOut' }}
                 className="w-full h-full origin-center"
             >
+            <div className="absolute inset-[18%] rounded-full opacity-20 bg-[radial-gradient(ellipse,rgba(37,99,235,0.6),transparent_70%)]" />
             <svg viewBox="0 0 500 500" className="w-full h-full overflow-visible" preserveAspectRatio="none" focusable="false">
                 <defs>
                     <linearGradient id={`section-liquid-fill-${ribbonIndex}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -85,12 +92,9 @@ export default function Background() {
                         <stop offset="0%" stopColor="#01040d" stopOpacity="0.8" /><stop offset="43%" stopColor="#050816" stopOpacity="0" />
                         <stop offset="68%" stopColor="#c7e4ff" stopOpacity="0.2" /><stop offset="77%" stopColor="#00030d" stopOpacity="0.7" /><stop offset="100%" stopColor="#000" stopOpacity="0" />
                     </linearGradient>
-                    <filter id={`section-liquid-glow-${ribbonIndex}`} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18" /></filter>
-                    <filter id={`ribbon-shadow-${ribbonIndex}`} x="-30%" y="-40%" width="160%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="9" floodColor="#00030e" floodOpacity="0.65" /></filter>
                     <clipPath id={`ribbon-surface-${ribbonIndex}`}><motion.path initial={false} animate={{ d: outlines[(current.shape + ribbonIndex * 2) % outlines.length] }} transition={transition} /></clipPath>
                 </defs>
-                <motion.path initial={false} animate={{ d: outlines[(current.shape + ribbonIndex * 2) % outlines.length] }} transition={transition} fill="#2563eb" filter={`url(#section-liquid-glow-${ribbonIndex})`} opacity="0.16" />
-                <g opacity={ribbonIndex === 0 ? 0.46 : 0.32} filter={`url(#ribbon-shadow-${ribbonIndex})`}>
+                <g opacity={ribbonIndex === 0 ? 0.46 : 0.32}>
                     <motion.path initial={false} animate={{ d: outlines[(current.shape + ribbonIndex * 2) % outlines.length] }} transition={transition} fill={`url(#section-liquid-fill-${ribbonIndex})`} />
                     <g clipPath={`url(#ribbon-surface-${ribbonIndex})`}>
                         <rect width="500" height="500" fill={`url(#ribbon-sheen-${ribbonIndex})`} />

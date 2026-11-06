@@ -1,5 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
+import { siteUrl } from '@/lib/site';
 import ProjectPageClient from './ProjectPageClient';
 
 interface ProjectDetails {
@@ -102,19 +103,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     if (!project) {
         return {
-            title: 'Project Not Found | Chamika Shashipriya',
+            title: 'Project unavailable',
+            robots: { index: false, follow: true },
             description: 'The requested project could not be found.'
         };
     }
 
     return {
-        title: `${project.name} | Project Intel`,
+        title: project.name,
+        alternates: { canonical: `${siteUrl}/project/${encodeURIComponent(slug)}` },
         description: project.description,
         openGraph: {
             title: `${project.name} | Chamika Shashipriya`,
             description: project.description,
             images: [project.image],
             type: 'website',
+            url: `${siteUrl}/project/${encodeURIComponent(slug)}`,
         },
         twitter: {
             card: 'summary_large_image',
